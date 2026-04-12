@@ -137,13 +137,13 @@ export function MortgageCalculator() {
             <p className="text-xs text-muted-foreground">Property tax + maintenance included</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Field label="Home Price" value={homePrice} onChange={setHomePrice} prefix="$" />
-            <Field label="Down Payment %" value={downPaymentPct} onChange={setDownPaymentPct} suffix="%" />
-            <Field label="Interest Rate" value={interestRate} onChange={setInterestRate} suffix="%" step={0.1} />
-            <Field label="Mortgage Term (years)" value={loanTermYears} onChange={setLoanTermYears} />
-            <Field label="Property Tax Rate" value={propertyTaxRate} onChange={setPropertyTaxRate} suffix="%" step={0.05} />
-            <Field label="Home Insurance / yr" value={homeInsurance} onChange={setHomeInsurance} prefix="$" />
-            <Field label="Maintenance / yr" value={maintenancePct} onChange={setMaintenancePct} suffix="% of home" step={0.1} />
+            <Field label="Home Price" value={homePrice} onChange={setHomePrice} prefix="$" hint="Purchase price of the house you're considering" />
+            <Field label="Down Payment %" value={downPaymentPct} onChange={setDownPaymentPct} suffix="%" hint="20%+ avoids CMHC mortgage insurance in Canada" />
+            <Field label="Interest Rate" value={interestRate} onChange={setInterestRate} suffix="%" step={0.1} hint="Current fixed mortgage rate from your bank" />
+            <Field label="Mortgage Term (years)" value={loanTermYears} onChange={setLoanTermYears} hint="Amortization period — 25 yrs is standard in Canada" />
+            <Field label="Property Tax Rate" value={propertyTaxRate} onChange={setPropertyTaxRate} suffix="%" step={0.05} hint="GTA averages 0.6-0.8% of assessed home value" />
+            <Field label="Home Insurance / yr" value={homeInsurance} onChange={setHomeInsurance} prefix="$" hint="Annual homeowner's insurance premium" />
+            <Field label="Maintenance / yr" value={maintenancePct} onChange={setMaintenancePct} suffix="% of home" step={0.1} hint="Rule of thumb: 1% of home value for repairs & upkeep" />
           </CardContent>
         </Card>
 
@@ -154,9 +154,9 @@ export function MortgageCalculator() {
             <p className="text-xs text-muted-foreground">No property tax or maintenance</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Field label="Monthly Rent" value={monthlyRent} onChange={setMonthlyRent} prefix="$" />
-            <Field label="Tenant Insurance / yr" value={rentInsurance} onChange={setRentInsurance} prefix="$" />
-            <Field label="Annual Rent Increase" value={rentIncreasePct} onChange={setRentIncreasePct} suffix="%" step={0.1} />
+            <Field label="Monthly Rent" value={monthlyRent} onChange={setMonthlyRent} prefix="$" hint="What you'd pay to rent a comparable unit in the GTA" />
+            <Field label="Tenant Insurance / yr" value={rentInsurance} onChange={setRentInsurance} prefix="$" hint="Renter's insurance — covers your belongings & liability" />
+            <Field label="Annual Rent Increase" value={rentIncreasePct} onChange={setRentIncreasePct} suffix="%" step={0.1} hint="Ontario guideline is ~2.5%, but new builds are exempt" />
           </CardContent>
         </Card>
 
@@ -167,10 +167,10 @@ export function MortgageCalculator() {
             <p className="text-xs text-muted-foreground">Market & investment projections</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Field label="Annual Income (gross)" value={annualIncome} onChange={setAnnualIncome} prefix="$" />
-            <Field label="Home Appreciation" value={homeAppreciationPct} onChange={setHomeAppreciationPct} suffix="% / yr" step={0.1} />
-            <Field label="Investment Return" value={investReturnPct} onChange={setInvestReturnPct} suffix="% / yr" step={0.1} />
-            <Field label="Years to Compare" value={yearsToCompare} onChange={setYearsToCompare} />
+            <Field label="Annual Income (gross)" value={annualIncome} onChange={setAnnualIncome} prefix="$" hint="Pre-tax salary — used to calculate housing affordability" />
+            <Field label="Home Appreciation" value={homeAppreciationPct} onChange={setHomeAppreciationPct} suffix="% / yr" step={0.1} hint="How fast the home gains value — GTA avg ~3-5% historically" />
+            <Field label="Investment Return" value={investReturnPct} onChange={setInvestReturnPct} suffix="% / yr" step={0.1} hint="Expected return if you invest savings instead — S&P 500 avg ~7%" />
+            <Field label="Years to Compare" value={yearsToCompare} onChange={setYearsToCompare} hint="How many years to project — longer favors buying" />
           </CardContent>
         </Card>
       </div>
@@ -242,6 +242,7 @@ function Field({
   prefix,
   suffix,
   step = 1,
+  hint,
 }: {
   label: string;
   value: number;
@@ -249,6 +250,7 @@ function Field({
   prefix?: string;
   suffix?: string;
   step?: number;
+  hint?: string;
 }) {
   return (
     <div>
@@ -264,6 +266,7 @@ function Field({
         />
         {suffix && <span className="text-xs text-muted-foreground">{suffix}</span>}
       </div>
+      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground/60">{hint}</p>}
     </div>
   );
 }
