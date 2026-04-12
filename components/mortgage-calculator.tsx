@@ -107,6 +107,9 @@ export function MortgageCalculator() {
     const ownPctIncome = (totalMonthlyOwn / monthlyIncome) * 100;
     const rentPctIncome = (totalMonthlyRent / monthlyIncome) * 100;
 
+    // Investment breakdown for renters
+    const monthlySavingsInitial = Math.max(0, totalMonthlyOwn - totalMonthlyRent);
+
     return {
       monthlyMortgage,
       totalMonthlyOwn,
@@ -118,6 +121,9 @@ export function MortgageCalculator() {
       finalRentWealth,
       verdict,
       difference,
+      downPayment,
+      monthlySavingsInitial,
+      finalInvestmentBalance: investmentBalance,
     };
   }, [
     homePrice, downPaymentPct, interestRate, loanTermYears,
@@ -198,6 +204,35 @@ export function MortgageCalculator() {
               {results.verdict}
             </p>
             <p className="text-xs text-muted-foreground">by {fmt(results.difference)}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Investment Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">Investment Factor (if renting)</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            If you rent instead of buying, your down payment and monthly savings get invested
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Down payment invested</p>
+              <p className="text-lg font-bold">{fmt(results.downPayment)}</p>
+              <p className="text-[10px] text-muted-foreground/60">Lump sum invested on day one instead of buying</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Monthly savings invested</p>
+              <p className="text-lg font-bold">{fmt(results.monthlySavingsInitial)}</p>
+              <p className="text-[10px] text-muted-foreground/60">Difference between owning cost and renting cost, invested monthly</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Portfolio after {yearsToCompare} yrs</p>
+              <p className="text-lg font-bold text-blue-500">{fmt(results.finalInvestmentBalance)}</p>
+              <p className="text-[10px] text-muted-foreground/60">Total value at {investReturnPct}% annual return</p>
+            </div>
           </div>
         </CardContent>
       </Card>
