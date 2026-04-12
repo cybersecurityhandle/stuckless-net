@@ -32,7 +32,8 @@ export function MortgageCalculator() {
   const [rentInsurance, setRentInsurance] = useState(300);
   const [rentIncreasePct, setRentIncreasePct] = useState(3);
 
-  // === Assumptions ===
+  // === Income & Assumptions ===
+  const [annualIncome, setAnnualIncome] = useState(85000);
   const [homeAppreciationPct, setHomeAppreciationPct] = useState(3);
   const [investReturnPct, setInvestReturnPct] = useState(7);
   const [yearsToCompare, setYearsToCompare] = useState(10);
@@ -101,10 +102,17 @@ export function MortgageCalculator() {
     const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT CONDO";
     const difference = Math.abs(finalOwnEquity - finalRentWealth);
 
+    const monthlyIncome = annualIncome / 12;
+    const totalMonthlyRent = monthlyRent + monthlyRentInsurance;
+    const ownPctIncome = (totalMonthlyOwn / monthlyIncome) * 100;
+    const rentPctIncome = (totalMonthlyRent / monthlyIncome) * 100;
+
     return {
       monthlyMortgage,
       totalMonthlyOwn,
-      totalMonthlyRent: monthlyRent + monthlyRentInsurance,
+      totalMonthlyRent,
+      ownPctIncome,
+      rentPctIncome,
       chartData,
       finalOwnEquity,
       finalRentWealth,
@@ -115,7 +123,7 @@ export function MortgageCalculator() {
     homePrice, downPaymentPct, interestRate, loanTermYears,
     propertyTaxRate, homeInsurance, maintenancePct,
     monthlyRent, rentInsurance, rentIncreasePct, homeAppreciationPct,
-    investReturnPct, yearsToCompare,
+    investReturnPct, yearsToCompare, annualIncome,
   ]);
 
   return (
@@ -159,6 +167,7 @@ export function MortgageCalculator() {
             <p className="text-xs text-muted-foreground">Market & investment projections</p>
           </CardHeader>
           <CardContent className="space-y-3">
+            <Field label="Annual Income (gross)" value={annualIncome} onChange={setAnnualIncome} prefix="$" />
             <Field label="Home Appreciation" value={homeAppreciationPct} onChange={setHomeAppreciationPct} suffix="% / yr" step={0.1} />
             <Field label="Investment Return" value={investReturnPct} onChange={setInvestReturnPct} suffix="% / yr" step={0.1} />
             <Field label="Years to Compare" value={yearsToCompare} onChange={setYearsToCompare} />
@@ -172,12 +181,16 @@ export function MortgageCalculator() {
           <div className="text-center sm:text-left">
             <p className="text-xs text-muted-foreground">House monthly cost</p>
             <p className="text-xl font-bold">{fmt(results.totalMonthlyOwn)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Mortgage + tax + insurance + maintenance</p>
+            <p className={`text-xs mt-1 ${results.ownPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
+              {results.ownPctIncome.toFixed(0)}% of income {results.ownPctIncome > 30 ? "(stretched)" : "(healthy)"}
+            </p>
           </div>
           <div className="text-center sm:text-left">
             <p className="text-xs text-muted-foreground">Condo monthly cost</p>
             <p className="text-xl font-bold">{fmt(results.totalMonthlyRent)}</p>
-            <p className="text-xs text-muted-foreground mt-1">Rent + tenant insurance</p>
+            <p className={`text-xs mt-1 ${results.rentPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
+              {results.rentPctIncome.toFixed(0)}% of income {results.rentPctIncome > 30 ? "(stretched)" : "(healthy)"}
+            </p>
           </div>
           <div className="text-center">
             <p className="text-xs text-muted-foreground">After {yearsToCompare} years, better to</p>
