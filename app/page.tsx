@@ -26,10 +26,10 @@ const cards = [
   },
   {
     title: "/finance",
-    description: "// market analysis & portfolio tracking",
+    description: "// rent vs buy mortgage calculator",
     href: "/finance",
     icon: TrendingUp,
-    status: "LOCKED",
+    status: "ACTIVE",
   },
   {
     title: "/about",

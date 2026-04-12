@@ -10,6 +10,7 @@ export function Navbar() {
   const links = [
     { href: "/", label: "Home" },
     { href: "/intel", label: "Threat Intel" },
+    { href: "/finance", label: "Finance" },
   ];
 
   return (
