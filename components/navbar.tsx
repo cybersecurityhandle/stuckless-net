@@ -9,7 +9,7 @@ export function Navbar() {
 
   const links = [
     { href: "/", label: "Home" },
-    { href: "/threatintel", label: "Threat Intel" },
+    { href: "/intel", label: "Threat Intel" },
   ];
 
   return (

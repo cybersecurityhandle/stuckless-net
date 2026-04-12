@@ -17,7 +17,7 @@ export default function Home() {
         <HubCard
           title="Threat Intel"
           description="Live CVE feed, vulnerability search, threat actor directory, and security analytics."
-          href="/threatintel"
+          href="/intel"
           icon={Shield}
         />
         <HubCard
