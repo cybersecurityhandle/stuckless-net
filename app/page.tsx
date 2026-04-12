@@ -4,13 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Shield, TrendingUp, User, Code } from "lucide-react";
 
-const ASCII_ART = `
- ███████╗████████╗██╗   ██╗ ██████╗██╗  ██╗██╗     ███████╗███████╗███████╗
- ██╔════╝╚══██╔══╝██║   ██║██╔════╝██║ ██╔╝██║     ██╔════╝██╔════╝██╔════╝
- ███████╗   ██║   ██║   ██║██║     █████╔╝ ██║     █████╗  ███████╗███████╗
- ╚════██║   ██║   ██║   ██║██║     ██╔═██╗ ██║     ██╔══╝  ╚════██║╚════██║
- ███████║   ██║   ╚██████╔╝╚██████╗██║  ██╗███████╗███████╗███████║███████║
- ╚══════╝   ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚══════╝`;
+const ASCII_BORDER = "═══════════════════════════════════════";
 
 const BOOT_LINES = [
   "[*] Initializing system...",
@@ -89,10 +83,14 @@ export default function Home() {
   return (
     <div className="scanlines crt-flicker min-h-[calc(100vh-4rem)] bg-black font-mono">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        {/* ASCII Art Header */}
-        <pre className="text-glow mb-6 overflow-x-auto text-[0.45rem] leading-tight text-green-500 sm:text-[0.55rem] md:text-xs">
-          {ASCII_ART}
-        </pre>
+        {/* Header */}
+        <div className="mb-6 text-center">
+          <pre className="text-glow text-xs text-green-500/40 sm:text-sm">{ASCII_BORDER}</pre>
+          <h1 className="text-glow my-2 text-4xl font-bold tracking-[0.3em] text-green-500 sm:text-5xl md:text-6xl">
+            STUCKLESS
+          </h1>
+          <pre className="text-glow text-xs text-green-500/40 sm:text-sm">{ASCII_BORDER}</pre>
+        </div>
 
         {/* Boot Sequence */}
         <div className="mb-8 space-y-1 text-sm text-green-500">
