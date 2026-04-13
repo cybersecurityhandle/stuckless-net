@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Shield, TrendingUp, User, Code } from "lucide-react";
 
-const ASCII_BORDER = "═══════════════════════════════════════";
+const ASCII_ART = [
+  "  ___  _____  _  _  ___  _  _ _    ___  ___  ___ ",
+  " / __||_   _|| || |/ __|| |/ /| |  | __|/ __|/ __|",
+  " \\__ \\  | |  | \\/ || (__ |   < | |__| _| \\__ \\\\__ \\",
+  " |___/  |_|   \\__/  \\___||_|\\_\\|____|___|___/|___/",
+];
 
 const BOOT_LINES = [
   "[*] Initializing system...",
@@ -83,13 +88,16 @@ export default function Home() {
   return (
     <div className="scanlines crt-flicker min-h-[calc(100vh-4rem)] bg-black font-mono">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-6 text-center">
-          <pre className="text-glow text-xs text-green-500/40 sm:text-sm">{ASCII_BORDER}</pre>
-          <h1 className="text-glow my-2 text-4xl font-bold tracking-[0.3em] text-green-500 sm:text-5xl md:text-6xl">
-            STUCKLESS
-          </h1>
-          <pre className="text-glow text-xs text-green-500/40 sm:text-sm">{ASCII_BORDER}</pre>
+        {/* ASCII Art Header */}
+        <div className="mb-6 overflow-x-auto">
+          <pre className="text-glow text-green-500 text-[0.5rem] leading-tight sm:text-xs md:text-sm lg:text-base text-center">
+{ASCII_ART.map((line, i) => (
+  <span key={i} className="block">{line}</span>
+))}
+          </pre>
+          <p className="text-center text-xs text-green-500/30 mt-2 tracking-[0.5em]">
+            CYBERSECURITY // FINANCE // TECHNOLOGY
+          </p>
         </div>
 
         {/* Boot Sequence */}
