@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.1"; // 1.5.1 = filter quarterly periods from annual extraction + fix CY gap filling
+const API_VERSION = "1.5.2"; // 1.5.2 = derive margin from EPS×shares for consistency
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -144,10 +144,12 @@ const REVENUE_CONCEPTS = [
   "SalesRevenueServicesNet",
 ];
 
+// Priority: "available to common stockholders" first (matches per-share analysis),
+// then total NetIncomeLoss as fallback for simple capital structures
 const NET_INCOME_CONCEPTS = [
+  "NetIncomeLossAvailableToCommonStockholdersBasic",
   "NetIncomeLoss",
   "ProfitLoss",
-  "NetIncomeLossAvailableToCommonStockholdersBasic",
   "NetIncomeLossAvailableToCommonStockholdersDiluted",
   "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
 ];
@@ -200,7 +202,8 @@ async function fetchEdgarData(ticker: string) {
     ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap", "dei"], true),
   };
 
-  const eps = extractEdgar(allFacts, EPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
+  // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
+  // This ensures consistency between displayed EPS, share count, and margin
   const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
 
   // Build year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
@@ -216,12 +219,11 @@ async function fetchEdgarData(ticker: string) {
   const allDates = new Set([
     ...Object.keys(revenues),
     ...Object.keys(netIncomes),
-    ...Object.keys(eps),
   ]);
 
   const yearData: Record<
     string,
-    { revenue?: number; netIncome?: number; shares?: number; eps?: number; dps?: number }
+    { revenue?: number; netIncome?: number; shares?: number; dps?: number }
   > = {};
 
   for (const date of allDates) {
@@ -230,7 +232,6 @@ async function fetchEdgarData(ticker: string) {
       revenue: revenues[date],
       netIncome: netIncomes[date],
       shares: shares[date] ?? sharesByYear[yr],
-      eps: eps[date],
       dps: dps[date],
     };
   }
@@ -387,14 +388,10 @@ export async function GET(req: NextRequest) {
       for (const [dateStr, data] of Object.entries(edgar.yearData)) {
         const endDate = new Date(dateStr);
         const year = endDate.getFullYear();
-        const hasIncome = data.netIncome != null || data.eps != null;
-        if (data.revenue == null || !hasIncome || data.shares == null) continue;
+        if (data.revenue == null || data.netIncome == null || data.shares == null) continue;
 
-        const netIncome =
-          data.netIncome ?? (data.eps && data.shares ? data.eps * data.shares : undefined);
-        if (netIncome == null) continue;
-
-        const epsVal = data.eps ?? netIncome / data.shares;
+        const netIncome = data.netIncome;
+        const epsVal = netIncome / data.shares; // Basic EPS = netIncome / basicShares
         const dpsVal = data.dps ?? 0;
 
         const sf = splitFactorAfterDate(splits, endDate);
@@ -410,17 +407,20 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 2. Fill/override with Yahoo Finance fundamentalsTimeSeries (more accurate for recent years)
+    // 2. Fill gaps with Yahoo Finance fundamentalsTimeSeries (only for years EDGAR doesn't cover)
     for (const entry of yfFundamentals as any[]) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const year = endDate.getFullYear();
+
+      // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks
+      if (yearMap[year]) continue;
 
       const revenue = entry.totalRevenue;
       const netIncome = entry.netIncome;
       const sharesOut = entry.ordinarySharesNumber;
       if (!revenue || !netIncome || !sharesOut) continue;
 
-      const epsVal = entry.dilutedEPS || netIncome / sharesOut;
+      const epsVal = netIncome / sharesOut;
       const dividendsPaid = Math.abs(
         entry.cashDividendsPaid || entry.commonStockDividendPaid || 0
       );
@@ -516,7 +516,7 @@ export async function GET(req: NextRequest) {
       const revenue = entry.totalRevenue || 0;
       const netIncome = entry.netIncome || 0;
       const sharesQ = entry.ordinarySharesNumber || 0;
-      const epsQ = entry.dilutedEPS || 0;
+      const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
       const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0);
 
       if (!yfCalAgg[cy])
@@ -539,7 +539,7 @@ export async function GET(req: NextRequest) {
         revenue: d.revenue,
         netIncome: d.netIncome,
         sharesOutstanding: d.shares,
-        eps: d.eps || d.netIncome / d.shares,
+        eps: d.netIncome / d.shares, // Always derive from netIncome/basicShares
         dps,
       };
     }
