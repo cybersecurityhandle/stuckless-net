@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.2.0"; // 1.2.0 = year-based shares lookup for dei/weighted avg alignment
+const API_VERSION = "1.3.0"; // 1.3.0 = stock split adjustment for EDGAR data
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -203,6 +203,25 @@ function getClosestPrice(historical: any[], targetDate: Date): number {
   return closest?.close || 0;
 }
 
+/**
+ * Compute cumulative split factor for a given date.
+ * Returns the factor to multiply shares by (and divide per-share values by)
+ * to convert as-filed values to current split-adjusted basis.
+ */
+function splitFactorAfterDate(
+  splits: Array<{ date: Date | string; numerator: number; denominator: number }>,
+  asOfDate: Date
+): number {
+  let factor = 1;
+  for (const split of splits) {
+    const splitDate = split.date instanceof Date ? split.date : new Date(split.date);
+    if (splitDate > asOfDate) {
+      factor *= split.numerator / split.denominator;
+    }
+  }
+  return factor;
+}
+
 // ── Main handler ───────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -230,8 +249,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Provide ?ticker= or ?search=" }, { status: 400 });
     }
 
-    // Fetch in parallel: SEC EDGAR (10+ years fundamentals), Yahoo (prices + info + recent fundamentals)
-    const [edgar, yfSummary, yfFundamentals, historical] = await Promise.all([
+    // Fetch in parallel: SEC EDGAR (10+ years fundamentals), Yahoo (prices + info + recent fundamentals + splits)
+    const startDate = new Date(new Date().getFullYear() - 20, 0, 1);
+    const [edgar, yfSummary, yfFundamentals, historical, chartData] = await Promise.all([
       fetchEdgarData(ticker).catch(() => null),
       yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
       yahooFinance
@@ -243,11 +263,20 @@ export async function GET(req: NextRequest) {
         })
         .catch(() => []),
       yahooFinance.historical(ticker, {
-        period1: new Date(new Date().getFullYear() - 20, 0, 1),
+        period1: startDate,
         period2: new Date(),
         interval: "1mo",
       }),
+      yahooFinance.chart(ticker, {
+        period1: startDate,
+        period2: new Date(),
+        interval: "3mo",
+        events: "splits",
+      }).catch(() => null),
     ]);
+
+    const splits: Array<{ date: Date | string; numerator: number; denominator: number }> =
+      (chartData as any)?.events?.splits || [];
 
     const companyName =
       yfSummary?.price?.longName ||
@@ -259,7 +288,7 @@ export async function GET(req: NextRequest) {
     // Build year data: prefer SEC EDGAR, fill gaps with Yahoo Finance
     const yearMap: Record<number, any> = {};
 
-    // 1. SEC EDGAR data (10+ years)
+    // 1. SEC EDGAR data (10+ years) — adjust for stock splits
     if (edgar?.yearData) {
       for (const [dateStr, data] of Object.entries(edgar.yearData)) {
         const endDate = new Date(dateStr);
@@ -275,13 +304,16 @@ export async function GET(req: NextRequest) {
         const epsVal = data.eps ?? netIncome / data.shares;
         const dpsVal = data.dps ?? 0;
 
+        // Adjust for any stock splits that occurred after this fiscal year end
+        const sf = splitFactorAfterDate(splits, endDate);
+
         yearMap[year] = {
           endDate: dateStr,
           revenue: data.revenue,
-          netIncome,
-          sharesOutstanding: data.shares,
-          eps: epsVal,
-          dps: dpsVal,
+          netIncome, // Revenue & net income are totals, not affected by splits
+          sharesOutstanding: data.shares * sf,
+          eps: epsVal / sf,
+          dps: dpsVal / sf,
         };
       }
     }
