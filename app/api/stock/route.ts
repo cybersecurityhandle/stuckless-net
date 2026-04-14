@@ -33,36 +33,42 @@ async function getTickerMap() {
 
 /**
  * Extract annual values from SEC EDGAR company facts.
- * Tries multiple XBRL concept names (companies use different ones).
+ * Merges data from ALL matching XBRL concept names (companies switch concepts over time).
  * Deduplicates by fiscal year end date, keeping the most recently filed value.
+ * Earlier concepts in the list take priority when dates overlap.
  */
 function extractEdgar(
-  gaap: Record<string, any>,
+  facts: Record<string, any>,
   conceptNames: string[],
-  units = "USD"
+  units = "USD",
+  namespaces = ["us-gaap"]
 ): Record<string, number> {
-  for (const name of conceptNames) {
-    const concept = gaap[name];
-    if (!concept) continue;
-    const entries: any[] = concept.units?.[units] || [];
-    const annuals = entries.filter((e: any) => e.form === "10-K");
-    if (annuals.length === 0) continue;
+  const result: Record<string, number> = {};
 
-    // Group by end date, keep latest filing
-    const byEnd: Record<string, any> = {};
-    for (const e of annuals) {
-      if (!byEnd[e.end] || e.filed > byEnd[e.end].filed) {
-        byEnd[e.end] = e;
+  // Iterate in reverse so earlier (higher-priority) concepts overwrite later ones
+  for (let i = conceptNames.length - 1; i >= 0; i--) {
+    for (const ns of namespaces) {
+      const nsData = facts[ns] || {};
+      const concept = nsData[conceptNames[i]];
+      if (!concept) continue;
+      const entries: any[] = concept.units?.[units] || [];
+      const annuals = entries.filter((e: any) => e.form === "10-K");
+      if (annuals.length === 0) continue;
+
+      // Group by end date, keep latest filing
+      const byEnd: Record<string, any> = {};
+      for (const e of annuals) {
+        if (!byEnd[e.end] || e.filed > byEnd[e.end].filed) {
+          byEnd[e.end] = e;
+        }
+      }
+
+      for (const [end, entry] of Object.entries(byEnd) as [string, any][]) {
+        result[end] = entry.val;
       }
     }
-
-    const result: Record<string, number> = {};
-    for (const [end, entry] of Object.entries(byEnd) as [string, any][]) {
-      result[end] = entry.val;
-    }
-    if (Object.keys(result).length > 0) return result;
   }
-  return {};
+  return result;
 }
 
 async function fetchEdgarData(ticker: string) {
@@ -78,10 +84,10 @@ async function fetchEdgarData(ticker: string) {
   });
   if (!res.ok) return null;
 
-  const facts = await res.json();
-  const gaap = facts.facts?.["us-gaap"] || {};
+  const factsJson = await res.json();
+  const allFacts = factsJson.facts || {};
 
-  const revenues = extractEdgar(gaap, [
+  const revenues = extractEdgar(allFacts, [
     "Revenues",
     "RevenueFromContractWithCustomerExcludingAssessedTax",
     "SalesRevenueNet",
@@ -89,7 +95,7 @@ async function fetchEdgarData(ticker: string) {
     "SalesRevenueServicesNet",
   ]);
 
-  const netIncomes = extractEdgar(gaap, [
+  const netIncomes = extractEdgar(allFacts, [
     "NetIncomeLoss",
     "ProfitLoss",
     "NetIncomeLossAvailableToCommonStockholdersBasic",
@@ -97,14 +103,23 @@ async function fetchEdgarData(ticker: string) {
     "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
   ]);
 
-  const shares = extractEdgar(
-    gaap,
+  // Try actual shares outstanding first (us-gaap + dei), fall back to weighted average
+  let shares = extractEdgar(
+    allFacts,
     ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
-    "shares"
+    "shares",
+    ["us-gaap", "dei"]
   );
+  if (Object.keys(shares).length === 0) {
+    shares = extractEdgar(
+      allFacts,
+      ["WeightedAverageNumberOfDilutedSharesOutstanding", "WeightedAverageNumberOfSharesOutstandingBasic"],
+      "shares"
+    );
+  }
 
   const eps = extractEdgar(
-    gaap,
+    allFacts,
     [
       "EarningsPerShareDiluted",
       "IncomeLossFromContinuingOperationsPerDilutedShare",
@@ -115,7 +130,7 @@ async function fetchEdgarData(ticker: string) {
   );
 
   const dps = extractEdgar(
-    gaap,
+    allFacts,
     [
       "CommonStockDividendsPerShareDeclared",
       "CommonStockDividendsPerShareCashPaid",
@@ -215,7 +230,7 @@ export async function GET(req: NextRequest) {
         })
         .catch(() => []),
       yahooFinance.historical(ticker, {
-        period1: new Date(new Date().getFullYear() - 12, 0, 1),
+        period1: new Date(new Date().getFullYear() - 20, 0, 1),
         period2: new Date(),
         interval: "1mo",
       }),
