@@ -326,55 +326,76 @@ export function StockScreener() {
           <div className="space-y-3">
             {sp500?.updated && (
               <p className="text-xs text-muted-foreground">
-                Last updated: {sp500.updated} · {sp500.count} stocks ·{" "}
-                {sp500Filtered.length} matching
+                Last updated: {sp500.updated} · {sp500.count} stocks · {sp500Filtered.length} matching
               </p>
             )}
-            <div className="flex flex-wrap gap-2">
-              <Input
-                placeholder="Search ticker or name…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-48"
-              />
-              <select
-                value={sectorFilter}
-                onChange={(e) => setSectorFilter(e.target.value)}
-                className="rounded-md border border-input bg-background px-3 py-1.5 text-sm text-foreground"
-              >
-                <option value="all">All Sectors</option>
-                {sectors.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-              <Input
-                placeholder="Min ROE %"
-                value={minROE}
-                onChange={(e) => setMinROE(e.target.value)}
-                className="w-24"
-                type="number"
-              />
-              <Input
-                placeholder="Min Margin %"
-                value={minMargin}
-                onChange={(e) => setMinMargin(e.target.value)}
-                className="w-28"
-                type="number"
-              />
-              <Input
-                placeholder="Min Score"
-                value={minScore}
-                onChange={(e) => setMinScore(e.target.value)}
-                className="w-24"
-                type="number"
-              />
+            <div className="flex flex-wrap gap-4 items-end">
+              {/* Search */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Search</label>
+                <Input
+                  placeholder="Ticker or name"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-44"
+                />
+              </div>
+              {/* Sector */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Sector</label>
+                <select
+                  value={sectorFilter}
+                  onChange={(e) => setSectorFilter(e.target.value)}
+                  className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground w-52"
+                >
+                  <option value="all">All Sectors</option>
+                  {sectors.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Min ROE */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Min ROE %</label>
+                <Input
+                  placeholder="e.g. 15"
+                  value={minROE}
+                  onChange={(e) => setMinROE(e.target.value)}
+                  className="w-28"
+                  type="number"
+                />
+              </div>
+              {/* Min Margin */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Min Margin %</label>
+                <Input
+                  placeholder="e.g. 10"
+                  value={minMargin}
+                  onChange={(e) => setMinMargin(e.target.value)}
+                  className="w-28"
+                  type="number"
+                />
+              </div>
+              {/* Min Score */}
+              <div className="flex flex-col gap-1">
+                <label className="text-xs text-muted-foreground">Min Score</label>
+                <Input
+                  placeholder="e.g. 50"
+                  value={minScore}
+                  onChange={(e) => setMinScore(e.target.value)}
+                  className="w-28"
+                  type="number"
+                />
+              </div>
+              {/* Clear */}
               {(search || sectorFilter !== "all" || minROE || minMargin || minScore) && (
                 <Button
                   variant="outline"
                   size="sm"
+                  className="mb-0.5"
                   onClick={() => { setSearch(""); setSectorFilter("all"); setMinROE(""); setMinMargin(""); setMinScore(""); }}
                 >
-                  Clear
+                  Clear filters
                 </Button>
               )}
             </div>
