@@ -7,9 +7,8 @@ const CACHE_HEADERS = {
 };
 
 async function getYahooFinance() {
-  // Dynamic import to avoid ESM/CJS issues
-  const mod = await import("yahoo-finance2");
-  return mod.default || mod;
+  const { default: YahooFinance } = await import("yahoo-finance2");
+  return new YahooFinance();
 }
 
 export async function GET(req: NextRequest) {
