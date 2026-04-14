@@ -31,7 +31,7 @@ const cards = [
   },
   {
     title: "/finance",
-    description: "// rent vs buy mortgage calculator",
+    description: "// rent vs buy & five-factor stock analysis",
     href: "/finance",
     icon: TrendingUp,
     status: "ACTIVE",
