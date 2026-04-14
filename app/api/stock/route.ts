@@ -6,12 +6,176 @@ const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
 };
 
+const SEC_HEADERS = { "User-Agent": "stuckless.net admin@stuckless.net" };
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+// ── SEC EDGAR helpers ──────────────────────────────────────────
+
+let tickerMapCache: Record<string, { cik_str: number; ticker: string; title: string }> | null =
+  null;
+
+async function getTickerMap() {
+  if (tickerMapCache) return tickerMapCache;
+  const res = await fetch("https://www.sec.gov/files/company_tickers.json", {
+    headers: SEC_HEADERS,
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  // Index by ticker for fast lookup
+  const map: Record<string, any> = {};
+  for (const entry of Object.values(data) as any[]) {
+    map[entry.ticker?.toUpperCase()] = entry;
+  }
+  tickerMapCache = map;
+  return map;
+}
+
+/**
+ * Extract annual values from SEC EDGAR company facts.
+ * Tries multiple XBRL concept names (companies use different ones).
+ * Deduplicates by fiscal year end date, keeping the most recently filed value.
+ */
+function extractEdgar(
+  gaap: Record<string, any>,
+  conceptNames: string[],
+  units = "USD"
+): Record<string, number> {
+  for (const name of conceptNames) {
+    const concept = gaap[name];
+    if (!concept) continue;
+    const entries: any[] = concept.units?.[units] || [];
+    const annuals = entries.filter((e: any) => e.form === "10-K");
+    if (annuals.length === 0) continue;
+
+    // Group by end date, keep latest filing
+    const byEnd: Record<string, any> = {};
+    for (const e of annuals) {
+      if (!byEnd[e.end] || e.filed > byEnd[e.end].filed) {
+        byEnd[e.end] = e;
+      }
+    }
+
+    const result: Record<string, number> = {};
+    for (const [end, entry] of Object.entries(byEnd) as [string, any][]) {
+      result[end] = entry.val;
+    }
+    if (Object.keys(result).length > 0) return result;
+  }
+  return {};
+}
+
+async function fetchEdgarData(ticker: string) {
+  const map = await getTickerMap();
+  if (!map) return null;
+
+  const entry = map[ticker.toUpperCase()];
+  if (!entry) return null;
+
+  const cik = String(entry.cik_str).padStart(10, "0");
+  const res = await fetch(`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`, {
+    headers: SEC_HEADERS,
+  });
+  if (!res.ok) return null;
+
+  const facts = await res.json();
+  const gaap = facts.facts?.["us-gaap"] || {};
+
+  const revenues = extractEdgar(gaap, [
+    "Revenues",
+    "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "SalesRevenueNet",
+    "SalesRevenueGoodsNet",
+    "SalesRevenueServicesNet",
+  ]);
+
+  const netIncomes = extractEdgar(gaap, [
+    "NetIncomeLoss",
+    "ProfitLoss",
+    "NetIncomeLossAvailableToCommonStockholdersBasic",
+    "NetIncomeLossAvailableToCommonStockholdersDiluted",
+    "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
+  ]);
+
+  const shares = extractEdgar(
+    gaap,
+    ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
+    "shares"
+  );
+
+  const eps = extractEdgar(
+    gaap,
+    [
+      "EarningsPerShareDiluted",
+      "IncomeLossFromContinuingOperationsPerDilutedShare",
+      "EarningsPerShareBasic",
+      "IncomeLossFromContinuingOperationsPerBasicShare",
+    ],
+    "USD/shares"
+  );
+
+  const dps = extractEdgar(
+    gaap,
+    [
+      "CommonStockDividendsPerShareDeclared",
+      "CommonStockDividendsPerShareCashPaid",
+    ],
+    "USD/shares"
+  );
+
+  // Build year-end map: merge all metrics by fiscal year end date
+  const allDates = new Set([
+    ...Object.keys(revenues),
+    ...Object.keys(netIncomes),
+    ...Object.keys(shares),
+    ...Object.keys(eps),
+  ]);
+
+  const yearData: Record<
+    string,
+    { revenue?: number; netIncome?: number; shares?: number; eps?: number; dps?: number }
+  > = {};
+
+  for (const date of allDates) {
+    yearData[date] = {
+      revenue: revenues[date],
+      netIncome: netIncomes[date],
+      shares: shares[date],
+      eps: eps[date],
+      dps: dps[date],
+    };
+  }
+
+  return {
+    name: entry.title,
+    yearData,
+  };
+}
+
+// ── Yahoo Finance helpers ──────────────────────────────────────
+
 async function getYahooFinance() {
   const { default: YahooFinance } = await import("yahoo-finance2");
   return new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+function getClosestPrice(historical: any[], targetDate: Date): number {
+  let closest: any = null;
+  let minDiff = Infinity;
+
+  for (const day of historical) {
+    const d = day.date instanceof Date ? day.date : new Date(day.date);
+    const diff = Math.abs(d.getTime() - targetDate.getTime());
+    if (diff < minDiff && day.close) {
+      minDiff = diff;
+      closest = day;
+    }
+  }
+
+  return closest?.close || 0;
+}
+
+// ── Main handler ───────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -38,63 +202,114 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Provide ?ticker= or ?search=" }, { status: 400 });
     }
 
-    // Use fundamentalsTimeSeries (the old quoteSummary financial statement
-    // submodules stopped returning data in Nov 2024)
-    const [fundamentals, summary, historical]: [any[], any, any[]] = await Promise.all([
-      yahooFinance.fundamentalsTimeSeries(ticker, {
-        period1: new Date(new Date().getFullYear() - 6, 0, 1),
-        period2: new Date(),
-        type: "annual",
-        module: "all",
-      }),
-      yahooFinance.quoteSummary(ticker, { modules: ["price"] }),
+    // Fetch in parallel: SEC EDGAR (10+ years fundamentals), Yahoo (prices + info + recent fundamentals)
+    const [edgar, yfSummary, yfFundamentals, historical] = await Promise.all([
+      fetchEdgarData(ticker).catch(() => null),
+      yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
+      yahooFinance
+        .fundamentalsTimeSeries(ticker, {
+          period1: new Date(new Date().getFullYear() - 6, 0, 1),
+          period2: new Date(),
+          type: "annual",
+          module: "all",
+        })
+        .catch(() => []),
       yahooFinance.historical(ticker, {
-        period1: new Date(new Date().getFullYear() - 6, 0, 1),
+        period1: new Date(new Date().getFullYear() - 12, 0, 1),
         period2: new Date(),
         interval: "1mo",
       }),
     ]);
 
-    const years = [];
+    const companyName =
+      yfSummary?.price?.longName ||
+      yfSummary?.price?.shortName ||
+      edgar?.name ||
+      ticker.toUpperCase();
+    const currency = yfSummary?.price?.currency || "USD";
 
-    for (const entry of fundamentals) {
+    // Build year data: prefer SEC EDGAR, fill gaps with Yahoo Finance
+    const yearMap: Record<number, any> = {};
+
+    // 1. SEC EDGAR data (10+ years)
+    if (edgar?.yearData) {
+      for (const [dateStr, data] of Object.entries(edgar.yearData)) {
+        const endDate = new Date(dateStr);
+        const year = endDate.getFullYear();
+        // Only include if we have at least revenue + (netIncome or eps) + shares
+        const hasIncome = data.netIncome != null || data.eps != null;
+        if (data.revenue == null || !hasIncome || data.shares == null) continue;
+
+        const netIncome =
+          data.netIncome ?? (data.eps && data.shares ? data.eps * data.shares : undefined);
+        if (netIncome == null) continue;
+
+        const epsVal = data.eps ?? netIncome / data.shares;
+        const dpsVal = data.dps ?? 0;
+
+        yearMap[year] = {
+          endDate: dateStr,
+          revenue: data.revenue,
+          netIncome,
+          sharesOutstanding: data.shares,
+          eps: epsVal,
+          dps: dpsVal,
+        };
+      }
+    }
+
+    // 2. Fill/override with Yahoo Finance fundamentalsTimeSeries (more accurate for recent years)
+    for (const entry of yfFundamentals as any[]) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const year = endDate.getFullYear();
 
       const revenue = entry.totalRevenue;
       const netIncome = entry.netIncome;
-      // ordinarySharesNumber = actual outstanding shares (excludes treasury)
       const sharesOut = entry.ordinarySharesNumber;
-
       if (!revenue || !netIncome || !sharesOut) continue;
 
-      // Use reported diluted EPS if available, else calculate
-      const eps = entry.dilutedEPS || netIncome / sharesOut;
-
-      // Dividends: cashDividendsPaid or commonStockDividendPaid (negative = paid out)
+      const epsVal = entry.dilutedEPS || netIncome / sharesOut;
       const dividendsPaid = Math.abs(
         entry.cashDividendsPaid || entry.commonStockDividendPaid || 0
       );
-      const dps = sharesOut > 0 ? dividendsPaid / sharesOut : 0;
+      const dpsVal = sharesOut > 0 ? dividendsPaid / sharesOut : 0;
 
-      // Find closest historical price to fiscal year end
-      const yearEndPrice = getClosestPrice(historical, endDate);
-      if (!yearEndPrice) continue;
-
-      const salesPerShare = revenue / sharesOut;
-      const netMargin = netIncome / revenue;
-      const pe = eps > 0 ? yearEndPrice / eps : 0;
-      const divYield = yearEndPrice > 0 ? dps / yearEndPrice : 0;
-
-      years.push({
-        year,
+      yearMap[year] = {
         endDate: endDate.toISOString().split("T")[0],
         revenue,
         netIncome,
         sharesOutstanding: sharesOut,
-        eps: Math.round(eps * 100) / 100,
-        price: Math.round(yearEndPrice * 100) / 100,
-        dividendsPerShare: Math.round(dps * 1000) / 1000,
+        eps: epsVal,
+        dps: dpsVal,
+      };
+    }
+
+    // 3. Compute derived metrics with historical prices
+    const years = [];
+    const sortedYears = Object.keys(yearMap)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    for (const year of sortedYears) {
+      const d = yearMap[year];
+      const endDate = new Date(d.endDate);
+      const price = getClosestPrice(historical, endDate);
+      if (!price) continue;
+
+      const salesPerShare = d.revenue / d.sharesOutstanding;
+      const netMargin = d.netIncome / d.revenue;
+      const pe = d.eps > 0 ? price / d.eps : 0;
+      const divYield = price > 0 ? d.dps / price : 0;
+
+      years.push({
+        year,
+        endDate: d.endDate,
+        revenue: d.revenue,
+        netIncome: d.netIncome,
+        sharesOutstanding: d.sharesOutstanding,
+        eps: Math.round(d.eps * 100) / 100,
+        price: Math.round(price * 100) / 100,
+        dividendsPerShare: Math.round(d.dps * 1000) / 1000,
         salesPerShare: Math.round(salesPerShare * 100) / 100,
         netMargin: Math.round(netMargin * 10000) / 10000,
         peMultiple: Math.round(pe * 100) / 100,
@@ -102,15 +317,8 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    years.sort((a, b) => a.year - b.year);
-
     return NextResponse.json(
-      {
-        ticker: ticker.toUpperCase(),
-        name: summary.price?.longName || summary.price?.shortName || ticker.toUpperCase(),
-        currency: summary.price?.currency || "USD",
-        years,
-      },
+      { ticker: ticker.toUpperCase(), name: companyName, currency, years },
       { headers: CACHE_HEADERS }
     );
   } catch (error: unknown) {
@@ -118,20 +326,4 @@ export async function GET(req: NextRequest) {
     console.error("Stock API error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
-}
-
-function getClosestPrice(historical: any[], targetDate: Date): number {
-  let closest: any = null;
-  let minDiff = Infinity;
-
-  for (const day of historical) {
-    const d = day.date instanceof Date ? day.date : new Date(day.date);
-    const diff = Math.abs(d.getTime() - targetDate.getTime());
-    if (diff < minDiff && day.close) {
-      minDiff = diff;
-      closest = day;
-    }
-  }
-
-  return closest?.close || 0;
 }
