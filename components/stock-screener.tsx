@@ -43,7 +43,7 @@ interface ScreenerRow {
   roce: number | null;
   margin: number;
   margin5yr: number;
-  marginDelta: number; // latest margin − 5yr avg (positive = expanding, negative = contracting)
+  marginDelta: number | null; // latest margin − 5yr avg (positive = expanding, negative = contracting)
   epsCAGR: number | null;
   revCAGR: number | null;
   buybackYield: number | null;
@@ -461,11 +461,12 @@ export function StockScreener() {
                     ))}
                     {/* Margin Δ — absolute coloring: green=expanding, red=contracting */}
                     <TableCell className={
-                      row.marginDelta > 0.01 ? "text-emerald-400"
+                      row.marginDelta == null ? "text-muted-foreground"
+                      : row.marginDelta > 0.01 ? "text-emerald-400"
                       : row.marginDelta < -0.01 ? "text-red-400"
                       : "text-muted-foreground"
                     }>
-                      {row.marginDelta >= 0 ? "+" : ""}{(row.marginDelta * 100).toFixed(1)}%
+                      {row.marginDelta == null ? "—" : `${row.marginDelta >= 0 ? "+" : ""}${(row.marginDelta * 100).toFixed(1)}%`}
                     </TableCell>
                     {(["epsCAGR", "revCAGR", "buybackYield"] as const).map((col) => (
                       <TableCell key={col} className={colorMaps[col]?.get(row.ticker) ?? ""}>
