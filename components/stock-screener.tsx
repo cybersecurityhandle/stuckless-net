@@ -43,6 +43,7 @@ interface ScreenerRow {
   roce: number | null;
   margin: number;
   margin5yr: number;
+  marginDelta: number; // latest margin − 5yr avg (positive = expanding, negative = contracting)
   epsCAGR: number | null;
   revCAGR: number | null;
   buybackYield: number | null;
@@ -83,6 +84,7 @@ function computeMetrics(data: StockData, sector?: string): ScreenerRow | null {
   const recentYears = years.filter((y) => y.year >= latest.year - 4);
   const margin5yr =
     recentYears.reduce((s, y) => s + y.netMargin, 0) / recentYears.length;
+  const marginDelta = margin - margin5yr;
   const epsCAGR =
     fiveAgo.eps > 0 && latest.eps > 0
       ? cagr(fiveAgo.eps, latest.eps, span)
@@ -113,6 +115,7 @@ function computeMetrics(data: StockData, sector?: string): ScreenerRow | null {
     roce,
     margin,
     margin5yr,
+    marginDelta,
     epsCAGR,
     revCAGR,
     buybackYield,
@@ -273,6 +276,7 @@ export function StockScreener() {
     { key: "roce", label: "ROCE", pct: true },
     { key: "margin", label: "Margin", pct: true },
     { key: "margin5yr", label: "5yr Avg", pct: true },
+    { key: "marginDelta", label: "Margin Δ", pct: true },
     { key: "epsCAGR", label: "EPS CAGR", pct: true },
     { key: "revCAGR", label: "Rev CAGR", pct: true },
     { key: "buybackYield", label: "Buyback", pct: true },
@@ -450,7 +454,20 @@ export function StockScreener() {
                         {row.sector ?? "—"}
                       </TableCell>
                     )}
-                    {(["roe", "roce", "margin", "margin5yr", "epsCAGR", "revCAGR", "buybackYield"] as const).map((col) => (
+                    {(["roe", "roce", "margin", "margin5yr"] as const).map((col) => (
+                      <TableCell key={col} className={colorMaps[col]?.get(row.ticker) ?? ""}>
+                        {fmt(row[col], true)}
+                      </TableCell>
+                    ))}
+                    {/* Margin Δ — absolute coloring: green=expanding, red=contracting */}
+                    <TableCell className={
+                      row.marginDelta > 0.01 ? "text-emerald-400"
+                      : row.marginDelta < -0.01 ? "text-red-400"
+                      : "text-muted-foreground"
+                    }>
+                      {row.marginDelta >= 0 ? "+" : ""}{(row.marginDelta * 100).toFixed(1)}%
+                    </TableCell>
+                    {(["epsCAGR", "revCAGR", "buybackYield"] as const).map((col) => (
                       <TableCell key={col} className={colorMaps[col]?.get(row.ticker) ?? ""}>
                         {fmt(row[col], true)}
                       </TableCell>
@@ -481,6 +498,8 @@ export function StockScreener() {
             <p>
               <span className="text-emerald-400">Green</span> = top quartile,{" "}
               <span className="text-red-400">Red</span> = bottom quartile within shown set.
+              Margin Δ uses absolute thresholds: <span className="text-emerald-400">green &gt;+1%</span> (expanding),{" "}
+              <span className="text-red-400">red &lt;−1%</span> (contracting).
             </p>
             <p>
               Score weights: ROE 25%, ROCE 20%, Margin 15%, EPS Growth 15%, Rev Growth 15%, Buybacks 10%.

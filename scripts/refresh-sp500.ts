@@ -56,6 +56,7 @@ export interface ScreenerRow {
   roce: number | null;
   margin: number;
   margin5yr: number;
+  marginDelta: number;
   epsCAGR: number | null;
   revCAGR: number | null;
   buybackYield: number | null;
@@ -144,6 +145,7 @@ function computeMetrics(data: StockData, sector: string): ScreenerRow | null {
   const recentYears = years.filter((y) => y.year >= latest.year - 4);
   const margin5yr =
     recentYears.reduce((s, y) => s + y.netMargin, 0) / recentYears.length;
+  const marginDelta = margin - margin5yr;
 
   const epsCAGR =
     fiveAgo.eps > 0 && latest.eps > 0
@@ -176,6 +178,7 @@ function computeMetrics(data: StockData, sector: string): ScreenerRow | null {
     roce: roce !== null ? r3(roce) : null,
     margin: r3(margin),
     margin5yr: r3(margin5yr),
+    marginDelta: r3(marginDelta),
     epsCAGR: epsCAGR !== null ? r3(epsCAGR) : null,
     revCAGR: revCAGR !== null ? r3(revCAGR) : null,
     buybackYield: buybackYield !== null ? r3(buybackYield) : null,
