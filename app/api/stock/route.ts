@@ -532,7 +532,27 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    // 3. Compute calendar year derived metrics
+    // 3. Fallback: for December FYE companies (or when quarterly extraction fails),
+    //    copy fiscal year data as calendar year data (they're equivalent)
+    if (Object.keys(calYearMap).length < 2 && years.length >= 2) {
+      for (const fy of years) {
+        // Check if fiscal year ends in Nov-Jan (close enough to Dec 31)
+        const fyEndMonth = new Date(fy.endDate).getMonth(); // 0-indexed
+        const isDecFye = fyEndMonth >= 10 || fyEndMonth <= 0; // Nov, Dec, or Jan
+        if (!isDecFye && Object.keys(calYearMap).length < 2) {
+          // Non-December FYE — still copy as fallback with Dec 31 prices
+        }
+        const cy = fy.year;
+        if (!calYearMap[cy]) {
+          const fyData = yearMap[cy];
+          if (fyData) {
+            calYearMap[cy] = { ...fyData, endDate: `${cy}-12-31` };
+          }
+        }
+      }
+    }
+
+    // 4. Compute calendar year derived metrics
     const calendarYears = [];
     const sortedCalYears = Object.keys(calYearMap)
       .map(Number)

@@ -191,13 +191,16 @@ export function StockAnalyzer() {
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Active data set based on fiscal/calendar toggle
+  // Active data set based on fiscal/calendar toggle (need >= 2 years for analysis)
   const activeYears = useMemo(() => {
     if (!stockData) return [];
-    return calendarYear && stockData.calendarYears?.length
-      ? stockData.calendarYears
+    return calendarYear && (stockData.calendarYears?.length ?? 0) >= 2
+      ? stockData.calendarYears!
       : stockData.years;
   }, [stockData, calendarYear]);
+
+  // Whether calendar year data is actually available
+  const calendarAvailable = (stockData?.calendarYears?.length ?? 0) >= 2;
 
   // Reset start/end indices when data basis changes
   useEffect(() => {
@@ -396,6 +399,12 @@ export function StockAnalyzer() {
                 <p className="text-[10px] text-yellow-500/80">
                   Non-US tickers are limited to ~4 years of data (Yahoo Finance only).
                   US-listed stocks get 10+ years via SEC EDGAR.
+                </p>
+              )}
+              {calendarYear && !calendarAvailable && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Calendar year data not available for this ticker (insufficient quarterly data).
+                  Showing fiscal year data instead.
                 </p>
               )}
             </div>
