@@ -152,7 +152,7 @@ function buildColorMaps(rows: ScreenerRow[]): Record<string, Map<string, string>
 /* ── Component ─────────────────────────────────── */
 
 export function StockScreener() {
-  const [mode, setMode] = useState<Mode>("custom");
+  const [mode, setMode] = useState<Mode>("sp500");
 
   // Custom mode state
   const [input, setInput] = useState("VRSN, IBKR, AAPL, MSFT, GOOGL");
