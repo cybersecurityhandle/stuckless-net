@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.0"; // 1.5.0 = fix split double-adjustment in EDGAR per-share data
+const API_VERSION = "1.5.1"; // 1.5.1 = filter quarterly periods from annual extraction + fix CY gap filling
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -53,7 +53,15 @@ function extractEdgar(
       const concept = nsData[conceptNames[i]];
       if (!concept) continue;
       const entries: any[] = concept.units?.[units] || [];
-      const annuals = entries.filter((e: any) => e.form === "10-K");
+      // Filter for 10-K filings with annual-length periods (>300 days) or point-in-time (no start)
+      const annuals = entries.filter((e: any) => {
+        if (e.form !== "10-K") return false;
+        if (e.start && e.end) {
+          const days = (new Date(e.end).getTime() - new Date(e.start).getTime()) / 86400000;
+          if (days < 300) return false; // Skip quarterly entries within 10-K filings
+        }
+        return true;
+      });
       if (annuals.length === 0) continue;
 
       const byEnd: Record<string, any> = {};
@@ -536,21 +544,22 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    // 3. Fallback: for December FYE companies (or when quarterly extraction fails),
-    //    copy fiscal year data as calendar year data (they're equivalent)
-    if (Object.keys(calYearMap).length < 2 && years.length >= 2) {
-      for (const fy of years) {
-        // Check if fiscal year ends in Nov-Jan (close enough to Dec 31)
-        const fyEndMonth = new Date(fy.endDate).getMonth(); // 0-indexed
-        const isDecFye = fyEndMonth >= 10 || fyEndMonth <= 0; // Nov, Dec, or Jan
-        if (!isDecFye && Object.keys(calYearMap).length < 2) {
-          // Non-December FYE — still copy as fallback with Dec 31 prices
-        }
-        const cy = fy.year;
-        if (!calYearMap[cy]) {
-          const fyData = yearMap[cy];
-          if (fyData) {
-            calYearMap[cy] = { ...fyData, endDate: `${cy}-12-31` };
+    // 3. Fill gaps: for December FYE companies, fiscal year ≈ calendar year.
+    //    Copy fiscal data for any missing CY years when FYE is Nov-Jan.
+    {
+      // Determine if this company has a Dec-ish FYE (check most recent fiscal year)
+      const latestFy = years[years.length - 1];
+      const fyEndMonth = latestFy ? new Date(latestFy.endDate).getMonth() : -1;
+      const isDecFye = fyEndMonth >= 10 || fyEndMonth <= 0; // Nov, Dec, or Jan
+
+      if (isDecFye || Object.keys(calYearMap).length < 2) {
+        for (const fy of years) {
+          const cy = fy.year;
+          if (!calYearMap[cy]) {
+            const fyData = yearMap[cy];
+            if (fyData) {
+              calYearMap[cy] = { ...fyData, endDate: `${cy}-12-31` };
+            }
           }
         }
       }
