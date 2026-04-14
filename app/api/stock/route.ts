@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.3"; // 1.5.3 = fiscal year label by majority-calendar-year convention (fixes Jan FYE like NVDA)
+const API_VERSION = "1.5.4"; // 1.5.4 = weighted avg shares has priority; drop DEI EntityCommonStock (fixes BRK-A multi-class)
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -210,10 +210,14 @@ async function fetchEdgarData(ticker: string) {
   const revenues = extractEdgar(allFacts, REVENUE_CONCEPTS);
   const netIncomes = extractEdgar(allFacts, NET_INCOME_CONCEPTS);
 
-  // Per-share data: use earliest filing to avoid split-restated values from later 10-Ks
+  // Per-share data: use earliest filing to avoid split-restated values from later 10-Ks.
+  // Weighted average basic shares has highest priority — it is the correct EPS denominator.
+  // CommonStockSharesOutstanding (us-gaap only) is the fallback for companies that don't file
+  // WeightedAverage. EntityCommonStockSharesOutstanding in DEI is excluded: for multi-class
+  // companies (e.g. BRK-A/B) it reports each share class separately and gives wrong counts.
   const shares: Record<string, number> = {
+    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap"], true),
     ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares", ["us-gaap"], true),
-    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap", "dei"], true),
   };
 
   // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
