@@ -35,6 +35,7 @@ interface StockData {
   ticker: string;
   name: string;
   currency: string;
+  source: "edgar+yahoo" | "yahoo";
   years: YearData[];
 }
 
@@ -340,10 +341,21 @@ export function StockAnalyzer() {
             <p className="mt-4 text-sm text-red-400">{error}</p>
           )}
           {stockData && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              {stockData.name} ({stockData.ticker}) &middot; {stockData.currency} &middot;{" "}
-              {stockData.years.length} years of data
-            </p>
+            <div className="mt-3 space-y-1">
+              <p className="text-xs text-muted-foreground">
+                {stockData.name} ({stockData.ticker}) &middot; {stockData.currency} &middot;{" "}
+                {stockData.years.length} years of data
+                {stockData.source === "edgar+yahoo"
+                  ? " · SEC EDGAR + Yahoo Finance"
+                  : " · Yahoo Finance only"}
+              </p>
+              {stockData.source === "yahoo" && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Non-US tickers are limited to ~4 years of data (Yahoo Finance only).
+                  US-listed stocks get 10+ years via SEC EDGAR.
+                </p>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>

@@ -346,7 +346,14 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { ticker: ticker.toUpperCase(), name: companyName, currency, version: API_VERSION, years },
+      {
+        ticker: ticker.toUpperCase(),
+        name: companyName,
+        currency,
+        version: API_VERSION,
+        source: edgar?.yearData ? "edgar+yahoo" : "yahoo",
+        years,
+      },
       { headers: CACHE_HEADERS }
     );
   } catch (error: unknown) {
