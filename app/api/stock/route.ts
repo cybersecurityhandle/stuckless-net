@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.2"; // 1.5.2 = derive margin from EPS×shares for consistency
+const API_VERSION = "1.5.3"; // 1.5.3 = fiscal year label by majority-calendar-year convention (fixes Jan FYE like NVDA)
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -230,7 +230,7 @@ async function fetchEdgarData(ticker: string) {
   for (const [dateStr, val] of Object.entries(shares)) {
     const yr = new Date(dateStr).getFullYear();
     const month = new Date(dateStr).getMonth();
-    const fiscalYear = month < 4 ? yr - 1 : yr;
+    const fiscalYear = month < 5 ? yr - 1 : yr;
     if (!sharesByYear[fiscalYear]) sharesByYear[fiscalYear] = val;
   }
 
@@ -409,7 +409,10 @@ export async function GET(req: NextRequest) {
     if (edgar?.yearData) {
       for (const [dateStr, data] of Object.entries(edgar.yearData)) {
         const endDate = new Date(dateStr);
-        const year = endDate.getFullYear();
+        // Label fiscal year by the calendar year it mostly falls in (standard financial convention).
+        // Jan–Apr FYE (months 0–4): use prior year (e.g. NVDA Jan 31 2025 → FY 2024)
+        // May–Dec FYE (months 5–11): use end year (e.g. AAPL Sep 30 2024 → FY 2024)
+        const year = endDate.getMonth() < 5 ? endDate.getFullYear() - 1 : endDate.getFullYear();
         if (data.revenue == null || data.netIncome == null || data.shares == null) continue;
 
         const netIncome = data.netIncome;
@@ -435,7 +438,7 @@ export async function GET(req: NextRequest) {
     // 2. Fill gaps with Yahoo Finance fundamentalsTimeSeries (only for years EDGAR doesn't cover)
     for (const entry of yfFundamentals as any[]) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
-      const year = endDate.getFullYear();
+      const year = endDate.getMonth() < 5 ? endDate.getFullYear() - 1 : endDate.getFullYear();
 
       // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks
       if (yearMap[year]) continue;
