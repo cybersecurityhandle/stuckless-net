@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+const API_VERSION = "1.1.0"; // Track deployments: 1.1.0 = merged EDGAR concepts + shares fallback
+
 const CACHE_HEADERS = {
-  "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
 };
 
 const SEC_HEADERS = { "User-Agent": "stuckless.net admin@stuckless.net" };
@@ -333,7 +335,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { ticker: ticker.toUpperCase(), name: companyName, currency, years },
+      { ticker: ticker.toUpperCase(), name: companyName, currency, version: API_VERSION, years },
       { headers: CACHE_HEADERS }
     );
   } catch (error: unknown) {
