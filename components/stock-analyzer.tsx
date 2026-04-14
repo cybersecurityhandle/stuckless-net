@@ -46,25 +46,26 @@ interface SearchResult {
 
 interface FiveFactorResult {
   numYears: number;
-  // Total growth
+  negativeStartEps: boolean; // true when starting EPS <= 0
+  // Total growth (null = not meaningful due to negative start)
   dollarSalesGrowth: number;
   shareCountGrowth: number;
   salesPerShareGrowth: number;
-  marginGrowth: number;
-  peGrowth: number;
-  epsGrowth: number;
-  dpsGrowth: number;
-  yieldGrowth: number;
+  marginGrowth: number | null;
+  peGrowth: number | null;
+  epsGrowth: number | null;
+  dpsGrowth: number | null;
+  yieldGrowth: number | null;
   priceReturn: number;
   totalReturn: number;
   // Annualized
   annDollarSales: number;
   annShareCount: number;
   annSalesPerShare: number;
-  annMargin: number;
-  annPe: number;
-  annEps: number;
-  annDps: number;
+  annMargin: number | null;
+  annPe: number | null;
+  annEps: number | null;
+  annDps: number | null;
   annDividendYield: number;
   annPriceReturn: number;
   annTotalReturn: number;
@@ -92,6 +93,11 @@ function fmtPct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
 }
 
+function fmtPctOrNm(n: number | null) {
+  if (n == null) return "N/M";
+  return fmtPct(n);
+}
+
 function fmtNum(n: number, dec = 2) {
   return n.toLocaleString("en-US", { maximumFractionDigits: dec, minimumFractionDigits: dec });
 }
@@ -103,26 +109,35 @@ function annualize(totalGrowth: number, years: number): number {
   return Math.pow(1 + totalGrowth, 1 / years) - 1;
 }
 
+function safeGrowth(start: number, end: number): number | null {
+  if (start <= 0) return null; // not meaningful from negative/zero base
+  return end / start - 1;
+}
+
 function calcFiveFactors(start: YearData, end: YearData): FiveFactorResult {
   const numYears = end.year - start.year;
+  const negativeStartEps = start.eps <= 0;
 
+  // Sales & shares always have positive bases
   const dollarSalesGrowth = start.revenue > 0 ? end.revenue / start.revenue - 1 : 0;
   const shareCountGrowth = start.sharesOutstanding > 0 ? end.sharesOutstanding / start.sharesOutstanding - 1 : 0;
   const salesPerShareGrowth = (1 + dollarSalesGrowth) / (1 + shareCountGrowth) - 1;
-  const marginGrowth = start.netMargin > 0 ? end.netMargin / start.netMargin - 1 : 0;
-  const epsGrowth = start.eps > 0 ? end.eps / start.eps - 1 : 0;
-  const peGrowth = start.peMultiple > 0 ? end.peMultiple / start.peMultiple - 1 : 0;
-  const dpsGrowth = start.dividendsPerShare > 0 ? end.dividendsPerShare / start.dividendsPerShare - 1 : 0;
-  const yieldGrowth = start.dividendYield > 0 ? end.dividendYield / start.dividendYield - 1 : 0;
+
+  // These require positive starting values to be meaningful
+  const marginGrowth = safeGrowth(start.netMargin, end.netMargin);
+  const epsGrowth = safeGrowth(start.eps, end.eps);
+  const peGrowth = safeGrowth(start.peMultiple, end.peMultiple);
+  const dpsGrowth = safeGrowth(start.dividendsPerShare, end.dividendsPerShare);
+  const yieldGrowth = safeGrowth(start.dividendYield, end.dividendYield);
   const priceReturn = start.price > 0 ? end.price / start.price - 1 : 0;
 
   // Average annual dividend yield (approx)
   const avgDivYield = (start.dividendYield + end.dividendYield) / 2;
-  const totalReturn = priceReturn + avgDivYield * numYears;
   const annTotalReturn = annualize(priceReturn, numYears) + avgDivYield;
 
   return {
     numYears,
+    negativeStartEps,
     dollarSalesGrowth,
     shareCountGrowth,
     salesPerShareGrowth,
@@ -132,14 +147,14 @@ function calcFiveFactors(start: YearData, end: YearData): FiveFactorResult {
     dpsGrowth,
     yieldGrowth,
     priceReturn,
-    totalReturn,
+    totalReturn: priceReturn + avgDivYield * numYears,
     annDollarSales: annualize(dollarSalesGrowth, numYears),
     annShareCount: annualize(shareCountGrowth, numYears),
     annSalesPerShare: annualize(salesPerShareGrowth, numYears),
-    annMargin: annualize(marginGrowth, numYears),
-    annPe: annualize(peGrowth, numYears),
-    annEps: annualize(epsGrowth, numYears),
-    annDps: annualize(dpsGrowth, numYears),
+    annMargin: marginGrowth != null ? annualize(marginGrowth, numYears) : null,
+    annPe: peGrowth != null ? annualize(peGrowth, numYears) : null,
+    annEps: epsGrowth != null ? annualize(epsGrowth, numYears) : null,
+    annDps: dpsGrowth != null ? annualize(dpsGrowth, numYears) : null,
     annDividendYield: avgDivYield,
     annPriceReturn: annualize(priceReturn, numYears),
     annTotalReturn,
@@ -229,13 +244,19 @@ export function StockAnalyzer() {
 
   const chartData = useMemo(() => {
     if (!analysis) return [];
-    return [
+    const shareImpact = -analysis.annShareCount / (1 + analysis.annShareCount);
+    const items = [
       { name: "Dollar Sales", value: analysis.annDollarSales, color: analysis.annDollarSales >= 0 ? "#10b981" : "#ef4444" },
-      { name: "Share Count", value: -analysis.annShareCount / (1 + analysis.annShareCount), color: analysis.annShareCount <= 0 ? "#10b981" : "#ef4444" },
-      { name: "Margin", value: analysis.annMargin, color: analysis.annMargin >= 0 ? "#10b981" : "#ef4444" },
-      { name: "P/E Multiple", value: analysis.annPe, color: analysis.annPe >= 0 ? "#10b981" : "#ef4444" },
-      { name: "Dividends", value: analysis.annDividendYield, color: "#3b82f6" },
+      { name: "Share Count", value: shareImpact, color: shareImpact >= 0 ? "#10b981" : "#ef4444" },
     ];
+    if (analysis.annMargin != null) {
+      items.push({ name: "Margin", value: analysis.annMargin, color: analysis.annMargin >= 0 ? "#10b981" : "#ef4444" });
+    }
+    if (analysis.annPe != null) {
+      items.push({ name: "P/E Multiple", value: analysis.annPe, color: analysis.annPe >= 0 ? "#10b981" : "#ef4444" });
+    }
+    items.push({ name: "Dividends", value: analysis.annDividendYield, color: "#3b82f6" });
+    return items;
   }, [analysis]);
 
   const currency = stockData?.currency || "USD";
@@ -391,27 +412,27 @@ export function StockAnalyzer() {
                 {/* Growth % row */}
                 <tr className="border-b border-border/50 bg-muted/30">
                   <td className="py-2 pr-3 font-medium text-muted-foreground">Growth %</td>
-                  <td className="py-2 pr-3">{fmtPct(analysis.epsGrowth)}</td>
-                  <td className="py-2 pr-3">{fmtPct(analysis.dpsGrowth)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.epsGrowth)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.dpsGrowth)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.salesPerShareGrowth)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.dollarSalesGrowth)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.shareCountGrowth)}</td>
-                  <td className="py-2 pr-3 font-bold">{fmtPct(analysis.marginGrowth)}</td>
-                  <td className="py-2 pr-3 font-bold">{fmtPct(analysis.peGrowth)}</td>
-                  <td className="py-2 pr-3 font-bold">{fmtPct(analysis.yieldGrowth)}</td>
+                  <td className="py-2 pr-3 font-bold">{fmtPctOrNm(analysis.marginGrowth)}</td>
+                  <td className="py-2 pr-3 font-bold">{fmtPctOrNm(analysis.peGrowth)}</td>
+                  <td className="py-2 pr-3 font-bold">{fmtPctOrNm(analysis.yieldGrowth)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.priceReturn)}</td>
                   <td className="py-2 font-bold">{fmtPct(analysis.totalReturn)}</td>
                 </tr>
                 {/* Annual Avg row */}
                 <tr className="bg-muted/30">
                   <td className="py-2 pr-3 font-medium text-muted-foreground">Annual Avg</td>
-                  <td className="py-2 pr-3">{fmtPct(analysis.annEps)}</td>
-                  <td className="py-2 pr-3">{fmtPct(analysis.annDps)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.annEps)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.annDps)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.annSalesPerShare)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annDollarSales)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annShareCount)}</td>
-                  <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annMargin)}</td>
-                  <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annPe)}</td>
+                  <td className="py-2 pr-3 font-bold">{fmtPctOrNm(analysis.annMargin)}</td>
+                  <td className="py-2 pr-3 font-bold">{fmtPctOrNm(analysis.annPe)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annDividendYield)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.annPriceReturn)}</td>
                   <td className="py-2 font-bold">{fmtPct(analysis.annTotalReturn)}</td>
@@ -420,6 +441,15 @@ export function StockAnalyzer() {
             </table>
           </CardContent>
         </Card>
+      )}
+
+      {/* Negative earnings warning */}
+      {analysis?.negativeStartEps && (
+        <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 text-xs text-yellow-400">
+          Starting period has negative earnings (EPS: {fmtNum(stockData!.years[startIdx].eps)}).
+          Margin, P/E, and EPS growth rates are not meaningful (shown as N/M).
+          Consider choosing a later start year with positive earnings for full five-factor decomposition.
+        </div>
       )}
 
       {/* Factor Attribution + Formula */}
@@ -447,12 +477,12 @@ export function StockAnalyzer() {
               <FactorRow
                 label="Margin Growth"
                 value={analysis.annMargin}
-                hint="Change in net profit margin"
+                hint={analysis.annMargin == null ? "N/M — starting margin was negative" : "Change in net profit margin"}
               />
               <FactorRow
                 label="P/E Multiple Growth"
                 value={analysis.annPe}
-                hint="Change in what investors pay per dollar of earnings"
+                hint={analysis.annPe == null ? "N/M — starting P/E was zero (negative earnings)" : "Change in what investors pay per dollar of earnings"}
               />
               <FactorRow
                 label="Dividend Yield"
@@ -492,31 +522,38 @@ export function StockAnalyzer() {
               <div className="space-y-1.5 text-muted-foreground">
                 <p><strong className="text-foreground">DS</strong> = Dollar Sales Growth — {fmtPct(analysis.annDollarSales)}</p>
                 <p><strong className="text-foreground">SC</strong> = Share Count Growth — {fmtPct(analysis.annShareCount)}</p>
-                <p><strong className="text-foreground">MG</strong> = Margin Growth — {fmtPct(analysis.annMargin)}</p>
-                <p><strong className="text-foreground">PE</strong> = P/E Multiple Growth — {fmtPct(analysis.annPe)}</p>
+                <p><strong className="text-foreground">MG</strong> = Margin Growth — {fmtPctOrNm(analysis.annMargin)}</p>
+                <p><strong className="text-foreground">PE</strong> = P/E Multiple Growth — {fmtPctOrNm(analysis.annPe)}</p>
                 <p><strong className="text-foreground">DY</strong> = Dividend Yield — {fmtPct(analysis.annDividendYield)}</p>
               </div>
-              <div className="rounded-md border border-border p-3">
-                <p className="text-muted-foreground">Verification:</p>
-                <p className="mt-1 font-mono">
-                  ((1 + {(analysis.annDollarSales).toFixed(4)}) / (1 + {(analysis.annShareCount).toFixed(4)}))
-                  × (1 + {(analysis.annMargin).toFixed(4)})
-                  × (1 + {(analysis.annPe).toFixed(4)}) − 1
-                  + {(analysis.annDividendYield).toFixed(4)}
-                </p>
-                <p className="mt-1 font-mono font-bold">
-                  = {fmtPct(
-                    ((1 + analysis.annDollarSales) / (1 + analysis.annShareCount)) *
-                    (1 + analysis.annMargin) *
-                    (1 + analysis.annPe) -
-                    1 +
-                    analysis.annDividendYield
-                  )}
-                </p>
-                <p className="mt-1 text-[10px] text-muted-foreground/60">
-                  vs actual annual price return + yield: {fmtPct(analysis.annTotalReturn)}
-                </p>
-              </div>
+              {analysis.annMargin != null && analysis.annPe != null ? (
+                <div className="rounded-md border border-border p-3">
+                  <p className="text-muted-foreground">Verification:</p>
+                  <p className="mt-1 font-mono">
+                    ((1 + {analysis.annDollarSales.toFixed(4)}) / (1 + {analysis.annShareCount.toFixed(4)}))
+                    × (1 + {analysis.annMargin.toFixed(4)})
+                    × (1 + {analysis.annPe.toFixed(4)}) − 1
+                    + {analysis.annDividendYield.toFixed(4)}
+                  </p>
+                  <p className="mt-1 font-mono font-bold">
+                    = {fmtPct(
+                      ((1 + analysis.annDollarSales) / (1 + analysis.annShareCount)) *
+                      (1 + analysis.annMargin) *
+                      (1 + analysis.annPe) -
+                      1 +
+                      analysis.annDividendYield
+                    )}
+                  </p>
+                  <p className="mt-1 text-[10px] text-muted-foreground/60">
+                    vs actual annual price return + yield: {fmtPct(analysis.annTotalReturn)}
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-md border border-yellow-500/20 p-3 text-yellow-400/80">
+                  <p>Verification unavailable — starting period has negative earnings.</p>
+                  <p className="mt-1">Actual annual total return: <strong>{fmtPct(analysis.annTotalReturn)}</strong></p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -577,10 +614,21 @@ function FactorRow({
   isDividend,
 }: {
   label: string;
-  value: number;
+  value: number | null;
   hint: string;
   isDividend?: boolean;
 }) {
+  if (value == null) {
+    return (
+      <div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-foreground">{label}</span>
+          <span className="text-sm font-medium text-muted-foreground">N/M</span>
+        </div>
+        <p className="text-[10px] text-muted-foreground/60">{hint}</p>
+      </div>
+    );
+  }
   const isPositive = value >= 0;
   return (
     <div>
