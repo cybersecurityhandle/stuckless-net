@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.1.0"; // Track deployments: 1.1.0 = merged EDGAR concepts + shares fallback
+const API_VERSION = "1.2.0"; // 1.2.0 = year-based shares lookup for dei/weighted avg alignment
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -105,20 +105,21 @@ async function fetchEdgarData(ticker: string) {
     "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
   ]);
 
-  // Try actual shares outstanding first (us-gaap + dei), fall back to weighted average
-  let shares = extractEdgar(
-    allFacts,
-    ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
-    "shares",
-    ["us-gaap", "dei"]
-  );
-  if (Object.keys(shares).length === 0) {
-    shares = extractEdgar(
+  // Shares: start with weighted average (reliable fiscal year-end dates), then layer
+  // actual shares outstanding on top (higher priority but may have non-fiscal dates)
+  const shares: Record<string, number> = {
+    ...extractEdgar(
       allFacts,
-      ["WeightedAverageNumberOfDilutedSharesOutstanding", "WeightedAverageNumberOfSharesOutstandingBasic"],
+      ["WeightedAverageNumberOfSharesOutstandingBasic", "WeightedAverageNumberOfDilutedSharesOutstanding"],
       "shares"
-    );
-  }
+    ),
+    ...extractEdgar(
+      allFacts,
+      ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
+      "shares",
+      ["us-gaap", "dei"]
+    ),
+  };
 
   const eps = extractEdgar(
     allFacts,
@@ -140,11 +141,20 @@ async function fetchEdgarData(ticker: string) {
     "USD/shares"
   );
 
+  // Build a year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
+  const sharesByYear: Record<number, number> = {};
+  for (const [dateStr, val] of Object.entries(shares)) {
+    const yr = new Date(dateStr).getFullYear();
+    // For dei dates like 2026-02-18, map to prior fiscal year (2025)
+    const month = new Date(dateStr).getMonth(); // 0-indexed
+    const fiscalYear = month < 4 ? yr - 1 : yr; // Q1 filing → prior year
+    if (!sharesByYear[fiscalYear]) sharesByYear[fiscalYear] = val;
+  }
+
   // Build year-end map: merge all metrics by fiscal year end date
   const allDates = new Set([
     ...Object.keys(revenues),
     ...Object.keys(netIncomes),
-    ...Object.keys(shares),
     ...Object.keys(eps),
   ]);
 
@@ -154,10 +164,11 @@ async function fetchEdgarData(ticker: string) {
   > = {};
 
   for (const date of allDates) {
+    const yr = new Date(date).getFullYear();
     yearData[date] = {
       revenue: revenues[date],
       netIncome: netIncomes[date],
-      shares: shares[date],
+      shares: shares[date] ?? sharesByYear[yr],
       eps: eps[date],
       dps: dps[date],
     };
