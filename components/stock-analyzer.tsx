@@ -264,7 +264,7 @@ export function StockAnalyzer() {
   return (
     <div className="space-y-6">
       {/* Search */}
-      <Card>
+      <Card className="overflow-visible">
         <CardContent className="pt-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="relative flex-1" ref={searchRef}>

@@ -5,12 +5,12 @@ import { MortgageCalculator } from "./mortgage-calculator";
 import { StockAnalyzer } from "./stock-analyzer";
 
 const tabs = [
-  { id: "mortgage" as const, label: "Rent vs Buy" },
   { id: "stocks" as const, label: "Five-Factor Analysis" },
+  { id: "mortgage" as const, label: "Rent vs Buy" },
 ];
 
 export function FinanceTabs() {
-  const [active, setActive] = useState<"mortgage" | "stocks">("mortgage");
+  const [active, setActive] = useState<"mortgage" | "stocks">("stocks");
 
   return (
     <div>
