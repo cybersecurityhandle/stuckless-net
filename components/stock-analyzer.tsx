@@ -600,76 +600,83 @@ export function StockAnalyzer() {
         </div>
       )}
 
-      {/* $100 Invested Waterfall */}
-      {analysis && (
+      {/* $100 Cost Basis Table */}
+      {stockData && analysis && (
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">
-              $100 Invested — {stockData?.ticker} ({stockData?.years[startIdx].year}–{stockData?.years[endIdx].year})
+              $100 Cost Basis — {stockData.ticker} ({stockData.years[startIdx].year}–{stockData.years[endIdx].year})
             </CardTitle>
             <p className="text-xs text-muted-foreground">
-              How each factor compounds a $100 investment over {analysis.numYears} years
+              All per-share values normalized so the starting price = $100.
+              Shows how a $100 investment evolves through each fundamental driver.
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             {(() => {
-              // Multiplicative waterfall: start with $100
-              const start = 100;
-              const afterSales = start * (1 + analysis.dollarSalesGrowth);
-              const afterShares = afterSales / (1 + analysis.shareCountGrowth);
-              const afterMargin = analysis.marginGrowth != null
-                ? afterShares * (1 + analysis.marginGrowth)
-                : afterShares;
-              const afterPe = analysis.peGrowth != null
-                ? afterMargin * (1 + analysis.peGrowth)
-                : afterMargin;
-              const priceEnd = afterPe; // = price return component
-              const totalDividends = start * analysis.annDividendYield * analysis.numYears;
-              const totalEnd = priceEnd + totalDividends;
-
-              const steps = [
-                { label: "Starting Investment", value: start, cumulative: start, color: "text-zinc-400" },
-                { label: "Dollar Sales Growth", value: afterSales - start, cumulative: afterSales, color: afterSales >= start ? "text-emerald-400" : "text-red-400" },
-                { label: "Share Count Effect", value: afterShares - afterSales, cumulative: afterShares, color: afterShares >= afterSales ? "text-emerald-400" : "text-red-400" },
-              ];
-              if (analysis.marginGrowth != null) {
-                steps.push({ label: "Margin Growth", value: afterMargin - afterShares, cumulative: afterMargin, color: afterMargin >= afterShares ? "text-emerald-400" : "text-red-400" });
-              }
-              if (analysis.peGrowth != null) {
-                steps.push({ label: "P/E Multiple Change", value: afterPe - afterMargin, cumulative: afterPe, color: afterPe >= afterMargin ? "text-emerald-400" : "text-red-400" });
-              }
-              steps.push({ label: "Cumulative Dividends", value: totalDividends, cumulative: totalEnd, color: "text-blue-400" });
+              const sv = getYearView(stockData.years[startIdx], calendarYear);
+              const normFactor = sv.price > 0 ? 100 / sv.price : 1;
+              const visibleYears = stockData.years.slice(startIdx, endIdx + 1);
+              let cumDividends = 0;
 
               return (
-                <div className="space-y-2">
-                  {steps.map((step, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{step.label}</span>
-                      <div className="flex gap-4">
-                        <span className={`w-20 text-right font-mono ${i === 0 ? "text-zinc-400" : step.color}`}>
-                          {i === 0 ? "" : step.value >= 0 ? "+" : ""}
-                          {i === 0 ? "" : `$${Math.abs(step.value).toFixed(2)}`}
-                        </span>
-                        <span className="w-24 text-right font-mono font-medium">
-                          ${step.cumulative.toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  <div className="border-t border-border pt-2 mt-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-bold">Total Value</span>
-                      <span className={`font-mono font-bold ${totalEnd >= 100 ? "text-emerald-500" : "text-red-400"}`}>
-                        ${totalEnd.toFixed(2)}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[10px] text-muted-foreground/60">
-                      {analysis.numYears}-year total return: {fmtPct(analysis.totalReturn)} · Annualized: {fmtPct(analysis.annTotalReturn)}
-                    </p>
-                  </div>
-                </div>
+                <table className="w-full min-w-[700px] text-xs">
+                  <thead>
+                    <tr className="border-b border-border text-left text-muted-foreground">
+                      <th className="pb-2 pr-3 font-medium">Date</th>
+                      <th className="pb-2 pr-3 font-medium">Price</th>
+                      <th className="pb-2 pr-3 font-medium">EPS</th>
+                      <th className="pb-2 pr-3 font-medium">DPS</th>
+                      <th className="pb-2 pr-3 font-medium">Cum. Divs</th>
+                      <th className="pb-2 pr-3 font-medium">Sales/Share</th>
+                      <th className="pb-2 pr-3 font-medium">Margin</th>
+                      <th className="pb-2 pr-3 font-medium">P/E</th>
+                      <th className="pb-2 font-medium">Total Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleYears.map((y, i) => {
+                      const v = getYearView(y, calendarYear);
+                      const normPrice = v.price * normFactor;
+                      const normEps = y.eps * normFactor;
+                      const normDps = y.dividendsPerShare * normFactor;
+                      const normSps = y.salesPerShare * normFactor;
+                      if (i > 0) cumDividends += normDps;
+                      const totalValue = normPrice + cumDividends;
+                      const isLast = i === visibleYears.length - 1;
+                      return (
+                        <tr
+                          key={y.year}
+                          className={`border-b border-border/50 ${isLast ? "bg-muted/30 font-medium" : ""}`}
+                        >
+                          <td className="py-1.5 pr-3 text-muted-foreground">
+                            {calendarYear ? `12/31/${y.year}` : y.endDate}
+                          </td>
+                          <td className={`py-1.5 pr-3 font-mono ${isLast ? (normPrice >= 100 ? "text-emerald-400" : "text-red-400") : ""}`}>
+                            ${normPrice.toFixed(2)}
+                          </td>
+                          <td className="py-1.5 pr-3 font-mono">${normEps.toFixed(2)}</td>
+                          <td className="py-1.5 pr-3 font-mono">${normDps.toFixed(2)}</td>
+                          <td className="py-1.5 pr-3 font-mono text-blue-400">
+                            ${cumDividends.toFixed(2)}
+                          </td>
+                          <td className="py-1.5 pr-3 font-mono">${normSps.toFixed(2)}</td>
+                          <td className="py-1.5 pr-3">{fmtPct(y.netMargin)}</td>
+                          <td className="py-1.5 pr-3">{v.pe > 0 ? `${fmtNum(v.pe, 1)}x` : "N/M"}</td>
+                          <td className={`py-1.5 font-mono font-medium ${totalValue >= 100 ? "text-emerald-400" : "text-red-400"}`}>
+                            ${totalValue.toFixed(2)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               );
             })()}
+            <p className="mt-3 text-[10px] text-muted-foreground/60">
+              Normalization factor: {(() => { const sv = getYearView(stockData.years[startIdx], calendarYear); return sv.price > 0 ? `$100 ÷ $${fmtNum(sv.price)} = ${fmtNum(100 / sv.price)}×` : "N/A"; })()}
+              {" · "}Ratios (margin, P/E) are unchanged. Total value = normalized price + cumulative dividends.
+            </p>
           </CardContent>
         </Card>
       )}
