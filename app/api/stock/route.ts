@@ -176,6 +176,20 @@ const DPS_CONCEPTS = [
   "CommonStockDividendsPerShareCashPaid",
 ];
 
+// Balance sheet concepts for ROCE/ROE
+const STOCKHOLDERS_EQUITY_CONCEPTS = [
+  "StockholdersEquity",
+  "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+];
+
+const TOTAL_ASSETS_CONCEPTS = ["Assets"];
+
+const LONG_TERM_DEBT_CONCEPTS = [
+  "LongTermDebt",
+  "LongTermDebtNoncurrent",
+  "LongTermDebtAndCapitalLeaseObligations",
+];
+
 async function fetchEdgarData(ticker: string) {
   const map = await getTickerMap();
   if (!map) return null;
@@ -206,6 +220,11 @@ async function fetchEdgarData(ticker: string) {
   // This ensures consistency between displayed EPS, share count, and margin
   const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
 
+  // Balance sheet (point-in-time values, no split adjustment needed)
+  const equity = extractEdgar(allFacts, STOCKHOLDERS_EQUITY_CONCEPTS);
+  const totalAssets = extractEdgar(allFacts, TOTAL_ASSETS_CONCEPTS);
+  const longTermDebt = extractEdgar(allFacts, LONG_TERM_DEBT_CONCEPTS);
+
   // Build year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
   const sharesByYear: Record<number, number> = {};
   for (const [dateStr, val] of Object.entries(shares)) {
@@ -223,7 +242,7 @@ async function fetchEdgarData(ticker: string) {
 
   const yearData: Record<
     string,
-    { revenue?: number; netIncome?: number; shares?: number; dps?: number }
+    { revenue?: number; netIncome?: number; shares?: number; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number }
   > = {};
 
   for (const date of allDates) {
@@ -233,6 +252,9 @@ async function fetchEdgarData(ticker: string) {
       netIncome: netIncomes[date],
       shares: shares[date] ?? sharesByYear[yr],
       dps: dps[date],
+      equity: equity[date],
+      totalAssets: totalAssets[date],
+      longTermDebt: longTermDebt[date],
     };
   }
 
@@ -403,6 +425,9 @@ export async function GET(req: NextRequest) {
           sharesOutstanding: data.shares * sf,
           eps: epsVal / sf,
           dps: dpsVal / sf,
+          equity: data.equity,
+          totalAssets: data.totalAssets,
+          longTermDebt: data.longTermDebt,
         };
       }
     }
@@ -473,6 +498,9 @@ export async function GET(req: NextRequest) {
         dividendYield: Math.round(divYield * 10000) / 10000,
         calendarPeMultiple: Math.round(calPe * 100) / 100,
         calendarDividendYield: Math.round(calDivYield * 10000) / 10000,
+        equity: d.equity,
+        totalAssets: d.totalAssets,
+        longTermDebt: d.longTermDebt,
       });
     }
 

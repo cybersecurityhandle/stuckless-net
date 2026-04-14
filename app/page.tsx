@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, TrendingUp, User, Code } from "lucide-react";
+import { Shield, TrendingUp, User, Code, BarChart3 } from "lucide-react";
 
 const ASCII_ART = [
   "  ___  _____  _  _  ___  _  _ _    ___  ___  ___ ",
@@ -34,6 +34,13 @@ const cards = [
     description: "// rent vs buy & five-factor stock analysis",
     href: "/finance",
     icon: TrendingUp,
+    status: "ACTIVE",
+  },
+  {
+    title: "/screener",
+    description: "// stock quality screener",
+    href: "/screener",
+    icon: BarChart3,
     status: "ACTIVE",
   },
   {

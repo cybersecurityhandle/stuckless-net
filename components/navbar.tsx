@@ -11,6 +11,7 @@ export function Navbar() {
     { href: "/", label: "Home" },
     { href: "/intel", label: "Threat Intel" },
     { href: "/finance", label: "Finance" },
+    { href: "/screener", label: "Screener" },
   ];
 
   return (
