@@ -282,15 +282,15 @@ export function StockAnalyzer() {
                 className="h-9 text-sm"
               />
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-card shadow-lg">
+                <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-md border border-zinc-600 bg-zinc-800 shadow-xl shadow-black/50">
                   {suggestions.map((s) => (
                     <button
                       key={s.symbol}
                       onClick={() => selectTicker(s.symbol)}
-                      className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted"
+                      className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition-colors hover:bg-zinc-700"
                     >
-                      <span className="font-medium">{s.symbol}</span>
-                      <span className="ml-2 truncate text-xs text-muted-foreground">{s.name}</span>
+                      <span className="font-semibold text-emerald-400">{s.symbol}</span>
+                      <span className="ml-2 truncate text-xs text-zinc-400">{s.name} · {s.exchange}</span>
                     </button>
                   ))}
                 </div>
