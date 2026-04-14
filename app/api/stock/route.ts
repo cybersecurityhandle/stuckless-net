@@ -8,8 +8,10 @@ const CACHE_HEADERS = {
 
 async function getYahooFinance() {
   const { default: YahooFinance } = await import("yahoo-finance2");
-  return new YahooFinance();
+  return new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 }
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -20,7 +22,6 @@ export async function GET(req: NextRequest) {
     const yahooFinance = await getYahooFinance();
 
     if (search) {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
       const result: any = await yahooFinance.search(search);
       const equities = (result.quotes || [])
         .filter((q: any) => q.quoteType === "EQUITY")
@@ -37,62 +38,49 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Provide ?ticker= or ?search=" }, { status: 400 });
     }
 
-    const summary: any = await yahooFinance.quoteSummary(ticker, {
-      modules: [
-        "incomeStatementHistory",
-        "balanceSheetHistory",
-        "cashflowStatementHistory",
-        "price",
-      ],
-    });
-
-    // Fetch monthly historical prices for year-end lookups
-    const sixYearsAgo = new Date();
-    sixYearsAgo.setFullYear(sixYearsAgo.getFullYear() - 6);
-
-    const historical: any[] = await yahooFinance.historical(ticker, {
-      period1: sixYearsAgo,
-      period2: new Date(),
-      interval: "1mo",
-    });
-
-    const incomeStmts: any[] = summary.incomeStatementHistory?.incomeStatementHistory || [];
-    const balanceSheets: any[] = summary.balanceSheetHistory?.balanceSheetHistory || [];
-    const cashFlows: any[] = summary.cashflowStatementHistory?.cashflowStatementHistory || [];
+    // Use fundamentalsTimeSeries (the old quoteSummary financial statement
+    // submodules stopped returning data in Nov 2024)
+    const [fundamentals, summary, historical]: [any[], any, any[]] = await Promise.all([
+      yahooFinance.fundamentalsTimeSeries(ticker, {
+        period1: new Date(new Date().getFullYear() - 6, 0, 1),
+        period2: new Date(),
+        type: "annual",
+        module: "all",
+      }),
+      yahooFinance.quoteSummary(ticker, { modules: ["price"] }),
+      yahooFinance.historical(ticker, {
+        period1: new Date(new Date().getFullYear() - 6, 0, 1),
+        period2: new Date(),
+        interval: "1mo",
+      }),
+    ]);
 
     const years = [];
 
-    for (const stmt of incomeStmts) {
-      const endDate = stmt.endDate instanceof Date ? stmt.endDate : new Date(stmt.endDate);
+    for (const entry of fundamentals) {
+      const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const year = endDate.getFullYear();
 
-      const revenue = stmt.totalRevenue;
-      const netIncome = stmt.netIncome;
-      if (!revenue || !netIncome) continue;
+      const revenue = entry.totalRevenue;
+      const netIncome = entry.netIncome;
+      // ordinarySharesNumber = actual outstanding shares (excludes treasury)
+      const sharesOut = entry.ordinarySharesNumber;
 
-      // Find matching balance sheet by fiscal year
-      const bs = balanceSheets.find((b: any) => {
-        const d = b.endDate instanceof Date ? b.endDate : new Date(b.endDate);
-        return d.getFullYear() === year;
-      });
+      if (!revenue || !netIncome || !sharesOut) continue;
 
-      const sharesOut = bs?.commonStockSharesOutstanding || bs?.shareIssued;
-      if (!sharesOut) continue;
+      // Use reported diluted EPS if available, else calculate
+      const eps = entry.dilutedEPS || netIncome / sharesOut;
 
-      // Find matching cash flow for dividends
-      const cf = cashFlows.find((c: any) => {
-        const d = c.endDate instanceof Date ? c.endDate : new Date(c.endDate);
-        return d.getFullYear() === year;
-      });
-
-      const dividendsPaid = Math.abs(cf?.dividendsPaid || 0);
+      // Dividends: cashDividendsPaid or commonStockDividendPaid (negative = paid out)
+      const dividendsPaid = Math.abs(
+        entry.cashDividendsPaid || entry.commonStockDividendPaid || 0
+      );
       const dps = sharesOut > 0 ? dividendsPaid / sharesOut : 0;
 
       // Find closest historical price to fiscal year end
       const yearEndPrice = getClosestPrice(historical, endDate);
       if (!yearEndPrice) continue;
 
-      const eps = netIncome / sharesOut;
       const salesPerShare = revenue / sharesOut;
       const netMargin = netIncome / revenue;
       const pe = eps > 0 ? yearEndPrice / eps : 0;
@@ -106,13 +94,12 @@ export async function GET(req: NextRequest) {
         sharesOutstanding: sharesOut,
         eps: Math.round(eps * 100) / 100,
         price: Math.round(yearEndPrice * 100) / 100,
-        dividendsPerShare: Math.round(dps * 100) / 100,
+        dividendsPerShare: Math.round(dps * 1000) / 1000,
         salesPerShare: Math.round(salesPerShare * 100) / 100,
         netMargin: Math.round(netMargin * 10000) / 10000,
         peMultiple: Math.round(pe * 100) / 100,
         dividendYield: Math.round(divYield * 10000) / 10000,
       });
-      /* eslint-enable @typescript-eslint/no-explicit-any */
     }
 
     years.sort((a, b) => a.year - b.year);
@@ -133,9 +120,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getClosestPrice(historical: any[], targetDate: Date): number {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let closest: any = null;
   let minDiff = Infinity;
 
