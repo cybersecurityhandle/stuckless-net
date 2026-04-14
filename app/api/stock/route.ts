@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.4"; // 1.5.4 = weighted avg shares has priority; drop DEI EntityCommonStock (fixes BRK-A multi-class)
+const API_VERSION = "1.5.5"; // 1.5.5 = XBRL scale error guard: when filings disagree >1000x use minimum (fixes BRK-A 2011 1.65T→1.65M)
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -64,17 +64,36 @@ function extractEdgar(
       });
       if (annuals.length === 0) continue;
 
-      const byEnd: Record<string, any> = {};
+      // Group all filings by period end date
+      const byEnd: Record<string, any[]> = {};
       for (const e of annuals) {
-        if (!byEnd[e.end] || (preferEarliestFiling
-          ? e.filed < byEnd[e.end].filed
-          : e.filed > byEnd[e.end].filed)) {
-          byEnd[e.end] = e;
-        }
+        if (!byEnd[e.end]) byEnd[e.end] = [];
+        byEnd[e.end].push(e);
       }
 
-      for (const [end, entry] of Object.entries(byEnd) as [string, any][]) {
-        result[end] = entry.val;
+      for (const [end, periodEntries] of Object.entries(byEnd) as [string, any[]][]) {
+        // Sort by preference (earliest or latest filing)
+        periodEntries.sort((a: any, b: any) =>
+          preferEarliestFiling
+            ? a.filed.localeCompare(b.filed)
+            : b.filed.localeCompare(a.filed)
+        );
+
+        // XBRL scale error guard: early EDGAR filings sometimes mis-file values
+        // at 10^6 the correct magnitude (e.g. BRK-A filed shares as 1.65T instead
+        // of 1.65M). When filings for the same period disagree by >1000x it is
+        // never a legitimate split restatement — it is a units bug. Use the minimum.
+        const vals = periodEntries.map((e: any) => e.val as number).filter((v) => v > 0);
+        if (vals.length > 1) {
+          const min = Math.min(...vals);
+          const max = Math.max(...vals);
+          if (max / min > 1000) {
+            result[end] = min;
+            continue;
+          }
+        }
+
+        result[end] = periodEntries[0].val;
       }
     }
   }
