@@ -600,6 +600,80 @@ export function StockAnalyzer() {
         </div>
       )}
 
+      {/* $100 Invested Waterfall */}
+      {analysis && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">
+              $100 Invested — {stockData?.ticker} ({stockData?.years[startIdx].year}–{stockData?.years[endIdx].year})
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              How each factor compounds a $100 investment over {analysis.numYears} years
+            </p>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              // Multiplicative waterfall: start with $100
+              const start = 100;
+              const afterSales = start * (1 + analysis.dollarSalesGrowth);
+              const afterShares = afterSales / (1 + analysis.shareCountGrowth);
+              const afterMargin = analysis.marginGrowth != null
+                ? afterShares * (1 + analysis.marginGrowth)
+                : afterShares;
+              const afterPe = analysis.peGrowth != null
+                ? afterMargin * (1 + analysis.peGrowth)
+                : afterMargin;
+              const priceEnd = afterPe; // = price return component
+              const totalDividends = start * analysis.annDividendYield * analysis.numYears;
+              const totalEnd = priceEnd + totalDividends;
+
+              const steps = [
+                { label: "Starting Investment", value: start, cumulative: start, color: "text-zinc-400" },
+                { label: "Dollar Sales Growth", value: afterSales - start, cumulative: afterSales, color: afterSales >= start ? "text-emerald-400" : "text-red-400" },
+                { label: "Share Count Effect", value: afterShares - afterSales, cumulative: afterShares, color: afterShares >= afterSales ? "text-emerald-400" : "text-red-400" },
+              ];
+              if (analysis.marginGrowth != null) {
+                steps.push({ label: "Margin Growth", value: afterMargin - afterShares, cumulative: afterMargin, color: afterMargin >= afterShares ? "text-emerald-400" : "text-red-400" });
+              }
+              if (analysis.peGrowth != null) {
+                steps.push({ label: "P/E Multiple Change", value: afterPe - afterMargin, cumulative: afterPe, color: afterPe >= afterMargin ? "text-emerald-400" : "text-red-400" });
+              }
+              steps.push({ label: "Cumulative Dividends", value: totalDividends, cumulative: totalEnd, color: "text-blue-400" });
+
+              return (
+                <div className="space-y-2">
+                  {steps.map((step, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{step.label}</span>
+                      <div className="flex gap-4">
+                        <span className={`w-20 text-right font-mono ${i === 0 ? "text-zinc-400" : step.color}`}>
+                          {i === 0 ? "" : step.value >= 0 ? "+" : ""}
+                          {i === 0 ? "" : `$${Math.abs(step.value).toFixed(2)}`}
+                        </span>
+                        <span className="w-24 text-right font-mono font-medium">
+                          ${step.cumulative.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="border-t border-border pt-2 mt-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-bold">Total Value</span>
+                      <span className={`font-mono font-bold ${totalEnd >= 100 ? "text-emerald-500" : "text-red-400"}`}>
+                        ${totalEnd.toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[10px] text-muted-foreground/60">
+                      {analysis.numYears}-year total return: {fmtPct(analysis.totalReturn)} · Annualized: {fmtPct(analysis.annTotalReturn)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Chart */}
       {analysis && chartData.length > 0 && (
         <Card>
