@@ -40,6 +40,7 @@ interface StockData {
   currency: string;
   source: "edgar+yahoo" | "yahoo";
   years: YearData[];
+  calendarYears?: YearData[];
 }
 
 interface SearchResult {
@@ -190,6 +191,22 @@ export function StockAnalyzer() {
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // Active data set based on fiscal/calendar toggle
+  const activeYears = useMemo(() => {
+    if (!stockData) return [];
+    return calendarYear && stockData.calendarYears?.length
+      ? stockData.calendarYears
+      : stockData.years;
+  }, [stockData, calendarYear]);
+
+  // Reset start/end indices when data basis changes
+  useEffect(() => {
+    if (activeYears.length >= 2) {
+      setStartIdx(0);
+      setEndIdx(activeYears.length - 1);
+    }
+  }, [activeYears]);
+
   // Close suggestions on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -250,12 +267,13 @@ export function StockAnalyzer() {
   }
 
   const analysis = useMemo(() => {
-    if (!stockData || stockData.years.length < 2) return null;
-    const start = stockData.years[startIdx];
-    const end = stockData.years[endIdx];
+    if (!stockData || activeYears.length < 2) return null;
+    const start = activeYears[startIdx];
+    const end = activeYears[endIdx];
     if (!start || !end || start.year >= end.year) return null;
-    return calcFiveFactors(start, end, calendarYear);
-  }, [stockData, startIdx, endIdx, calendarYear]);
+    // Calendar year data already has Dec 31 prices in both fields, so cal=false is fine
+    return calcFiveFactors(start, end, calendarYear && !stockData.calendarYears?.length);
+  }, [stockData, activeYears, startIdx, endIdx, calendarYear]);
 
   const chartData = useMemo(() => {
     if (!analysis) return [];
@@ -312,7 +330,7 @@ export function StockAnalyzer() {
               )}
             </div>
 
-            {stockData && stockData.years.length >= 2 && (
+            {stockData && activeYears.length >= 2 && (
               <>
                 <div>
                   <label className="mb-1 block text-xs text-muted-foreground">From</label>
@@ -321,7 +339,7 @@ export function StockAnalyzer() {
                     onChange={(e) => setStartIdx(Number(e.target.value))}
                     className="h-9 rounded-md border border-border bg-card px-3 text-sm"
                   >
-                    {stockData.years.map((y, i) => (
+                    {activeYears.map((y, i) => (
                       <option key={y.year} value={i} disabled={i >= endIdx}>
                         {y.year}
                       </option>
@@ -335,7 +353,7 @@ export function StockAnalyzer() {
                     onChange={(e) => setEndIdx(Number(e.target.value))}
                     className="h-9 rounded-md border border-border bg-card px-3 text-sm"
                   >
-                    {stockData.years.map((y, i) => (
+                    {activeYears.map((y, i) => (
                       <option key={y.year} value={i} disabled={i <= startIdx}>
                         {y.year}
                       </option>
@@ -343,14 +361,14 @@ export function StockAnalyzer() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">Price Date</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">Data Basis</label>
                   <select
                     value={calendarYear ? "calendar" : "fiscal"}
                     onChange={(e) => setCalendarYear(e.target.value === "calendar")}
                     className="h-9 rounded-md border border-border bg-card px-3 text-sm"
                   >
-                    <option value="fiscal">Fiscal Year-End</option>
-                    <option value="calendar">Dec 31</option>
+                    <option value="fiscal">Fiscal Year</option>
+                    <option value="calendar">Calendar Year</option>
                   </select>
                 </div>
               </>
@@ -369,7 +387,7 @@ export function StockAnalyzer() {
             <div className="mt-3 space-y-1">
               <p className="text-xs text-muted-foreground">
                 {stockData.name} ({stockData.ticker}) &middot; {stockData.currency} &middot;{" "}
-                {stockData.years.length} years of data
+                {activeYears.length} years of data
                 {stockData.source === "edgar+yahoo"
                   ? " · SEC EDGAR + Yahoo Finance"
                   : " · Yahoo Finance only"}
@@ -391,6 +409,7 @@ export function StockAnalyzer() {
           <CardHeader>
             <CardTitle className="text-sm">
               {analysis.numYears}-Year Five-Factor Breakdown &mdash; {stockData.ticker}
+              {calendarYear ? " (Calendar Year)" : " (Fiscal Year)"}
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               Semper Augustus five-factor return attribution. Bold columns are the five factors.
@@ -415,7 +434,7 @@ export function StockAnalyzer() {
               </thead>
               <tbody>
                 {/* Start row */}
-                {(() => { const y = stockData.years[startIdx]; const v = getYearView(y, calendarYear); return (
+                {(() => { const y = activeYears[startIdx]; const v = getYearView(y, calendarYear && !stockData.calendarYears?.length); return (
                 <tr className="border-b border-border/50">
                   <td className="py-2 pr-3 text-muted-foreground">
                     {calendarYear ? `12/31/${y.year}` : y.endDate}
@@ -433,7 +452,7 @@ export function StockAnalyzer() {
                 </tr>
                 ); })()}
                 {/* End row */}
-                {(() => { const y = stockData.years[endIdx]; const v = getYearView(y, calendarYear); return (
+                {(() => { const y = activeYears[endIdx]; const v = getYearView(y, calendarYear && !stockData.calendarYears?.length); return (
                 <tr className="border-b border-border/50">
                   <td className="py-2 pr-3 text-muted-foreground">
                     {calendarYear ? `12/31/${y.year}` : y.endDate}
@@ -487,7 +506,7 @@ export function StockAnalyzer() {
       {/* Negative earnings warning */}
       {analysis?.negativeStartEps && (
         <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 text-xs text-yellow-400">
-          Starting period has negative earnings (EPS: {fmtNum(stockData!.years[startIdx].eps)}).
+          Starting period has negative earnings (EPS: {fmtNum(activeYears[startIdx]?.eps ?? 0)}).
           Margin, P/E, and EPS growth rates are not meaningful (shown as N/M).
           Consider choosing a later start year with positive earnings for full five-factor decomposition.
         </div>
@@ -605,7 +624,7 @@ export function StockAnalyzer() {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">
-              $100 Cost Basis — {stockData.ticker} ({stockData.years[startIdx].year}–{stockData.years[endIdx].year})
+              $100 Cost Basis — {stockData.ticker} ({activeYears[startIdx]?.year}–{activeYears[endIdx]?.year})
             </CardTitle>
             <p className="text-xs text-muted-foreground">
               All per-share values normalized so the starting price = $100.
@@ -614,9 +633,10 @@ export function StockAnalyzer() {
           </CardHeader>
           <CardContent className="overflow-x-auto">
             {(() => {
-              const sv = getYearView(stockData.years[startIdx], calendarYear);
+              const useCal = calendarYear && !stockData.calendarYears?.length;
+              const sv = getYearView(activeYears[startIdx], useCal);
               const normFactor = sv.price > 0 ? 100 / sv.price : 1;
-              const visibleYears = stockData.years.slice(startIdx, endIdx + 1);
+              const visibleYears = activeYears.slice(startIdx, endIdx + 1);
               let cumDividends = 0;
 
               return (
@@ -636,7 +656,7 @@ export function StockAnalyzer() {
                   </thead>
                   <tbody>
                     {visibleYears.map((y, i) => {
-                      const v = getYearView(y, calendarYear);
+                      const v = getYearView(y, useCal);
                       const normPrice = v.price * normFactor;
                       const normEps = y.eps * normFactor;
                       const normDps = y.dividendsPerShare * normFactor;
@@ -674,7 +694,7 @@ export function StockAnalyzer() {
               );
             })()}
             <p className="mt-3 text-[10px] text-muted-foreground/60">
-              Normalization factor: {(() => { const sv = getYearView(stockData.years[startIdx], calendarYear); return sv.price > 0 ? `$100 ÷ $${fmtNum(sv.price)} = ${fmtNum(100 / sv.price)}×` : "N/A"; })()}
+              Normalization factor: {(() => { const useCal2 = calendarYear && !stockData.calendarYears?.length; const sv2 = getYearView(activeYears[startIdx], useCal2); return sv2.price > 0 ? `$100 ÷ $${fmtNum(sv2.price)} = ${fmtNum(100 / sv2.price)}×` : "N/A"; })()}
               {" · "}Ratios (margin, P/E) are unchanged. Total value = normalized price + cumulative dividends.
             </p>
           </CardContent>

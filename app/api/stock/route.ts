@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.3.0"; // 1.3.0 = stock split adjustment for EDGAR data
+const API_VERSION = "1.4.0"; // 1.4.0 = calendar year data + weekly prices
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -24,7 +24,6 @@ async function getTickerMap() {
   });
   if (!res.ok) return null;
   const data = await res.json();
-  // Index by ticker for fast lookup
   const map: Record<string, any> = {};
   for (const entry of Object.values(data) as any[]) {
     map[entry.ticker?.toUpperCase()] = entry;
@@ -34,7 +33,7 @@ async function getTickerMap() {
 }
 
 /**
- * Extract annual values from SEC EDGAR company facts.
+ * Extract annual values from SEC EDGAR company facts (10-K filings).
  * Merges data from ALL matching XBRL concept names (companies switch concepts over time).
  * Deduplicates by fiscal year end date, keeping the most recently filed value.
  * Earlier concepts in the list take priority when dates overlap.
@@ -47,7 +46,6 @@ function extractEdgar(
 ): Record<string, number> {
   const result: Record<string, number> = {};
 
-  // Iterate in reverse so earlier (higher-priority) concepts overwrite later ones
   for (let i = conceptNames.length - 1; i >= 0; i--) {
     for (const ns of namespaces) {
       const nsData = facts[ns] || {};
@@ -57,7 +55,6 @@ function extractEdgar(
       const annuals = entries.filter((e: any) => e.form === "10-K");
       if (annuals.length === 0) continue;
 
-      // Group by end date, keep latest filing
       const byEnd: Record<string, any> = {};
       for (const e of annuals) {
         if (!byEnd[e.end] || e.filed > byEnd[e.end].filed) {
@@ -72,6 +69,99 @@ function extractEdgar(
   }
   return result;
 }
+
+/**
+ * Extract calendar-year totals by summing quarterly EDGAR data.
+ * Collects entries with 60-120 day periods from 10-Q and 10-K filings,
+ * groups by calendar year of end date, and sums.
+ * Only returns years with exactly 4 unique quarter periods.
+ */
+function extractEdgarCalendarYear(
+  facts: Record<string, any>,
+  conceptNames: string[],
+  units = "USD",
+  namespaces = ["us-gaap"]
+): Record<number, number> {
+  const yearQuarters: Record<number, Map<string, { val: number; filed: string }>> = {};
+
+  for (let i = conceptNames.length - 1; i >= 0; i--) {
+    for (const ns of namespaces) {
+      const concept = facts[ns]?.[conceptNames[i]];
+      if (!concept) continue;
+      const entries: any[] = concept.units?.[units] || [];
+
+      // Within this concept+namespace, group by period key, keep latest filing
+      const byPeriod: Record<string, any> = {};
+      for (const e of entries) {
+        if (!e.start || !e.end) continue;
+        if (e.form !== "10-Q" && e.form !== "10-K") continue;
+        const days = (new Date(e.end).getTime() - new Date(e.start).getTime()) / 86400000;
+        if (days < 60 || days > 120) continue;
+
+        const key = `${e.start}_${e.end}`;
+        if (!byPeriod[key] || e.filed > byPeriod[key].filed) {
+          byPeriod[key] = e;
+        }
+      }
+
+      // Higher priority concepts (earlier in list, processed later) overwrite same period
+      for (const [key, e] of Object.entries(byPeriod) as [string, any][]) {
+        const cy = new Date(e.end).getFullYear();
+        if (!yearQuarters[cy]) yearQuarters[cy] = new Map();
+        yearQuarters[cy].set(key, { val: e.val, filed: e.filed });
+      }
+    }
+  }
+
+  const result: Record<number, number> = {};
+  for (const [yrStr, qMap] of Object.entries(yearQuarters)) {
+    if (qMap.size === 4) {
+      let sum = 0;
+      for (const q of qMap.values()) sum += q.val;
+      result[Number(yrStr)] = sum;
+    }
+  }
+  return result;
+}
+
+// Concept name lists (shared between fiscal and calendar year extraction)
+const REVENUE_CONCEPTS = [
+  "Revenues",
+  "RevenueFromContractWithCustomerExcludingAssessedTax",
+  "SalesRevenueNet",
+  "SalesRevenueGoodsNet",
+  "SalesRevenueServicesNet",
+];
+
+const NET_INCOME_CONCEPTS = [
+  "NetIncomeLoss",
+  "ProfitLoss",
+  "NetIncomeLossAvailableToCommonStockholdersBasic",
+  "NetIncomeLossAvailableToCommonStockholdersDiluted",
+  "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
+];
+
+const SHARES_WEIGHTED_CONCEPTS = [
+  "WeightedAverageNumberOfSharesOutstandingBasic",
+  "WeightedAverageNumberOfDilutedSharesOutstanding",
+];
+
+const SHARES_OUTSTANDING_CONCEPTS = [
+  "CommonStockSharesOutstanding",
+  "EntityCommonStockSharesOutstanding",
+];
+
+const EPS_CONCEPTS = [
+  "EarningsPerShareDiluted",
+  "IncomeLossFromContinuingOperationsPerDilutedShare",
+  "EarningsPerShareBasic",
+  "IncomeLossFromContinuingOperationsPerBasicShare",
+];
+
+const DPS_CONCEPTS = [
+  "CommonStockDividendsPerShareDeclared",
+  "CommonStockDividendsPerShareCashPaid",
+];
 
 async function fetchEdgarData(ticker: string) {
   const map = await getTickerMap();
@@ -89,69 +179,28 @@ async function fetchEdgarData(ticker: string) {
   const factsJson = await res.json();
   const allFacts = factsJson.facts || {};
 
-  const revenues = extractEdgar(allFacts, [
-    "Revenues",
-    "RevenueFromContractWithCustomerExcludingAssessedTax",
-    "SalesRevenueNet",
-    "SalesRevenueGoodsNet",
-    "SalesRevenueServicesNet",
-  ]);
+  // ── Fiscal year data (from 10-K annual) ──
+  const revenues = extractEdgar(allFacts, REVENUE_CONCEPTS);
+  const netIncomes = extractEdgar(allFacts, NET_INCOME_CONCEPTS);
 
-  const netIncomes = extractEdgar(allFacts, [
-    "NetIncomeLoss",
-    "ProfitLoss",
-    "NetIncomeLossAvailableToCommonStockholdersBasic",
-    "NetIncomeLossAvailableToCommonStockholdersDiluted",
-    "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
-  ]);
-
-  // Shares: start with weighted average (reliable fiscal year-end dates), then layer
-  // actual shares outstanding on top (higher priority but may have non-fiscal dates)
   const shares: Record<string, number> = {
-    ...extractEdgar(
-      allFacts,
-      ["WeightedAverageNumberOfSharesOutstandingBasic", "WeightedAverageNumberOfDilutedSharesOutstanding"],
-      "shares"
-    ),
-    ...extractEdgar(
-      allFacts,
-      ["CommonStockSharesOutstanding", "EntityCommonStockSharesOutstanding"],
-      "shares",
-      ["us-gaap", "dei"]
-    ),
+    ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares"),
+    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap", "dei"]),
   };
 
-  const eps = extractEdgar(
-    allFacts,
-    [
-      "EarningsPerShareDiluted",
-      "IncomeLossFromContinuingOperationsPerDilutedShare",
-      "EarningsPerShareBasic",
-      "IncomeLossFromContinuingOperationsPerBasicShare",
-    ],
-    "USD/shares"
-  );
+  const eps = extractEdgar(allFacts, EPS_CONCEPTS, "USD/shares");
+  const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares");
 
-  const dps = extractEdgar(
-    allFacts,
-    [
-      "CommonStockDividendsPerShareDeclared",
-      "CommonStockDividendsPerShareCashPaid",
-    ],
-    "USD/shares"
-  );
-
-  // Build a year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
+  // Build year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
   const sharesByYear: Record<number, number> = {};
   for (const [dateStr, val] of Object.entries(shares)) {
     const yr = new Date(dateStr).getFullYear();
-    // For dei dates like 2026-02-18, map to prior fiscal year (2025)
-    const month = new Date(dateStr).getMonth(); // 0-indexed
-    const fiscalYear = month < 4 ? yr - 1 : yr; // Q1 filing → prior year
+    const month = new Date(dateStr).getMonth();
+    const fiscalYear = month < 4 ? yr - 1 : yr;
     if (!sharesByYear[fiscalYear]) sharesByYear[fiscalYear] = val;
   }
 
-  // Build year-end map: merge all metrics by fiscal year end date
+  // Build fiscal year-end map
   const allDates = new Set([
     ...Object.keys(revenues),
     ...Object.keys(netIncomes),
@@ -174,9 +223,29 @@ async function fetchEdgarData(ticker: string) {
     };
   }
 
+  // ── Calendar year data (from quarterly 10-Q + 10-K) ──
+  const calRevenues = extractEdgarCalendarYear(allFacts, REVENUE_CONCEPTS);
+  const calNetIncomes = extractEdgarCalendarYear(allFacts, NET_INCOME_CONCEPTS);
+
+  const calendarYearData: Record<number, { revenue: number; netIncome: number }> = {};
+  const allCalYears = new Set([
+    ...Object.keys(calRevenues).map(Number),
+    ...Object.keys(calNetIncomes).map(Number),
+  ]);
+  for (const cy of allCalYears) {
+    if (calRevenues[cy] != null && calNetIncomes[cy] != null) {
+      calendarYearData[cy] = {
+        revenue: calRevenues[cy],
+        netIncome: calNetIncomes[cy],
+      };
+    }
+  }
+
   return {
     name: entry.title,
     yearData,
+    calendarYearData,
+    sharesByYear,
   };
 }
 
@@ -249,31 +318,42 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Provide ?ticker= or ?search=" }, { status: 400 });
     }
 
-    // Fetch in parallel: SEC EDGAR (10+ years fundamentals), Yahoo (prices + info + recent fundamentals + splits)
+    // Fetch in parallel: SEC EDGAR, Yahoo (prices + info + annual/quarterly fundamentals + splits)
     const startDate = new Date(new Date().getFullYear() - 20, 0, 1);
-    const [edgar, yfSummary, yfFundamentals, historical, chartData] = await Promise.all([
-      fetchEdgarData(ticker).catch(() => null),
-      yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
-      yahooFinance
-        .fundamentalsTimeSeries(ticker, {
-          period1: new Date(new Date().getFullYear() - 6, 0, 1),
+    const [edgar, yfSummary, yfFundamentals, yfQuarterly, historical, chartData] =
+      await Promise.all([
+        fetchEdgarData(ticker).catch(() => null),
+        yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
+        yahooFinance
+          .fundamentalsTimeSeries(ticker, {
+            period1: new Date(new Date().getFullYear() - 6, 0, 1),
+            period2: new Date(),
+            type: "annual",
+            module: "all",
+          })
+          .catch(() => []),
+        yahooFinance
+          .fundamentalsTimeSeries(ticker, {
+            period1: new Date(new Date().getFullYear() - 10, 0, 1),
+            period2: new Date(),
+            type: "quarterly",
+            module: "all",
+          })
+          .catch(() => []),
+        yahooFinance.historical(ticker, {
+          period1: startDate,
           period2: new Date(),
-          type: "annual",
-          module: "all",
-        })
-        .catch(() => []),
-      yahooFinance.historical(ticker, {
-        period1: startDate,
-        period2: new Date(),
-        interval: "1mo",
-      }),
-      yahooFinance.chart(ticker, {
-        period1: startDate,
-        period2: new Date(),
-        interval: "3mo",
-        events: "splits",
-      }).catch(() => null),
-    ]);
+          interval: "1wk", // Weekly for better Dec 31 price accuracy
+        }),
+        yahooFinance
+          .chart(ticker, {
+            period1: startDate,
+            period2: new Date(),
+            interval: "3mo",
+            events: "splits",
+          })
+          .catch(() => null),
+      ]);
 
     const splits: Array<{ date: Date | string; numerator: number; denominator: number }> =
       (chartData as any)?.events?.splits || [];
@@ -285,7 +365,9 @@ export async function GET(req: NextRequest) {
       ticker.toUpperCase();
     const currency = yfSummary?.price?.currency || "USD";
 
-    // Build year data: prefer SEC EDGAR, fill gaps with Yahoo Finance
+    // ═══════════════════════════════════════════════════════════════
+    // FISCAL YEAR DATA
+    // ═══════════════════════════════════════════════════════════════
     const yearMap: Record<number, any> = {};
 
     // 1. SEC EDGAR data (10+ years) — adjust for stock splits
@@ -293,7 +375,6 @@ export async function GET(req: NextRequest) {
       for (const [dateStr, data] of Object.entries(edgar.yearData)) {
         const endDate = new Date(dateStr);
         const year = endDate.getFullYear();
-        // Only include if we have at least revenue + (netIncome or eps) + shares
         const hasIncome = data.netIncome != null || data.eps != null;
         if (data.revenue == null || !hasIncome || data.shares == null) continue;
 
@@ -304,13 +385,12 @@ export async function GET(req: NextRequest) {
         const epsVal = data.eps ?? netIncome / data.shares;
         const dpsVal = data.dps ?? 0;
 
-        // Adjust for any stock splits that occurred after this fiscal year end
         const sf = splitFactorAfterDate(splits, endDate);
 
         yearMap[year] = {
           endDate: dateStr,
           revenue: data.revenue,
-          netIncome, // Revenue & net income are totals, not affected by splits
+          netIncome,
           sharesOutstanding: data.shares * sf,
           eps: epsVal / sf,
           dps: dpsVal / sf,
@@ -354,7 +434,7 @@ export async function GET(req: NextRequest) {
       const d = yearMap[year];
       const endDate = new Date(d.endDate);
       const fiscalPrice = getClosestPrice(historical, endDate);
-      const calendarPrice = getClosestPrice(historical, new Date(year, 11, 31)); // Dec 31
+      const calendarPrice = getClosestPrice(historical, new Date(year, 11, 31));
       if (!fiscalPrice && !calendarPrice) continue;
 
       const price = fiscalPrice || calendarPrice;
@@ -384,6 +464,109 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // CALENDAR YEAR DATA
+    // ═══════════════════════════════════════════════════════════════
+    const calYearMap: Record<number, any> = {};
+
+    // 1. EDGAR calendar year data (10+ years, aggregated from quarterly 10-Q/10-K)
+    if (edgar?.calendarYearData) {
+      for (const [cyStr, data] of Object.entries(edgar.calendarYearData)) {
+        const cy = Number(cyStr);
+        // Reuse fiscal year shares (closest available, already split-adjusted)
+        const fyData = yearMap[cy] || yearMap[cy - 1] || yearMap[cy + 1];
+        if (!fyData?.sharesOutstanding) continue;
+
+        const shares = fyData.sharesOutstanding;
+        const eps = data.netIncome / shares;
+        const dps = fyData.dps ?? 0;
+
+        calYearMap[cy] = {
+          endDate: `${cy}-12-31`,
+          revenue: data.revenue,
+          netIncome: data.netIncome,
+          sharesOutstanding: shares,
+          eps,
+          dps,
+        };
+      }
+    }
+
+    // 2. Yahoo quarterly data (fill/override recent years)
+    const yfCalAgg: Record<
+      number,
+      { revenue: number; netIncome: number; shares: number; divPaid: number; eps: number; quarters: number }
+    > = {};
+    for (const entry of yfQuarterly as any[]) {
+      const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
+      const cy = endDate.getFullYear();
+
+      const revenue = entry.totalRevenue || 0;
+      const netIncome = entry.netIncome || 0;
+      const sharesQ = entry.ordinarySharesNumber || 0;
+      const epsQ = entry.dilutedEPS || 0;
+      const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0);
+
+      if (!yfCalAgg[cy])
+        yfCalAgg[cy] = { revenue: 0, netIncome: 0, shares: 0, divPaid: 0, eps: 0, quarters: 0 };
+      yfCalAgg[cy].revenue += revenue;
+      yfCalAgg[cy].netIncome += netIncome;
+      if (sharesQ > yfCalAgg[cy].shares) yfCalAgg[cy].shares = sharesQ;
+      yfCalAgg[cy].divPaid += divPaid;
+      yfCalAgg[cy].eps += epsQ;
+      yfCalAgg[cy].quarters++;
+    }
+
+    for (const [cyStr, d] of Object.entries(yfCalAgg)) {
+      const cy = Number(cyStr);
+      if (d.quarters !== 4 || !d.shares) continue;
+
+      const dps = d.shares > 0 ? d.divPaid / d.shares : 0;
+      calYearMap[cy] = {
+        endDate: `${cy}-12-31`,
+        revenue: d.revenue,
+        netIncome: d.netIncome,
+        sharesOutstanding: d.shares,
+        eps: d.eps || d.netIncome / d.shares,
+        dps,
+      };
+    }
+
+    // 3. Compute calendar year derived metrics
+    const calendarYears = [];
+    const sortedCalYears = Object.keys(calYearMap)
+      .map(Number)
+      .sort((a, b) => a - b);
+
+    for (const cy of sortedCalYears) {
+      const d = calYearMap[cy];
+      const price = getClosestPrice(historical, new Date(cy, 11, 31));
+      if (!price) continue;
+
+      const salesPerShare = d.revenue / d.sharesOutstanding;
+      const netMargin = d.netIncome / d.revenue;
+      const pe = d.eps > 0 ? price / d.eps : 0;
+      const divYield = price > 0 ? d.dps / price : 0;
+
+      calendarYears.push({
+        year: cy,
+        endDate: d.endDate,
+        revenue: d.revenue,
+        netIncome: d.netIncome,
+        sharesOutstanding: d.sharesOutstanding,
+        eps: Math.round(d.eps * 100) / 100,
+        price: Math.round(price * 100) / 100,
+        calendarPrice: Math.round(price * 100) / 100,
+        dividendsPerShare: Math.round(d.dps * 1000) / 1000,
+        salesPerShare: Math.round(salesPerShare * 100) / 100,
+        netMargin: Math.round(netMargin * 10000) / 10000,
+        peMultiple: Math.round(pe * 100) / 100,
+        dividendYield: Math.round(divYield * 10000) / 10000,
+        calendarPeMultiple: Math.round(pe * 100) / 100,
+        calendarDividendYield: Math.round(divYield * 10000) / 10000,
+      });
+    }
+
     return NextResponse.json(
       {
         ticker: ticker.toUpperCase(),
@@ -392,6 +575,7 @@ export async function GET(req: NextRequest) {
         version: API_VERSION,
         source: edgar?.yearData ? "edgar+yahoo" : "yahoo",
         years,
+        calendarYears,
       },
       { headers: CACHE_HEADERS }
     );
