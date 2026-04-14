@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.4.0"; // 1.4.0 = calendar year data + weekly prices
+const API_VERSION = "1.5.0"; // 1.5.0 = fix split double-adjustment in EDGAR per-share data
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -42,7 +42,8 @@ function extractEdgar(
   facts: Record<string, any>,
   conceptNames: string[],
   units = "USD",
-  namespaces = ["us-gaap"]
+  namespaces = ["us-gaap"],
+  preferEarliestFiling = false // For per-share data: use earliest filing to avoid split-restated values
 ): Record<string, number> {
   const result: Record<string, number> = {};
 
@@ -57,7 +58,9 @@ function extractEdgar(
 
       const byEnd: Record<string, any> = {};
       for (const e of annuals) {
-        if (!byEnd[e.end] || e.filed > byEnd[e.end].filed) {
+        if (!byEnd[e.end] || (preferEarliestFiling
+          ? e.filed < byEnd[e.end].filed
+          : e.filed > byEnd[e.end].filed)) {
           byEnd[e.end] = e;
         }
       }
@@ -183,13 +186,14 @@ async function fetchEdgarData(ticker: string) {
   const revenues = extractEdgar(allFacts, REVENUE_CONCEPTS);
   const netIncomes = extractEdgar(allFacts, NET_INCOME_CONCEPTS);
 
+  // Per-share data: use earliest filing to avoid split-restated values from later 10-Ks
   const shares: Record<string, number> = {
-    ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares"),
-    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap", "dei"]),
+    ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares", ["us-gaap"], true),
+    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap", "dei"], true),
   };
 
-  const eps = extractEdgar(allFacts, EPS_CONCEPTS, "USD/shares");
-  const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares");
+  const eps = extractEdgar(allFacts, EPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
+  const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
 
   // Build year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
   const sharesByYear: Record<number, number> = {};
