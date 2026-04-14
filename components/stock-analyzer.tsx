@@ -24,11 +24,14 @@ interface YearData {
   sharesOutstanding: number;
   eps: number;
   price: number;
+  calendarPrice: number;
   dividendsPerShare: number;
   salesPerShare: number;
   netMargin: number;
   peMultiple: number;
   dividendYield: number;
+  calendarPeMultiple: number;
+  calendarDividendYield: number;
 }
 
 interface StockData {
@@ -115,9 +118,19 @@ function safeGrowth(start: number, end: number): number | null {
   return end / start - 1;
 }
 
-function calcFiveFactors(start: YearData, end: YearData): FiveFactorResult {
+/** Get price/pe/yield based on calendar vs fiscal mode */
+function getYearView(y: YearData, cal: boolean) {
+  const price = cal ? y.calendarPrice : y.price;
+  const pe = cal ? y.calendarPeMultiple : y.peMultiple;
+  const dy = cal ? y.calendarDividendYield : y.dividendYield;
+  return { price, pe, dy };
+}
+
+function calcFiveFactors(start: YearData, end: YearData, cal = false): FiveFactorResult {
   const numYears = end.year - start.year;
   const negativeStartEps = start.eps <= 0;
+  const sv = getYearView(start, cal);
+  const ev = getYearView(end, cal);
 
   // Sales & shares always have positive bases
   const dollarSalesGrowth = start.revenue > 0 ? end.revenue / start.revenue - 1 : 0;
@@ -127,13 +140,13 @@ function calcFiveFactors(start: YearData, end: YearData): FiveFactorResult {
   // These require positive starting values to be meaningful
   const marginGrowth = safeGrowth(start.netMargin, end.netMargin);
   const epsGrowth = safeGrowth(start.eps, end.eps);
-  const peGrowth = safeGrowth(start.peMultiple, end.peMultiple);
+  const peGrowth = safeGrowth(sv.pe, ev.pe);
   const dpsGrowth = safeGrowth(start.dividendsPerShare, end.dividendsPerShare);
-  const yieldGrowth = safeGrowth(start.dividendYield, end.dividendYield);
-  const priceReturn = start.price > 0 ? end.price / start.price - 1 : 0;
+  const yieldGrowth = safeGrowth(sv.dy, ev.dy);
+  const priceReturn = sv.price > 0 ? ev.price / sv.price - 1 : 0;
 
   // Average annual dividend yield (approx)
-  const avgDivYield = (start.dividendYield + end.dividendYield) / 2;
+  const avgDivYield = (sv.dy + ev.dy) / 2;
   const annTotalReturn = annualize(priceReturn, numYears) + avgDivYield;
 
   return {
@@ -173,6 +186,7 @@ export function StockAnalyzer() {
   const [error, setError] = useState<string | null>(null);
   const [startIdx, setStartIdx] = useState(0);
   const [endIdx, setEndIdx] = useState(0);
+  const [calendarYear, setCalendarYear] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -240,8 +254,8 @@ export function StockAnalyzer() {
     const start = stockData.years[startIdx];
     const end = stockData.years[endIdx];
     if (!start || !end || start.year >= end.year) return null;
-    return calcFiveFactors(start, end);
-  }, [stockData, startIdx, endIdx]);
+    return calcFiveFactors(start, end, calendarYear);
+  }, [stockData, startIdx, endIdx, calendarYear]);
 
   const chartData = useMemo(() => {
     if (!analysis) return [];
@@ -328,6 +342,17 @@ export function StockAnalyzer() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">Price Date</label>
+                  <select
+                    value={calendarYear ? "calendar" : "fiscal"}
+                    onChange={(e) => setCalendarYear(e.target.value === "calendar")}
+                    className="h-9 rounded-md border border-border bg-card px-3 text-sm"
+                  >
+                    <option value="fiscal">Fiscal Year-End</option>
+                    <option value="calendar">Dec 31</option>
+                  </select>
+                </div>
               </>
             )}
           </div>
@@ -390,37 +415,41 @@ export function StockAnalyzer() {
               </thead>
               <tbody>
                 {/* Start row */}
+                {(() => { const y = stockData.years[startIdx]; const v = getYearView(y, calendarYear); return (
                 <tr className="border-b border-border/50">
                   <td className="py-2 pr-3 text-muted-foreground">
-                    {stockData.years[startIdx].endDate}
+                    {calendarYear ? `12/31/${y.year}` : y.endDate}
                   </td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[startIdx].eps)}</td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[startIdx].dividendsPerShare)}</td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[startIdx].salesPerShare)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtBig(stockData.years[startIdx].revenue, currency)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtBig(stockData.years[startIdx].sharesOutstanding, "")}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtPct(stockData.years[startIdx].netMargin)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtNum(stockData.years[startIdx].peMultiple, 1)}x</td>
-                  <td className="py-2 pr-3 font-medium">{fmtPct(stockData.years[startIdx].dividendYield)}</td>
-                  <td className="py-2 pr-3">{fmtCurrency(stockData.years[startIdx].price, currency)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.eps)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.dividendsPerShare)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.salesPerShare)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtBig(y.revenue, currency)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtBig(y.sharesOutstanding, "")}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtPct(y.netMargin)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtNum(v.pe, 1)}x</td>
+                  <td className="py-2 pr-3 font-medium">{fmtPct(v.dy)}</td>
+                  <td className="py-2 pr-3">{fmtCurrency(v.price, currency)}</td>
                   <td className="py-2"></td>
                 </tr>
+                ); })()}
                 {/* End row */}
+                {(() => { const y = stockData.years[endIdx]; const v = getYearView(y, calendarYear); return (
                 <tr className="border-b border-border/50">
                   <td className="py-2 pr-3 text-muted-foreground">
-                    {stockData.years[endIdx].endDate}
+                    {calendarYear ? `12/31/${y.year}` : y.endDate}
                   </td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[endIdx].eps)}</td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[endIdx].dividendsPerShare)}</td>
-                  <td className="py-2 pr-3">{fmtNum(stockData.years[endIdx].salesPerShare)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtBig(stockData.years[endIdx].revenue, currency)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtBig(stockData.years[endIdx].sharesOutstanding, "")}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtPct(stockData.years[endIdx].netMargin)}</td>
-                  <td className="py-2 pr-3 font-medium">{fmtNum(stockData.years[endIdx].peMultiple, 1)}x</td>
-                  <td className="py-2 pr-3 font-medium">{fmtPct(stockData.years[endIdx].dividendYield)}</td>
-                  <td className="py-2 pr-3">{fmtCurrency(stockData.years[endIdx].price, currency)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.eps)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.dividendsPerShare)}</td>
+                  <td className="py-2 pr-3">{fmtNum(y.salesPerShare)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtBig(y.revenue, currency)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtBig(y.sharesOutstanding, "")}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtPct(y.netMargin)}</td>
+                  <td className="py-2 pr-3 font-medium">{fmtNum(v.pe, 1)}x</td>
+                  <td className="py-2 pr-3 font-medium">{fmtPct(v.dy)}</td>
+                  <td className="py-2 pr-3">{fmtCurrency(v.price, currency)}</td>
                   <td className="py-2"></td>
                 </tr>
+                ); })()}
                 {/* Growth % row */}
                 <tr className="border-b border-border/50 bg-muted/30">
                   <td className="py-2 pr-3 font-medium text-muted-foreground">Growth %</td>

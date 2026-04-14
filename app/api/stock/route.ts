@@ -353,13 +353,17 @@ export async function GET(req: NextRequest) {
     for (const year of sortedYears) {
       const d = yearMap[year];
       const endDate = new Date(d.endDate);
-      const price = getClosestPrice(historical, endDate);
-      if (!price) continue;
+      const fiscalPrice = getClosestPrice(historical, endDate);
+      const calendarPrice = getClosestPrice(historical, new Date(year, 11, 31)); // Dec 31
+      if (!fiscalPrice && !calendarPrice) continue;
 
+      const price = fiscalPrice || calendarPrice;
       const salesPerShare = d.revenue / d.sharesOutstanding;
       const netMargin = d.netIncome / d.revenue;
       const pe = d.eps > 0 ? price / d.eps : 0;
       const divYield = price > 0 ? d.dps / price : 0;
+      const calPe = d.eps > 0 && calendarPrice ? calendarPrice / d.eps : 0;
+      const calDivYield = calendarPrice > 0 ? d.dps / calendarPrice : 0;
 
       years.push({
         year,
@@ -369,11 +373,14 @@ export async function GET(req: NextRequest) {
         sharesOutstanding: d.sharesOutstanding,
         eps: Math.round(d.eps * 100) / 100,
         price: Math.round(price * 100) / 100,
+        calendarPrice: Math.round((calendarPrice || 0) * 100) / 100,
         dividendsPerShare: Math.round(d.dps * 1000) / 1000,
         salesPerShare: Math.round(salesPerShare * 100) / 100,
         netMargin: Math.round(netMargin * 10000) / 10000,
         peMultiple: Math.round(pe * 100) / 100,
         dividendYield: Math.round(divYield * 10000) / 10000,
+        calendarPeMultiple: Math.round(calPe * 100) / 100,
+        calendarDividendYield: Math.round(calDivYield * 10000) / 10000,
       });
     }
 
