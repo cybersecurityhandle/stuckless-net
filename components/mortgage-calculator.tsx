@@ -33,7 +33,6 @@ export function MortgageCalculator() {
   const [rentIncreasePct, setRentIncreasePct] = useState(3);
 
   // === Contingent Help ===
-  const [parentalGift, setParentalGift] = useState(50000);
   const [basementRent, setBasementRent] = useState(1500);
 
   // === Income & Assumptions ===
@@ -63,42 +62,32 @@ export function MortgageCalculator() {
     // ── Scenario B: Rent + invest ─────────────────────────────
     const monthlyRentInsurance = rentInsurance / 12;
 
-    // ── Scenario C: Buy with contingent help ─────────────────
-    const boostedDown = downPayment + parentalGift;
-    const boostedLoan = Math.max(0, homePrice - boostedDown);
-    const boostedMortgage =
-      boostedLoan === 0
-        ? 0
-        : monthlyRate > 0
-        ? (boostedLoan * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-          (Math.pow(1 + monthlyRate, numPayments) - 1)
-        : boostedLoan / numPayments;
-    // Net monthly after basement income
-    const totalMonthlyBoosted = boostedMortgage + monthlyPropertyTax + monthlyHomeInsurance + monthlyMaintenance - basementRent;
+    // ── Scenario C: Buy with basement rental income ───────────
+    // Same mortgage as standard buy, basement income offsets monthly cost
+    const totalMonthlyBoosted = totalMonthlyOwn - basementRent;
 
     // ── Year-by-year ──────────────────────────────────────────
     const chartData = [];
     let currentRent = monthlyRent;
     let remainingBalance = loanAmount;
-    let boostedBalance = boostedLoan;
     let currentHomeValue = homePrice;
     let investmentBalance = downPayment;
+    let basementInvestments = 0; // basement rent reinvested monthly
 
     for (let year = 1; year <= yearsToCompare; year++) {
       // Standard buy: amortise
       for (let m = 0; m < 12; m++) {
         const interest = remainingBalance * monthlyRate;
         remainingBalance = Math.max(0, remainingBalance - (monthlyMortgage - interest));
-      }
-      // Boosted buy: amortise (lower loan)
-      for (let m = 0; m < 12; m++) {
-        const interest = boostedBalance * monthlyRate;
-        boostedBalance = Math.max(0, boostedBalance - (boostedMortgage - interest));
+        // Basement income reinvested into equities
+        basementInvestments *= 1 + investReturnPct / 100 / 12;
+        basementInvestments += basementRent;
       }
 
       currentHomeValue *= 1 + homeAppreciationPct / 100;
       const homeEquity = currentHomeValue - remainingBalance;
-      const boostedEquity = currentHomeValue - boostedBalance;
+      // Boosted net worth = same home equity + reinvested basement income
+      const boostedEquity = homeEquity + basementInvestments;
 
       // Rent + invest
       const totalMonthlyRent = currentRent + monthlyRentInsurance;
@@ -119,7 +108,7 @@ export function MortgageCalculator() {
     }
 
     const finalOwnEquity = currentHomeValue - remainingBalance;
-    const finalBoostedEquity = currentHomeValue - boostedBalance;
+    const finalBoostedEquity = finalOwnEquity + basementInvestments;
     const finalRentWealth = investmentBalance;
 
     const best = Math.max(finalOwnEquity, finalBoostedEquity, finalRentWealth);
@@ -136,7 +125,6 @@ export function MortgageCalculator() {
 
     return {
       monthlyMortgage,
-      boostedMortgage,
       totalMonthlyOwn,
       totalMonthlyRent,
       totalMonthlyBoosted,
@@ -149,15 +137,15 @@ export function MortgageCalculator() {
       finalRentWealth,
       verdict,
       downPayment,
-      boostedDown,
       monthlySavingsInitial,
       finalInvestmentBalance: investmentBalance,
+      basementInvestments,
     };
   }, [
     homePrice, downPaymentPct, interestRate, loanTermYears,
     propertyTaxRate, homeInsurance, maintenancePct,
     monthlyRent, rentInsurance, rentIncreasePct,
-    parentalGift, basementRent,
+    basementRent,
     homeAppreciationPct, investReturnPct, yearsToCompare, annualIncome,
   ]);
 
@@ -206,13 +194,12 @@ export function MortgageCalculator() {
             <p className="text-xs text-muted-foreground">Parental gift + basement rental income</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Field label="Parental Gift / Assist" value={parentalGift} onChange={setParentalGift} prefix="$" hint="Extra down payment from family — reduces loan size" />
             <Field label="Basement Rent / mo" value={basementRent} onChange={setBasementRent} prefix="$" hint="Monthly rental income from a basement suite or spare unit" />
             <div className="pt-2 border-t border-border/50 space-y-1">
-              <p className="text-[10px] text-muted-foreground/60">Boosted down payment</p>
-              <p className="text-sm font-bold text-amber-400">{fmt(results.boostedDown)}</p>
               <p className="text-[10px] text-muted-foreground/60">Net monthly (after basement income)</p>
               <p className="text-sm font-bold text-amber-400">{fmt(Math.max(0, results.totalMonthlyBoosted))}</p>
+              <p className="text-[10px] text-muted-foreground/60">Basement rent reinvested after {yearsToCompare} yrs</p>
+              <p className="text-sm font-bold text-amber-400">{fmt(results.basementInvestments)}</p>
             </div>
           </CardContent>
         </Card>
