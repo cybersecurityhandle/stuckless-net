@@ -32,6 +32,10 @@ export function MortgageCalculator() {
   const [rentInsurance, setRentInsurance] = useState(300);
   const [rentIncreasePct, setRentIncreasePct] = useState(3);
 
+  // === Contingent Help ===
+  const [parentalGift, setParentalGift] = useState(50000);
+  const [basementRent, setBasementRent] = useState(1500);
+
   // === Income & Assumptions ===
   const [annualIncome, setAnnualIncome] = useState(85000);
   const [homeAppreciationPct, setHomeAppreciationPct] = useState(3);
@@ -39,47 +43,64 @@ export function MortgageCalculator() {
   const [yearsToCompare, setYearsToCompare] = useState(10);
 
   const results = useMemo(() => {
+    // ── Scenario A: Buy standard ──────────────────────────────
     const downPayment = homePrice * (downPaymentPct / 100);
     const loanAmount = homePrice - downPayment;
     const monthlyRate = interestRate / 100 / 12;
     const numPayments = loanTermYears * 12;
 
-    // Monthly mortgage payment (P&I)
     const monthlyMortgage =
       monthlyRate > 0
         ? (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
           (Math.pow(1 + monthlyRate, numPayments) - 1)
         : loanAmount / numPayments;
 
-    // House monthly costs
     const monthlyPropertyTax = (homePrice * (propertyTaxRate / 100)) / 12;
     const monthlyHomeInsurance = homeInsurance / 12;
     const monthlyMaintenance = (homePrice * (maintenancePct / 100)) / 12;
     const totalMonthlyOwn = monthlyMortgage + monthlyPropertyTax + monthlyHomeInsurance + monthlyMaintenance;
 
-    // Condo/Apartment monthly costs (rent + tenant insurance)
+    // ── Scenario B: Rent + invest ─────────────────────────────
     const monthlyRentInsurance = rentInsurance / 12;
 
-    // Year-by-year comparison
+    // ── Scenario C: Buy with contingent help ─────────────────
+    const boostedDown = downPayment + parentalGift;
+    const boostedLoan = Math.max(0, homePrice - boostedDown);
+    const boostedMortgage =
+      boostedLoan === 0
+        ? 0
+        : monthlyRate > 0
+        ? (boostedLoan * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+          (Math.pow(1 + monthlyRate, numPayments) - 1)
+        : boostedLoan / numPayments;
+    // Net monthly after basement income
+    const totalMonthlyBoosted = boostedMortgage + monthlyPropertyTax + monthlyHomeInsurance + monthlyMaintenance - basementRent;
+
+    // ── Year-by-year ──────────────────────────────────────────
     const chartData = [];
     let currentRent = monthlyRent;
     let remainingBalance = loanAmount;
+    let boostedBalance = boostedLoan;
     let currentHomeValue = homePrice;
-    let investmentBalance = downPayment; // If renting, invest the down payment instead
+    let investmentBalance = downPayment;
 
     for (let year = 1; year <= yearsToCompare; year++) {
-      // Owning: mortgage + property tax + insurance + maintenance
+      // Standard buy: amortise
       for (let m = 0; m < 12; m++) {
-        const interestPayment = remainingBalance * monthlyRate;
-        const principalPayment = monthlyMortgage - interestPayment;
-        remainingBalance = Math.max(0, remainingBalance - principalPayment);
+        const interest = remainingBalance * monthlyRate;
+        remainingBalance = Math.max(0, remainingBalance - (monthlyMortgage - interest));
+      }
+      // Boosted buy: amortise (lower loan)
+      for (let m = 0; m < 12; m++) {
+        const interest = boostedBalance * monthlyRate;
+        boostedBalance = Math.max(0, boostedBalance - (boostedMortgage - interest));
       }
 
-      // Home appreciation
       currentHomeValue *= 1 + homeAppreciationPct / 100;
       const homeEquity = currentHomeValue - remainingBalance;
+      const boostedEquity = currentHomeValue - boostedBalance;
 
-      // If renting, invest the down payment + monthly savings
+      // Rent + invest
       const totalMonthlyRent = currentRent + monthlyRentInsurance;
       const monthlySavings = Math.max(0, totalMonthlyOwn - totalMonthlyRent);
       for (let m = 0; m < 12; m++) {
@@ -87,55 +108,67 @@ export function MortgageCalculator() {
         investmentBalance += monthlySavings;
       }
 
-      // Rent increases annually
       currentRent *= 1 + rentIncreasePct / 100;
 
       chartData.push({
         year: `Yr ${year}`,
-        "House (Equity)": Math.round(homeEquity),
-        "Equities (Stocks)": Math.round(investmentBalance),
+        "Buy (Equity)": Math.round(homeEquity),
+        "Rent + Stocks": Math.round(investmentBalance),
+        "Buy w/ Help (Equity)": Math.round(boostedEquity),
       });
     }
 
     const finalOwnEquity = currentHomeValue - remainingBalance;
+    const finalBoostedEquity = currentHomeValue - boostedBalance;
     const finalRentWealth = investmentBalance;
-    const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT + INVEST";
-    const difference = Math.abs(finalOwnEquity - finalRentWealth);
+
+    const best = Math.max(finalOwnEquity, finalBoostedEquity, finalRentWealth);
+    const verdict =
+      best === finalBoostedEquity ? "BUY W/ HELP" :
+      best === finalOwnEquity ? "BUY HOUSE" : "RENT + INVEST";
 
     const monthlyIncome = annualIncome / 12;
     const totalMonthlyRent = monthlyRent + monthlyRentInsurance;
     const ownPctIncome = (totalMonthlyOwn / monthlyIncome) * 100;
     const rentPctIncome = (totalMonthlyRent / monthlyIncome) * 100;
-
-    // Investment breakdown for renters
+    const boostedPctIncome = (Math.max(0, totalMonthlyBoosted) / monthlyIncome) * 100;
     const monthlySavingsInitial = Math.max(0, totalMonthlyOwn - totalMonthlyRent);
 
     return {
       monthlyMortgage,
+      boostedMortgage,
       totalMonthlyOwn,
       totalMonthlyRent,
+      totalMonthlyBoosted,
       ownPctIncome,
       rentPctIncome,
+      boostedPctIncome,
       chartData,
       finalOwnEquity,
+      finalBoostedEquity,
       finalRentWealth,
       verdict,
-      difference,
       downPayment,
+      boostedDown,
       monthlySavingsInitial,
       finalInvestmentBalance: investmentBalance,
     };
   }, [
     homePrice, downPaymentPct, interestRate, loanTermYears,
     propertyTaxRate, homeInsurance, maintenancePct,
-    monthlyRent, rentInsurance, rentIncreasePct, homeAppreciationPct,
-    investReturnPct, yearsToCompare, annualIncome,
+    monthlyRent, rentInsurance, rentIncreasePct,
+    parentalGift, basementRent,
+    homeAppreciationPct, investReturnPct, yearsToCompare, annualIncome,
   ]);
+
+  const verdictColor =
+    results.verdict === "BUY W/ HELP" ? "text-amber-400" :
+    results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400";
 
   return (
     <div className="space-y-8">
       {/* Inputs */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* House (Buy) */}
         <Card>
           <CardHeader>
@@ -153,7 +186,7 @@ export function MortgageCalculator() {
           </CardContent>
         </Card>
 
-        {/* Apartment/Condo (Rent) */}
+        {/* Rent */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Apartment / Condo (Rent)</CardTitle>
@@ -163,6 +196,24 @@ export function MortgageCalculator() {
             <Field label="Monthly Rent" value={monthlyRent} onChange={setMonthlyRent} prefix="$" hint="What you'd pay to rent a comparable unit in the GTA" />
             <Field label="Tenant Insurance / yr" value={rentInsurance} onChange={setRentInsurance} prefix="$" hint="Renter's insurance — covers your belongings & liability" />
             <Field label="Annual Rent Increase" value={rentIncreasePct} onChange={setRentIncreasePct} suffix="%" step={0.1} hint="Ontario guideline is ~2.5%, but new builds are exempt" />
+          </CardContent>
+        </Card>
+
+        {/* Contingent Help */}
+        <Card className="border-amber-500/30">
+          <CardHeader>
+            <CardTitle className="text-sm text-amber-400">Buy w/ Contingent Help</CardTitle>
+            <p className="text-xs text-muted-foreground">Parental gift + basement rental income</p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Field label="Parental Gift / Assist" value={parentalGift} onChange={setParentalGift} prefix="$" hint="Extra down payment from family — reduces loan size" />
+            <Field label="Basement Rent / mo" value={basementRent} onChange={setBasementRent} prefix="$" hint="Monthly rental income from a basement suite or spare unit" />
+            <div className="pt-2 border-t border-border/50 space-y-1">
+              <p className="text-[10px] text-muted-foreground/60">Boosted down payment</p>
+              <p className="text-sm font-bold text-amber-400">{fmt(results.boostedDown)}</p>
+              <p className="text-[10px] text-muted-foreground/60">Net monthly (after basement income)</p>
+              <p className="text-sm font-bold text-amber-400">{fmt(Math.max(0, results.totalMonthlyBoosted))}</p>
+            </div>
           </CardContent>
         </Card>
 
@@ -183,32 +234,41 @@ export function MortgageCalculator() {
 
       {/* Verdict */}
       <Card>
-        <CardContent className="flex flex-col items-center gap-4 py-6 sm:flex-row sm:justify-between">
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-muted-foreground">House monthly cost</p>
+        <CardContent className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Buy monthly cost</p>
             <p className="text-xl font-bold">{fmt(results.totalMonthlyOwn)}</p>
             <p className={`text-xs mt-1 ${results.ownPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
               {results.ownPctIncome.toFixed(0)}% of income {results.ownPctIncome > 30 ? "(stretched)" : "(healthy)"}
             </p>
           </div>
-          <div className="text-center sm:text-left">
+          <div>
             <p className="text-xs text-muted-foreground">Rent monthly cost</p>
             <p className="text-xl font-bold">{fmt(results.totalMonthlyRent)}</p>
             <p className={`text-xs mt-1 ${results.rentPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
               {results.rentPctIncome.toFixed(0)}% of income {results.rentPctIncome > 30 ? "(stretched)" : "(healthy)"}
             </p>
           </div>
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">After {yearsToCompare} years, better to</p>
-            <p className={`text-2xl font-bold ${results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400"}`}>
-              {results.verdict}
+          <div>
+            <p className="text-xs text-muted-foreground">Buy w/ help (net)</p>
+            <p className="text-xl font-bold text-amber-400">{fmt(Math.max(0, results.totalMonthlyBoosted))}</p>
+            <p className={`text-xs mt-1 ${results.boostedPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
+              {results.boostedPctIncome.toFixed(0)}% of income {results.boostedPctIncome > 30 ? "(stretched)" : "(healthy)"}
             </p>
-            <p className="text-xs text-muted-foreground">by {fmt(results.difference)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">After {yearsToCompare} years, best path</p>
+            <p className={`text-2xl font-bold ${verdictColor}`}>{results.verdict}</p>
+            <div className="mt-1 text-[10px] text-muted-foreground space-y-0.5">
+              <p>Buy: {fmt(results.finalOwnEquity)}</p>
+              <p>Buy w/ help: {fmt(results.finalBoostedEquity)}</p>
+              <p>Rent+Stocks: {fmt(results.finalRentWealth)}</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Investment Breakdown */}
+      {/* Stock Portfolio breakdown */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">Stock Portfolio (if renting)</CardTitle>
@@ -240,7 +300,7 @@ export function MortgageCalculator() {
       {/* Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Net Worth: House Equity vs Rent + Stock Portfolio</CardTitle>
+          <CardTitle className="text-sm">Net Worth Over Time: All Three Scenarios</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -260,8 +320,9 @@ export function MortgageCalculator() {
                 formatter={(value) => fmt(Number(value))}
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
-              <Bar dataKey="House (Equity)" fill="#10b981" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="Equities (Stocks)" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Buy (Equity)" fill="#10b981" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Rent + Stocks" fill="#7c3aed" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Buy w/ Help (Equity)" fill="#f59e0b" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
