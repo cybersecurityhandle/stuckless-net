@@ -93,13 +93,13 @@ export function MortgageCalculator() {
       chartData.push({
         year: `Yr ${year}`,
         "House (Equity)": Math.round(homeEquity),
-        "Condo (Investments)": Math.round(investmentBalance),
+        "Equities (Stocks)": Math.round(investmentBalance),
       });
     }
 
     const finalOwnEquity = currentHomeValue - remainingBalance;
     const finalRentWealth = investmentBalance;
-    const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT CONDO";
+    const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT + INVEST";
     const difference = Math.abs(finalOwnEquity - finalRentWealth);
 
     const monthlyIncome = annualIncome / 12;
@@ -192,7 +192,7 @@ export function MortgageCalculator() {
             </p>
           </div>
           <div className="text-center sm:text-left">
-            <p className="text-xs text-muted-foreground">Condo monthly cost</p>
+            <p className="text-xs text-muted-foreground">Rent monthly cost</p>
             <p className="text-xl font-bold">{fmt(results.totalMonthlyRent)}</p>
             <p className={`text-xs mt-1 ${results.rentPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
               {results.rentPctIncome.toFixed(0)}% of income {results.rentPctIncome > 30 ? "(stretched)" : "(healthy)"}
@@ -200,7 +200,7 @@ export function MortgageCalculator() {
           </div>
           <div className="text-center">
             <p className="text-xs text-muted-foreground">After {yearsToCompare} years, better to</p>
-            <p className={`text-2xl font-bold ${results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-blue-500"}`}>
+            <p className={`text-2xl font-bold ${results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400"}`}>
               {results.verdict}
             </p>
             <p className="text-xs text-muted-foreground">by {fmt(results.difference)}</p>
@@ -211,9 +211,9 @@ export function MortgageCalculator() {
       {/* Investment Breakdown */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Investment Factor (if renting)</CardTitle>
+          <CardTitle className="text-sm">Stock Portfolio (if renting)</CardTitle>
           <p className="text-xs text-muted-foreground">
-            If you rent instead of buying, your down payment and monthly savings get invested
+            If you rent instead of buying, your down payment and monthly savings get invested in equities
           </p>
         </CardHeader>
         <CardContent>
@@ -230,8 +230,8 @@ export function MortgageCalculator() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Portfolio after {yearsToCompare} yrs</p>
-              <p className="text-lg font-bold text-blue-500">{fmt(results.finalInvestmentBalance)}</p>
-              <p className="text-[10px] text-muted-foreground/60">Total value at {investReturnPct}% annual return</p>
+              <p className="text-lg font-bold text-violet-400">{fmt(results.finalInvestmentBalance)}</p>
+              <p className="text-[10px] text-muted-foreground/60">Total equity portfolio value at {investReturnPct}% annual return</p>
             </div>
           </div>
         </CardContent>
@@ -240,7 +240,7 @@ export function MortgageCalculator() {
       {/* Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Net Worth: House Equity vs Condo + Investments</CardTitle>
+          <CardTitle className="text-sm">Net Worth: House Equity vs Rent + Stock Portfolio</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -261,7 +261,7 @@ export function MortgageCalculator() {
               />
               <Legend wrapperStyle={{ fontSize: "12px" }} />
               <Bar dataKey="House (Equity)" fill="#10b981" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="Condo (Investments)" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Equities (Stocks)" fill="#7c3aed" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
