@@ -26,6 +26,7 @@ export function MortgageCalculator() {
   const [propertyTaxRate, setPropertyTaxRate] = useState(0.65);
   const [homeInsurance, setHomeInsurance] = useState(1800);
   const [maintenancePct, setMaintenancePct] = useState(1);
+  const [buyStrataFee, setBuyStrataFee] = useState(0);
 
   // === Apartment/Condo (Rent) ===
   const [monthlyRent, setMonthlyRent] = useState(2500);
@@ -64,7 +65,7 @@ export function MortgageCalculator() {
     const monthlyPropertyTax = (homePrice * (propertyTaxRate / 100)) / 12;
     const monthlyHomeInsurance = homeInsurance / 12;
     const monthlyMaintenance = (homePrice * (maintenancePct / 100)) / 12;
-    const totalMonthlyOwn = monthlyMortgage + monthlyPropertyTax + monthlyHomeInsurance + monthlyMaintenance;
+    const totalMonthlyOwn = monthlyMortgage + monthlyPropertyTax + monthlyHomeInsurance + monthlyMaintenance + buyStrataFee;
 
     // ── Scenario B: Rent + invest ─────────────────────────────
     const monthlyRentInsurance = rentInsurance / 12;
@@ -153,7 +154,7 @@ export function MortgageCalculator() {
     };
   }, [
     homePrice, downPaymentPct, interestRate, loanTermYears,
-    propertyTaxRate, homeInsurance, maintenancePct,
+    propertyTaxRate, homeInsurance, maintenancePct, buyStrataFee,
     monthlyRent, rentInsurance, rentIncreasePct, strataFee,
     basementRent,
     homeAppreciationPct, investReturnPct, yearsToCompare, annualIncome,
@@ -234,6 +235,7 @@ export function MortgageCalculator() {
             <Field label="Property Tax Rate" value={propertyTaxRate} onChange={setPropertyTaxRate} suffix="%" step={0.05} hint="GTA averages 0.6-0.8% of assessed home value" />
             <Field label="Home Insurance / yr" value={homeInsurance} onChange={setHomeInsurance} prefix="$" hint="Annual homeowner's insurance premium" />
             <Field label="Maintenance / yr" value={maintenancePct} onChange={setMaintenancePct} suffix="% of home" step={0.1} hint="Rule of thumb: 1% of home value for repairs & upkeep" />
+            <Field label="Maintenance Fees / mo" value={buyStrataFee} onChange={setBuyStrataFee} prefix="$" hint="Condo or townhouse maintenance fees — leave $0 for detached" />
           </CardContent>
         </Card>
 
@@ -245,7 +247,7 @@ export function MortgageCalculator() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Field label="Monthly Rent" value={monthlyRent} onChange={setMonthlyRent} prefix="$" hint="What you'd pay to rent a comparable unit in the GTA" />
-            <Field label="Strata / Maintenance Fee" value={strataFee} onChange={setStrataFee} prefix="$" hint="Condo or townhouse maintenance fee — $400–$800/mo is common in GTA" />
+            <Field label="Maintenance Fees / mo" value={strataFee} onChange={setStrataFee} prefix="$" hint="Condo or townhouse maintenance fees — $400–$800/mo is common in GTA" />
             <Field label="Tenant Insurance / yr" value={rentInsurance} onChange={setRentInsurance} prefix="$" hint="Renter's insurance — covers your belongings & liability" />
             <Field label="Annual Rent Increase" value={rentIncreasePct} onChange={setRentIncreasePct} suffix="%" step={0.1} hint="Ontario guideline is ~2.5%, but new builds are exempt" />
           </CardContent>
