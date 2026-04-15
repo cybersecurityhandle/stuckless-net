@@ -31,6 +31,7 @@ export function MortgageCalculator() {
   const [monthlyRent, setMonthlyRent] = useState(2500);
   const [rentInsurance, setRentInsurance] = useState(300);
   const [rentIncreasePct, setRentIncreasePct] = useState(3);
+  const [strataFee, setStrataFee] = useState(0);
 
   // === Contingent Help ===
   const [basementRent, setBasementRent] = useState(1500);
@@ -40,6 +41,12 @@ export function MortgageCalculator() {
   const [homeAppreciationPct, setHomeAppreciationPct] = useState(3);
   const [investReturnPct, setInvestReturnPct] = useState(7);
   const [yearsToCompare, setYearsToCompare] = useState(10);
+
+  // === Hard Mode ===
+  const [hardMode, setHardMode] = useState(false);
+  const [extraUtilities, setExtraUtilities] = useState(250);
+  const [lifestyleExtra, setLifestyleExtra] = useState(300);
+  const [lifestyleInflationPct, setLifestyleInflationPct] = useState(2);
 
   const results = useMemo(() => {
     // ── Scenario A: Buy standard ──────────────────────────────
@@ -61,9 +68,9 @@ export function MortgageCalculator() {
 
     // ── Scenario B: Rent + invest ─────────────────────────────
     const monthlyRentInsurance = rentInsurance / 12;
+    const monthlyStrataFee = strataFee; // already monthly
 
     // ── Scenario C: Buy with basement rental income ───────────
-    // Same mortgage as standard buy, basement income offsets monthly cost
     const totalMonthlyBoosted = totalMonthlyOwn - basementRent;
 
     // ── Year-by-year ──────────────────────────────────────────
@@ -72,38 +79,40 @@ export function MortgageCalculator() {
     let remainingBalance = loanAmount;
     let currentHomeValue = homePrice;
     let investmentBalance = downPayment;
-    let basementInvestments = 0; // basement rent reinvested monthly
+    let basementInvestments = 0;
+    // Hard mode: lifestyle/utility costs grow annually
+    let currentHardExtra = hardMode ? extraUtilities + lifestyleExtra : 0;
 
     for (let year = 1; year <= yearsToCompare; year++) {
-      // Standard buy: amortise
       for (let m = 0; m < 12; m++) {
         const interest = remainingBalance * monthlyRate;
         remainingBalance = Math.max(0, remainingBalance - (monthlyMortgage - interest));
-        // Basement income reinvested into equities
         basementInvestments *= 1 + investReturnPct / 100 / 12;
         basementInvestments += basementRent;
       }
 
       currentHomeValue *= 1 + homeAppreciationPct / 100;
       const homeEquity = currentHomeValue - remainingBalance;
-      // Boosted net worth = same home equity + reinvested basement income
       const boostedEquity = homeEquity + basementInvestments;
 
-      // Rent + invest
-      const totalMonthlyRent = currentRent + monthlyRentInsurance;
-      const monthlySavings = Math.max(0, totalMonthlyOwn - totalMonthlyRent);
+      // Effective buy cost this year includes hard mode extras
+      const effectiveBuyCost = totalMonthlyOwn + currentHardExtra;
+      const totalMonthlyRent = currentRent + monthlyRentInsurance + monthlyStrataFee;
+      // Renter invests any surplus vs the true cost of owning
+      const monthlySavings = Math.max(0, effectiveBuyCost - totalMonthlyRent);
       for (let m = 0; m < 12; m++) {
         investmentBalance *= 1 + investReturnPct / 100 / 12;
         investmentBalance += monthlySavings;
       }
 
       currentRent *= 1 + rentIncreasePct / 100;
+      if (hardMode) currentHardExtra *= 1 + lifestyleInflationPct / 100;
 
       chartData.push({
         year: `Yr ${year}`,
         "Buy (Equity)": Math.round(homeEquity),
         "Rent + Stocks": Math.round(investmentBalance),
-        "Buy w/ Help (Equity)": Math.round(boostedEquity),
+        "Buy + Basement": Math.round(boostedEquity),
       });
     }
 
@@ -114,15 +123,19 @@ export function MortgageCalculator() {
     const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT + INVEST";
 
     const monthlyIncome = annualIncome / 12;
-    const totalMonthlyRent = monthlyRent + monthlyRentInsurance;
+    const totalMonthlyRent = monthlyRent + monthlyRentInsurance + monthlyStrataFee;
     const ownPctIncome = (totalMonthlyOwn / monthlyIncome) * 100;
     const rentPctIncome = (totalMonthlyRent / monthlyIncome) * 100;
     const boostedPctIncome = (Math.max(0, totalMonthlyBoosted) / monthlyIncome) * 100;
-    const monthlySavingsInitial = Math.max(0, totalMonthlyOwn - totalMonthlyRent);
+    const hardModeMonthlyCost = totalMonthlyOwn + (hardMode ? extraUtilities + lifestyleExtra : 0);
+    const hardModePctIncome = (hardModeMonthlyCost / monthlyIncome) * 100;
+    const monthlySavingsInitial = Math.max(0, hardModeMonthlyCost - totalMonthlyRent);
 
     return {
       monthlyMortgage,
       totalMonthlyOwn,
+      hardModeMonthlyCost,
+      hardModePctIncome,
       totalMonthlyRent,
       totalMonthlyBoosted,
       ownPctIncome,
@@ -141,15 +154,70 @@ export function MortgageCalculator() {
   }, [
     homePrice, downPaymentPct, interestRate, loanTermYears,
     propertyTaxRate, homeInsurance, maintenancePct,
-    monthlyRent, rentInsurance, rentIncreasePct,
+    monthlyRent, rentInsurance, rentIncreasePct, strataFee,
     basementRent,
     homeAppreciationPct, investReturnPct, yearsToCompare, annualIncome,
+    hardMode, extraUtilities, lifestyleExtra, lifestyleInflationPct,
   ]);
 
   const verdictColor = results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400";
 
   return (
     <div className="space-y-8">
+
+      {/* Hard Mode toggle */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setHardMode(!hardMode)}
+          className={`rounded px-3 py-1.5 text-xs font-semibold transition-colors ${
+            hardMode
+              ? "bg-red-500/20 text-red-400 border border-red-500/40"
+              : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-500"
+          }`}
+        >
+          {hardMode ? "⚠ HARD MODE ON" : "HARD MODE"}
+        </button>
+        <span className="text-xs text-muted-foreground">
+          {hardMode ? "Utilities + lifestyle inflation added to buy scenario" : "Enable to factor in utilities & lifestyle creep"}
+        </span>
+      </div>
+
+      {/* Hard Mode inputs */}
+      {hardMode && (
+        <Card className="border-red-500/30">
+          <CardHeader>
+            <CardTitle className="text-sm text-red-400">Hard Mode — Hidden Costs of Ownership</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              These costs apply to the buy scenario only and compound annually
+            </p>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-3">
+            <Field
+              label="Extra Utilities / mo"
+              value={extraUtilities}
+              onChange={setExtraUtilities}
+              prefix="$"
+              hint="Heating, hydro, water — house runs ~$250+ more than an apartment"
+            />
+            <Field
+              label="Lifestyle Extra / mo"
+              value={lifestyleExtra}
+              onChange={setLifestyleExtra}
+              prefix="$"
+              hint="Furniture, renos, landscaping, tools — the hidden spend after buying"
+            />
+            <Field
+              label="Lifestyle Inflation / yr"
+              value={lifestyleInflationPct}
+              onChange={setLifestyleInflationPct}
+              suffix="%"
+              step={0.5}
+              hint="How fast these extra costs grow each year — lifestyle creep"
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Inputs */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* House (Buy) */}
@@ -177,6 +245,7 @@ export function MortgageCalculator() {
           </CardHeader>
           <CardContent className="space-y-3">
             <Field label="Monthly Rent" value={monthlyRent} onChange={setMonthlyRent} prefix="$" hint="What you'd pay to rent a comparable unit in the GTA" />
+            <Field label="Strata / Maintenance Fee" value={strataFee} onChange={setStrataFee} prefix="$" hint="Condo or townhouse maintenance fee — $400–$800/mo is common in GTA" />
             <Field label="Tenant Insurance / yr" value={rentInsurance} onChange={setRentInsurance} prefix="$" hint="Renter's insurance — covers your belongings & liability" />
             <Field label="Annual Rent Increase" value={rentIncreasePct} onChange={setRentIncreasePct} suffix="%" step={0.1} hint="Ontario guideline is ~2.5%, but new builds are exempt" />
           </CardContent>
@@ -185,8 +254,8 @@ export function MortgageCalculator() {
         {/* Contingent Help */}
         <Card className="border-amber-500/30">
           <CardHeader>
-            <CardTitle className="text-sm text-amber-400">Buy w/ Contingent Help</CardTitle>
-            <p className="text-xs text-muted-foreground">Parental gift + basement rental income</p>
+            <CardTitle className="text-sm text-amber-400">Buy + Basement Suite</CardTitle>
+            <p className="text-xs text-muted-foreground">Rental income reinvested monthly</p>
           </CardHeader>
           <CardContent className="space-y-3">
             <Field label="Basement Rent / mo" value={basementRent} onChange={setBasementRent} prefix="$" hint="Monthly rental income from a basement suite or spare unit" />
@@ -218,11 +287,21 @@ export function MortgageCalculator() {
       <Card>
         <CardContent className="grid grid-cols-2 gap-4 py-6 sm:grid-cols-4">
           <div>
-            <p className="text-xs text-muted-foreground">Buy monthly cost</p>
-            <p className="text-xl font-bold">{fmt(results.totalMonthlyOwn)}</p>
-            <p className={`text-xs mt-1 ${results.ownPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
-              {results.ownPctIncome.toFixed(0)}% of income {results.ownPctIncome > 30 ? "(stretched)" : "(healthy)"}
+            <p className="text-xs text-muted-foreground">
+              Buy monthly cost{hardMode && <span className="ml-1 text-red-400">(+extras)</span>}
             </p>
+            <p className="text-xl font-bold">
+              {fmt(hardMode ? results.hardModeMonthlyCost : results.totalMonthlyOwn)}
+            </p>
+            <p className={`text-xs mt-1 ${(hardMode ? results.hardModePctIncome : results.ownPctIncome) > 30 ? "text-red-400" : "text-emerald-400"}`}>
+              {(hardMode ? results.hardModePctIncome : results.ownPctIncome).toFixed(0)}% of income{" "}
+              {(hardMode ? results.hardModePctIncome : results.ownPctIncome) > 30 ? "(stretched)" : "(healthy)"}
+            </p>
+            {hardMode && (
+              <p className="text-[10px] text-red-400/70 mt-0.5">
+                +{fmt(extraUtilities + lifestyleExtra)}/mo utilities & lifestyle
+              </p>
+            )}
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Rent monthly cost</p>
@@ -232,7 +311,7 @@ export function MortgageCalculator() {
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Buy w/ help (net)</p>
+            <p className="text-xs text-muted-foreground">Buy + basement (net)</p>
             <p className="text-xl font-bold text-amber-400">{fmt(Math.max(0, results.totalMonthlyBoosted))}</p>
             <p className={`text-xs mt-1 ${results.boostedPctIncome > 30 ? "text-red-400" : "text-emerald-400"}`}>
               {results.boostedPctIncome.toFixed(0)}% of income {results.boostedPctIncome > 30 ? "(stretched)" : "(healthy)"}
@@ -243,8 +322,8 @@ export function MortgageCalculator() {
             <p className={`text-2xl font-bold ${verdictColor}`}>{results.verdict}</p>
             <div className="mt-1 text-[10px] text-muted-foreground space-y-0.5">
               <p>Buy: {fmt(results.finalOwnEquity)}</p>
-              <p>Buy w/ help: {fmt(results.finalBoostedEquity)}</p>
-              <p>Rent+Stocks: {fmt(results.finalRentWealth)}</p>
+              <p>Buy + basement: {fmt(results.finalBoostedEquity)}</p>
+              <p>Rent + stocks: {fmt(results.finalRentWealth)}</p>
             </div>
           </div>
         </CardContent>
@@ -255,7 +334,9 @@ export function MortgageCalculator() {
         <CardHeader>
           <CardTitle className="text-sm">Stock Portfolio (if renting)</CardTitle>
           <p className="text-xs text-muted-foreground">
-            If you rent instead of buying, your down payment and monthly savings get invested in equities
+            {hardMode
+              ? "Renter invests the full cost difference including utilities & lifestyle inflation"
+              : "If you rent instead of buying, your down payment and monthly savings get invested in equities"}
           </p>
         </CardHeader>
         <CardContent>
@@ -268,7 +349,9 @@ export function MortgageCalculator() {
             <div>
               <p className="text-xs text-muted-foreground">Monthly savings invested</p>
               <p className="text-lg font-bold">{fmt(results.monthlySavingsInitial)}</p>
-              <p className="text-[10px] text-muted-foreground/60">Difference between owning cost and renting cost, invested monthly</p>
+              <p className="text-[10px] text-muted-foreground/60">
+                {hardMode ? "Buy cost (with extras) minus rent, invested monthly" : "Difference between owning cost and renting cost, invested monthly"}
+              </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Portfolio after {yearsToCompare} yrs</p>
@@ -282,7 +365,10 @@ export function MortgageCalculator() {
       {/* Chart */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Net Worth Over Time: All Three Scenarios</CardTitle>
+          <CardTitle className="text-sm">
+            Net Worth Over Time: All Three Scenarios
+            {hardMode && <span className="ml-2 text-xs text-red-400 font-normal">hard mode</span>}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
@@ -304,7 +390,7 @@ export function MortgageCalculator() {
               <Legend wrapperStyle={{ fontSize: "12px" }} />
               <Bar dataKey="Buy (Equity)" fill="#10b981" radius={[3, 3, 0, 0]} />
               <Bar dataKey="Rent + Stocks" fill="#7c3aed" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="Buy w/ Help (Equity)" fill="#f59e0b" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Buy + Basement" fill="#f59e0b" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
