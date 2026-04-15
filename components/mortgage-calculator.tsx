@@ -111,10 +111,7 @@ export function MortgageCalculator() {
     const finalBoostedEquity = finalOwnEquity + basementInvestments;
     const finalRentWealth = investmentBalance;
 
-    const best = Math.max(finalOwnEquity, finalBoostedEquity, finalRentWealth);
-    const verdict =
-      best === finalBoostedEquity ? "BUY W/ HELP" :
-      best === finalOwnEquity ? "BUY HOUSE" : "RENT + INVEST";
+    const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT + INVEST";
 
     const monthlyIncome = annualIncome / 12;
     const totalMonthlyRent = monthlyRent + monthlyRentInsurance;
@@ -149,9 +146,7 @@ export function MortgageCalculator() {
     homeAppreciationPct, investReturnPct, yearsToCompare, annualIncome,
   ]);
 
-  const verdictColor =
-    results.verdict === "BUY W/ HELP" ? "text-amber-400" :
-    results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400";
+  const verdictColor = results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400";
 
   return (
     <div className="space-y-8">
