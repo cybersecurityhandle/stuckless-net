@@ -398,16 +398,14 @@ export async function GET(req: NextRequest) {
             module: "all",
           })
           .catch(() => []),
-        yahooFinance.historical(
-          ticker,
-          { period1: startDate, period2: new Date(), interval: "1wk" },
-          { validateResult: false } // Yahoo sometimes returns null close values around earnings; getClosestPrice already skips them
-        ),
+        yahooFinance
+          .historical(ticker, { period1: startDate, period2: new Date(), interval: "1wk" })
+          .catch(() => []),
         yahooFinance
           .chart(ticker, {
             period1: startDate,
             period2: new Date(),
-            interval: "3mo",
+            interval: "1wk",
             events: "splits",
           })
           .catch(() => null),
@@ -415,6 +413,12 @@ export async function GET(req: NextRequest) {
 
     const splits: Array<{ date: Date | string; numerator: number; denominator: number }> =
       (chartData as any)?.events?.splits || [];
+
+    // If historical threw (e.g. Yahoo returns partial nulls around earnings), fall back to chart quotes
+    const priceHistory: any[] =
+      (historical as any[]).length > 0
+        ? (historical as any[])
+        : (chartData as any)?.quotes || [];
 
     const companyName =
       yfSummary?.price?.longName ||
@@ -496,8 +500,8 @@ export async function GET(req: NextRequest) {
     for (const year of sortedYears) {
       const d = yearMap[year];
       const endDate = new Date(d.endDate);
-      const fiscalPrice = getClosestPrice(historical, endDate);
-      const calendarPrice = getClosestPrice(historical, new Date(year, 11, 31));
+      const fiscalPrice = getClosestPrice(priceHistory, endDate);
+      const calendarPrice = getClosestPrice(priceHistory, new Date(year, 11, 31));
       if (!fiscalPrice && !calendarPrice) continue;
 
       const price = fiscalPrice || calendarPrice;
@@ -627,7 +631,7 @@ export async function GET(req: NextRequest) {
 
     for (const cy of sortedCalYears) {
       const d = calYearMap[cy];
-      const price = getClosestPrice(historical, new Date(cy, 11, 31));
+      const price = getClosestPrice(priceHistory, new Date(cy, 11, 31));
       if (!price) continue;
 
       const salesPerShare = d.revenue / d.sharesOutstanding;
