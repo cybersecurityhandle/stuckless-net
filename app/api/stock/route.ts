@@ -398,11 +398,11 @@ export async function GET(req: NextRequest) {
             module: "all",
           })
           .catch(() => []),
-        yahooFinance.historical(ticker, {
-          period1: startDate,
-          period2: new Date(),
-          interval: "1wk", // Weekly for better Dec 31 price accuracy
-        }),
+        yahooFinance.historical(
+          ticker,
+          { period1: startDate, period2: new Date(), interval: "1wk" },
+          { validateResult: false } // Yahoo sometimes returns null close values around earnings; getClosestPrice already skips them
+        ),
         yahooFinance
           .chart(ticker, {
             period1: startDate,

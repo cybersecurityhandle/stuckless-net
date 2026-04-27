@@ -412,6 +412,87 @@ export function StockAnalyzer() {
         </CardContent>
       </Card>
 
+      {/* Period Metrics */}
+      {stockData && analysis && (() => {
+        const startY = activeYears[startIdx];
+        const endY = activeYears[endIdx];
+        const useCal = calendarYear && !stockData.calendarYears?.length;
+        const sv = getYearView(startY, useCal);
+        const ev = getYearView(endY, useCal);
+        const metrics = [
+          {
+            label: "Dollar Sales",
+            start: fmtBig(startY.revenue, currency),
+            end: fmtBig(endY.revenue, currency),
+            change: analysis.dollarSalesGrowth,
+            ann: analysis.annDollarSales,
+          },
+          {
+            label: "Share Count",
+            start: fmtBig(startY.sharesOutstanding, ""),
+            end: fmtBig(endY.sharesOutstanding, ""),
+            change: analysis.shareCountGrowth,
+            ann: analysis.annShareCount,
+          },
+          {
+            label: "Net Margin",
+            start: fmtPct(startY.netMargin),
+            end: fmtPct(endY.netMargin),
+            change: analysis.marginGrowth,
+            ann: analysis.annMargin,
+          },
+          {
+            label: "P/E Multiple",
+            start: `${fmtNum(sv.pe, 1)}x`,
+            end: `${fmtNum(ev.pe, 1)}x`,
+            change: analysis.peGrowth,
+            ann: analysis.annPe,
+          },
+        ];
+        return (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {metrics.map((m) => (
+              <Card key={m.label}>
+                <CardContent className="pt-5">
+                  <p className="text-xs text-muted-foreground">{m.label}</p>
+                  <div className="mt-2 flex items-end justify-between">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground/70">{activeYears[startIdx].year}</p>
+                      <p className="text-lg font-semibold">{m.start}</p>
+                    </div>
+                    <div className="px-2 text-muted-foreground/40 text-sm">→</div>
+                    <div className="text-right">
+                      <p className="text-[10px] text-muted-foreground/70">{activeYears[endIdx].year}</p>
+                      <p className="text-lg font-semibold">{m.end}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex gap-4 border-t border-border pt-3 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Total </span>
+                      {m.change == null
+                        ? <span className="text-muted-foreground">N/M</span>
+                        : <span className={m.change >= 0 ? "text-emerald-500" : "text-red-400"}>
+                            {m.change >= 0 ? "+" : ""}{fmtPct(m.change)}
+                          </span>
+                      }
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Ann. </span>
+                      {m.ann == null
+                        ? <span className="text-muted-foreground">N/M</span>
+                        : <span className={m.ann >= 0 ? "text-emerald-500" : "text-red-400"}>
+                            {m.ann >= 0 ? "+" : ""}{fmtPct(m.ann)}
+                          </span>
+                      }
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* Five-Factor Table */}
       {stockData && analysis && (
         <Card>
