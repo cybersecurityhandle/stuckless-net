@@ -6,6 +6,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
@@ -791,7 +794,48 @@ export function StockAnalyzer() {
         </Card>
       )}
 
-      {/* Chart */}
+      {/* Price History Chart */}
+      {stockData && activeYears.length >= 2 && (() => {
+        const useCal = calendarYear && !stockData.calendarYears?.length;
+        const priceData = activeYears.slice(startIdx).map((y) => ({
+          year: y.year,
+          price: getYearView(y, useCal).price,
+        })).filter((d) => d.price > 0);
+        if (priceData.length < 2) return null;
+        const minP = Math.min(...priceData.map((d) => d.price));
+        const maxP = Math.max(...priceData.map((d) => d.price));
+        const pad = (maxP - minP) * 0.08 || maxP * 0.1;
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">
+                Price History — {stockData.ticker} ({activeYears[startIdx].year}–{activeYears[activeYears.length - 1].year})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={priceData} margin={{ left: 10, right: 16, top: 4, bottom: 0 }}>
+                  <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
+                  <YAxis
+                    domain={[minP - pad, maxP + pad]}
+                    tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                    tickFormatter={(v) => `$${Math.round(v)}`}
+                    width={58}
+                  />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" }}
+                    formatter={(value) => [`$${Number(value).toFixed(2)}`, "Price"]}
+                  />
+                  <Line type="monotone" dataKey="price" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
+      {/* Factor Attribution Chart */}
       {analysis && chartData.length > 0 && (
         <Card>
           <CardHeader>
