@@ -37,10 +37,27 @@ const HARDCODED_FINANCIALS: Record<string, {
       "2025-12-31": { revenue: 112.1*M, netIncome: 31.1*M, shares: 11.8*M, dps: 0.72, equity: 40.5*M, totalAssets: 100.1*M, longTermDebt: 10.9*M },
     },
   },
+  // Constellation Software — TSX:CSU (CAD). Yahoo Finance ticker: CSU.TO
+  "CSU.TO": {
+    name: "Constellation Software Inc.",
+    yearData: {
+      "2016-12-31": { revenue: 2853.6*M, netIncome: 277.7*M, shares: 21.2*M, dps: 5.37, equity: 614.4*M,   totalAssets: 2529.1*M, longTermDebt: 455.5*M },
+      "2017-12-31": { revenue: 3117.1*M, netIncome: 279.0*M, shares: 21.2*M, dps: 5.03, equity: 759.6*M,   totalAssets: 2876.7*M, longTermDebt: 297.3*M },
+      "2018-12-31": { revenue: 4176.8*M, netIncome: 517.3*M, shares: 21.2*M, dps: 0,    equity: 1182.1*M,  totalAssets: 4006.2*M, longTermDebt: 432.7*M },
+      "2019-12-31": { revenue: 4531.7*M, netIncome: 432.4*M, shares: 21.2*M, dps: 5.19, equity: 892.1*M,   totalAssets: 4529.1*M, longTermDebt: 486.9*M },
+      "2020-12-31": { revenue: 5050.2*M, netIncome: 554.8*M, shares: 21.2*M, dps: 5.09, equity: 1333.5*M,  totalAssets: 5566.8*M, longTermDebt: 788.9*M },
+      "2021-12-31": { revenue: 6456.7*M, netIncome: 392.0*M, shares: 21.2*M, dps: 5.06, equity: 1340.4*M,  totalAssets: 7291.3*M, longTermDebt: 1157.0*M },
+      "2022-12-31": { revenue: 8965.9*M, netIncome: 693.2*M, shares: 21.2*M, dps: 5.42, equity: 2318.0*M,  totalAssets: 10658.3*M, longTermDebt: 1561.1*M },
+      "2023-12-31": { revenue: 11139.0*M, netIncome: 748.6*M, shares: 21.2*M, dps: 5.30, equity: 2485.6*M, totalAssets: 14391.8*M, longTermDebt: 2978.5*M },
+      "2024-12-31": { revenue: 14471.8*M, netIncome: 1051.0*M, shares: 21.2*M, dps: 5.75, equity: 4016.9*M, totalAssets: 18471.4*M, longTermDebt: 5095.2*M },
+      "2025-12-31": { revenue: 15953.4*M, netIncome: 702.8*M, shares: 21.2*M, dps: 5.49, equity: 4908.3*M, totalAssets: 22195.8*M, longTermDebt: 5487.5*M },
+    },
+  },
 };
 
 function getHardcodedEdgarData(ticker: string) {
-  const h = HARDCODED_FINANCIALS[ticker.toUpperCase()];
+  const key = ticker.toUpperCase();
+  const h = HARDCODED_FINANCIALS[key] ?? HARDCODED_FINANCIALS[key + ".TO"];
   if (!h) return null;
   const sharesByYear: Record<number, number> = {};
   for (const [dateStr, d] of Object.entries(h.yearData)) {
