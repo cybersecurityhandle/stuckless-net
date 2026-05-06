@@ -37,6 +37,22 @@ const HARDCODED_FINANCIALS: Record<string, {
       "2025-12-31": { revenue: 112.1*M, netIncome: 31.1*M, shares: 11.8*M, dps: 0.72, equity: 40.5*M, totalAssets: 100.1*M, longTermDebt: 10.9*M },
     },
   },
+  // Fairfax Financial Holdings — TSX:FFH (CAD). Yahoo Finance ticker: FFH.TO
+  "FFH.TO": {
+    name: "Fairfax Financial Holdings Ltd.",
+    yearData: {
+      "2016-12-31": { revenue: 12487.7*M, netIncome: -688.2*M,  shares: 23.0*M, dps: 13.43, equity: 11393.3*M, totalAssets: 58257.4*M,  longTermDebt: 5910.2*M },
+      "2017-12-31": { revenue: 19116.8*M, netIncome: 2188.3*M,  shares: 25.4*M, dps: 12.57, equity: 15684.2*M, totalAssets: 80573.4*M,  longTermDebt: 7766.5*M },
+      "2018-12-31": { revenue: 24238.9*M, netIncome: 513.2*M,   shares: 27.5*M, dps: 13.65, equity: 16078.5*M, totalAssets: 87866.6*M,  longTermDebt: 8628.4*M },
+      "2019-12-31": { revenue: 27960.1*M, netIncome: 2602.3*M,  shares: 26.9*M, dps: 12.98, equity: 16935.7*M, totalAssets: 91554.6*M,  longTermDebt: 8964.3*M },
+      "2020-12-31": { revenue: 25038.4*M, netIncome: 277.9*M,   shares: 26.4*M, dps: 12.72, equity: 15932.1*M, totalAssets: 94227.8*M,  longTermDebt: 10764.2*M },
+      "2021-12-31": { revenue: 33135.6*M, netIncome: 4300.8*M,  shares: 26.0*M, dps: 12.65, equity: 19030.7*M, totalAssets: 109565.7*M, longTermDebt: 9629.3*M },
+      "2022-12-31": { revenue: 37645.5*M, netIncome: 4568.5*M,  shares: 23.6*M, dps: 13.54, equity: 24073.6*M, totalAssets: 106716.3*M, longTermDebt: 11664.1*M },
+      "2023-12-31": { revenue: 42179.4*M, netIncome: 5805.8*M,  shares: 23.2*M, dps: 19.87, equity: 28639.2*M, totalAssets: 121877.5*M, longTermDebt: 12513.7*M },
+      "2024-12-31": { revenue: 50038.4*M, netIncome: 5570.9*M,  shares: 22.4*M, dps: 21.57, equity: 33009.1*M, totalAssets: 139135.8*M, longTermDebt: 16898.2*M },
+      "2025-12-31": { revenue: 53962.9*M, netIncome: 6550.5*M,  shares: 21.4*M, dps: 20.59, equity: 36074.7*M, totalAssets: 147946.2*M, longTermDebt: 18725.8*M },
+    },
+  },
   // Constellation Software — TSX:CSU (CAD). Yahoo Finance ticker: CSU.TO
   "CSU.TO": {
     name: "Constellation Software Inc.",
