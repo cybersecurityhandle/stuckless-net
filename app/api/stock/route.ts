@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.5.5"; // 1.5.5 = XBRL scale error guard: when filings disagree >1000x use minimum (fixes BRK-A 2011 1.65T→1.65M)
+const API_VERSION = "1.6.0"; // 1.6.0 = hard-coded financials fallback for tickers not in SEC EDGAR (e.g. OTCM)
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -11,6 +11,43 @@ const CACHE_HEADERS = {
 const SEC_HEADERS = { "User-Agent": "stuckless.net admin@stuckless.net" };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+// ── Hard-coded financials (tickers not in SEC EDGAR) ──────────
+// Values in actual dollars/shares (multiply source millions by 1e6).
+// Prices still come live from Yahoo Finance.
+
+const M = 1_000_000;
+
+const HARDCODED_FINANCIALS: Record<string, {
+  name: string;
+  yearData: Record<string, { revenue: number; netIncome: number; shares: number; dps: number; equity: number; totalAssets: number; longTermDebt: number }>;
+}> = {
+  OTCM: {
+    name: "OTC Markets Group Inc.",
+    yearData: {
+      "2016-12-31": { revenue: 48.6*M, netIncome: 10.5*M, shares: 11.1*M, dps: 0.56, equity: 15.5*M, totalAssets: 36.6*M, longTermDebt: 0 },
+      "2017-12-31": { revenue: 52.2*M, netIncome: 12.6*M, shares: 11.1*M, dps: 0.56, equity: 13.8*M, totalAssets: 36.3*M, longTermDebt: 0 },
+      "2018-12-31": { revenue: 56.5*M, netIncome: 16.2*M, shares: 11.3*M, dps: 0.58, equity: 16.4*M, totalAssets: 41.6*M, longTermDebt: 0 },
+      "2019-12-31": { revenue: 59.6*M, netIncome: 14.9*M, shares: 11.4*M, dps: 0.60, equity: 17.7*M, totalAssets: 60.4*M, longTermDebt: 17.5*M },
+      "2020-12-31": { revenue: 65.4*M, netIncome: 18.3*M, shares: 11.4*M, dps: 0.60, equity: 19.5*M, totalAssets: 64.8*M, longTermDebt: 16.3*M },
+      "2021-12-31": { revenue: 90.6*M, netIncome: 30.5*M, shares: 11.5*M, dps: 0.66, equity: 25.0*M, totalAssets: 82.3*M, longTermDebt: 16.5*M },
+      "2022-12-31": { revenue: 96.2*M, netIncome: 30.8*M, shares: 11.6*M, dps: 0.72, equity: 29.8*M, totalAssets: 89.6*M, longTermDebt: 15.2*M },
+      "2023-12-31": { revenue: 101.1*M, netIncome: 27.7*M, shares: 11.7*M, dps: 0.72, equity: 32.2*M, totalAssets: 90.5*M, longTermDebt: 13.9*M },
+      "2024-12-31": { revenue: 101.2*M, netIncome: 27.4*M, shares: 11.7*M, dps: 0.72, equity: 35.7*M, totalAssets: 90.7*M, longTermDebt: 12.5*M },
+      "2025-12-31": { revenue: 112.1*M, netIncome: 31.1*M, shares: 11.8*M, dps: 0.72, equity: 40.5*M, totalAssets: 100.1*M, longTermDebt: 10.9*M },
+    },
+  },
+};
+
+function getHardcodedEdgarData(ticker: string) {
+  const h = HARDCODED_FINANCIALS[ticker.toUpperCase()];
+  if (!h) return null;
+  const sharesByYear: Record<number, number> = {};
+  for (const [dateStr, d] of Object.entries(h.yearData)) {
+    sharesByYear[new Date(dateStr).getFullYear()] = d.shares;
+  }
+  return { name: h.name, yearData: h.yearData, calendarYearData: {}, sharesByYear };
+}
 
 // ── SEC EDGAR helpers ──────────────────────────────────────────
 
@@ -407,7 +444,8 @@ export async function GET(req: NextRequest) {
             period2: new Date(),
             interval: "1wk",
             events: "splits",
-          })
+            return: "array",
+          } as any)
           .catch(() => null),
       ]);
 
@@ -420,10 +458,12 @@ export async function GET(req: NextRequest) {
         ? (historical as any[])
         : (chartData as any)?.quotes || [];
 
+    const edgarData = edgar ?? getHardcodedEdgarData(ticker);
+
     const companyName =
       yfSummary?.price?.longName ||
       yfSummary?.price?.shortName ||
-      edgar?.name ||
+      edgarData?.name ||
       ticker.toUpperCase();
     const currency = yfSummary?.price?.currency || "USD";
 
@@ -433,8 +473,8 @@ export async function GET(req: NextRequest) {
     const yearMap: Record<number, any> = {};
 
     // 1. SEC EDGAR data (10+ years) — adjust for stock splits
-    if (edgar?.yearData) {
-      for (const [dateStr, data] of Object.entries(edgar.yearData)) {
+    if (edgarData?.yearData) {
+      for (const [dateStr, data] of Object.entries(edgarData.yearData)) {
         const endDate = new Date(dateStr);
         // Label fiscal year by the calendar year it mostly falls in (standard financial convention).
         // Jan–Apr FYE (months 0–4): use prior year (e.g. NVDA Jan 31 2025 → FY 2024)
@@ -540,8 +580,8 @@ export async function GET(req: NextRequest) {
     const calYearMap: Record<number, any> = {};
 
     // 1. EDGAR calendar year data (10+ years, aggregated from quarterly 10-Q/10-K)
-    if (edgar?.calendarYearData) {
-      for (const [cyStr, data] of Object.entries(edgar.calendarYearData)) {
+    if (edgarData?.calendarYearData) {
+      for (const [cyStr, data] of Object.entries(edgarData.calendarYearData)) {
         const cy = Number(cyStr);
         // Reuse fiscal year shares (closest available, already split-adjusted)
         const fyData = yearMap[cy] || yearMap[cy - 1] || yearMap[cy + 1];
@@ -664,7 +704,7 @@ export async function GET(req: NextRequest) {
         name: companyName,
         currency,
         version: API_VERSION,
-        source: edgar?.yearData ? "edgar+yahoo" : "yahoo",
+        source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
         years,
         calendarYears,
       },
