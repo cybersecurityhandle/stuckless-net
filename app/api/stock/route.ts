@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.7.0"; // 1.7.0 = currentPrice (latest close) for watchlist valuation
+const API_VERSION = "1.8.0"; // 1.8.0 = Redis-cached payloads (24h) with live quote refresh
+
+// Fundamentals change quarterly; the live quote is refreshed on every cache hit
+const REDIS_TTL_S = 24 * 60 * 60;
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -446,6 +450,29 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Provide ?ticker= or ?search=" }, { status: 400 });
     }
 
+    // Redis cache: serve the heavy EDGAR+Yahoo payload from cache, refreshing
+    // only the live quote (1 upstream call instead of ~6)
+    const redis = getRedis();
+    const cacheKey = `stock:${API_VERSION}:${ticker.toUpperCase()}`;
+    if (redis) {
+      try {
+        const cached = await redis.get(cacheKey);
+        if (cached) {
+          const payload = typeof cached === "string" ? JSON.parse(cached) : (cached as any);
+          try {
+            const q: any = await yahooFinance.quoteSummary(ticker, { modules: ["price"] });
+            const live = q?.price?.regularMarketPrice;
+            if (live) payload.currentPrice = Math.round(live * 100) / 100;
+          } catch {
+            // keep cached price
+          }
+          return NextResponse.json(payload, { headers: CACHE_HEADERS });
+        }
+      } catch {
+        // Redis unavailable — fall through to full fetch
+      }
+    }
+
     // Fetch in parallel: SEC EDGAR, Yahoo (prices + info + annual/quarterly fundamentals + splits)
     const startDate = new Date(new Date().getFullYear() - 20, 0, 1);
     const [edgar, yfSummary, yfFundamentals, yfQuarterly, historical, chartData] =
@@ -731,21 +758,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const lastClose = getClosestPrice(priceHistory, new Date());
+    // Prefer the live quote (already fetched in yfSummary) over the last weekly close
+    const livePrice = (yfSummary?.price as any)?.regularMarketPrice;
+    const lastClose = livePrice || getClosestPrice(priceHistory, new Date());
 
-    return NextResponse.json(
-      {
-        ticker: ticker.toUpperCase(),
-        name: companyName,
-        currency,
-        version: API_VERSION,
-        source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
-        currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
-        years,
-        calendarYears,
-      },
-      { headers: CACHE_HEADERS }
-    );
+    const payload = {
+      ticker: ticker.toUpperCase(),
+      name: companyName,
+      currency,
+      version: API_VERSION,
+      source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
+      currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
+      years,
+      calendarYears,
+    };
+
+    if (redis && years.length >= 2) {
+      try {
+        await redis.set(cacheKey, JSON.stringify(payload), { ex: REDIS_TTL_S });
+      } catch {
+        // caching is best-effort
+      }
+    }
+
+    return NextResponse.json(payload, { headers: CACHE_HEADERS });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to fetch stock data";
     console.error("Stock API error:", message);
