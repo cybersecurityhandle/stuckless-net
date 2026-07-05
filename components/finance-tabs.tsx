@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { MortgageCalculator } from "./mortgage-calculator";
 import { StockAnalyzer } from "./stock-analyzer";
+import { Watchlist } from "./watchlist";
 
 const tabs = [
   { id: "stocks" as const, label: "Five-Factor Analysis" },
+  { id: "watchlist" as const, label: "Watchlist" },
   { id: "mortgage" as const, label: "Rent vs Buy" },
 ];
 
+type TabId = (typeof tabs)[number]["id"];
+
 export function FinanceTabs() {
-  const [active, setActive] = useState<"mortgage" | "stocks">("stocks");
+  const [active, setActive] = useState<TabId>("stocks");
 
   return (
     <div>
@@ -30,7 +34,7 @@ export function FinanceTabs() {
         ))}
       </div>
 
-      {active === "mortgage" ? (
+      {active === "mortgage" && (
         <>
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight">Rent vs Buy Calculator</h1>
@@ -41,7 +45,22 @@ export function FinanceTabs() {
           </div>
           <MortgageCalculator />
         </>
-      ) : (
+      )}
+
+      {active === "watchlist" && (
+        <>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight">Quality Watchlist</h1>
+            <p className="mt-2 text-muted-foreground">
+              The best businesses are rarely cheap. Track them here and watch for the moments
+              when their valuation dips below their own historical norm.
+            </p>
+          </div>
+          <Watchlist />
+        </>
+      )}
+
+      {active === "stocks" && (
         <>
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight">Five-Factor Stock Analysis</h1>

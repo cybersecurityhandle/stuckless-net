@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.6.0"; // 1.6.0 = hard-coded financials fallback for tickers not in SEC EDGAR (e.g. OTCM)
+const API_VERSION = "1.7.0"; // 1.7.0 = currentPrice (latest close) for watchlist valuation
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
@@ -731,6 +731,8 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    const lastClose = getClosestPrice(priceHistory, new Date());
+
     return NextResponse.json(
       {
         ticker: ticker.toUpperCase(),
@@ -738,6 +740,7 @@ export async function GET(req: NextRequest) {
         currency,
         version: API_VERSION,
         source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
+        currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
         years,
         calendarYears,
       },
