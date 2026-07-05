@@ -60,8 +60,23 @@ interface WatchRow {
   error?: string;
 }
 
-const STORAGE_KEY = "stuckless-watchlist";
-const SEED_TICKERS = ["IBKR", "VRSN"];
+const STORAGE_KEY = "stuckless-watchlist-v2"; // v2: expanded seed list
+const SEED_TICKERS = [
+  // Market infrastructure & data monopolies
+  "IBKR", "VRSN", "CME", "ICE", "NDAQ", "SPGI", "MCO", "MSCI", "FICO", "VRSK",
+  // Payments
+  "MA", "V",
+  // Serial acquirers & proprietary-parts industrials
+  "ROP", "TDG", "HEI", "TOI.V", "LMN.V",
+  // Boring dominance
+  "COST", "CPRT", "ORLY", "AZO", "CTAS", "WCN", "BRO",
+  // More compounders
+  "MSFT", "ASML", "INTU", "IDXX", "ZTS", "ODFL", "POOL", "FAST", "KNSL", "RACE",
+];
+
+// Client-side fetch batching — each ticker triggers EDGAR + Yahoo calls server-side,
+// so a full seed list fired at once would trip SEC's rate limit
+const FETCH_BATCH_SIZE = 4;
 
 // Verdict thresholds: current P/E vs own historical median
 const CHEAP_BELOW = -0.15;
@@ -218,12 +233,25 @@ export function Watchlist() {
     }
   }, []);
 
-  // Fetch any tickers we don't have data for yet
+  // Fetch any tickers we don't have data for yet, a few at a time
+  const inFlight = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!tickers) return;
-    for (const t of tickers) {
-      if (!rows[t]) fetchTicker(t);
-    }
+    const missing = tickers.filter((t) => !rows[t] && !inFlight.current.has(t));
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      for (let i = 0; i < missing.length; i += FETCH_BATCH_SIZE) {
+        if (cancelled) return;
+        const batch = missing.slice(i, i + FETCH_BATCH_SIZE);
+        batch.forEach((t) => inFlight.current.add(t));
+        await Promise.all(batch.map(fetchTicker));
+        batch.forEach((t) => inFlight.current.delete(t));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tickers, fetchTicker]);
 
