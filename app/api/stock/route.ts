@@ -3,14 +3,19 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.9.1"; // 1.9.1 = attributable-FCF share for partially-owned structures
+const API_VERSION = "1.9.2"; // 1.9.2 = attributable net income share (e.g. ACP.WA)
 
-// Consolidated cash flow overstates what belongs to shareholders when the
-// listed entity owns only part of its operating businesses. Approximate the
-// attributable share for known cases (e.g. Kelly Partners owns ~51% of each
-// practice; the other 49% belongs to partner-owners, i.e. NCI).
-const FCF_ATTRIBUTABLE_SHARE: Record<string, number> = {
-  "KPG.AX": 0.51,
+// Consolidated figures overstate what belongs to shareholders when the listed
+// entity only part-owns its operating businesses. Approximate attributable
+// shares for known cases. `netIncome` is only set where the upstream data is
+// consolidated-total (Yahoo varies: KPG.AX net income is already attributable;
+// ACP.WA's is consolidated incl. NCI).
+//   KPG.AX — owns ~51% of each practice; partner-owners hold the rest.
+//   ACP.WA — attributable/consolidated net profit was 37% (2022), 40% (2023),
+//            50% (2024), ~55% (2025); 0.45 is the midpoint of that range.
+const ATTRIBUTABLE_SHARE: Record<string, { fcf: number; netIncome?: number }> = {
+  "KPG.AX": { fcf: 0.51 },
+  "ACP.WA": { fcf: 0.45, netIncome: 0.45 },
 };
 
 // Fundamentals change quarterly; the live quote is refreshed on every cache hit
@@ -635,6 +640,16 @@ export async function GET(req: NextRequest) {
       };
     }
 
+    // Scale consolidated-total net income down to the shareholder-attributable
+    // portion where flagged (before any derived metrics are computed)
+    const attrShare = ATTRIBUTABLE_SHARE[ticker.toUpperCase()];
+    if (attrShare?.netIncome) {
+      for (const d of Object.values(yearMap)) {
+        d.netIncome *= attrShare.netIncome;
+        d.eps *= attrShare.netIncome;
+      }
+    }
+
     // 3. Compute derived metrics with historical prices
     const years = [];
     const sortedYears = Object.keys(yearMap)
@@ -658,7 +673,7 @@ export async function GET(req: NextRequest) {
 
       // Informational FCF metrics (not part of the five-factor decomposition).
       // Scaled to the shareholder-attributable portion for partially-owned structures.
-      const fcfShare = FCF_ATTRIBUTABLE_SHARE[ticker.toUpperCase()] ?? 1;
+      const fcfShare = attrShare?.fcf ?? 1;
       const fcfAttr = d.fcf != null ? d.fcf * fcfShare : null;
       const fcfPerShare = fcfAttr != null ? fcfAttr / d.sharesOutstanding : null;
       const fcfMargin = fcfAttr != null ? fcfAttr / d.revenue : null;
@@ -728,7 +743,7 @@ export async function GET(req: NextRequest) {
       const cy = endDate.getFullYear();
 
       const revenue = entry.totalRevenue || 0;
-      const netIncome = entry.netIncome || 0;
+      const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1);
       const sharesQ = entry.ordinarySharesNumber || 0;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
       const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0);
@@ -818,7 +833,8 @@ export async function GET(req: NextRequest) {
     const livePrice = (yfSummary?.price as any)?.regularMarketPrice;
     const lastClose = livePrice || getClosestPrice(priceHistory, new Date());
 
-    const fcfAttributableShare = FCF_ATTRIBUTABLE_SHARE[ticker.toUpperCase()] ?? null;
+    const fcfAttributableShare = attrShare?.fcf ?? null;
+    const netIncomeAttributableShare = attrShare?.netIncome ?? null;
 
     const payload = {
       ticker: ticker.toUpperCase(),
@@ -828,6 +844,7 @@ export async function GET(req: NextRequest) {
       source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
       currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
       fcfAttributableShare,
+      netIncomeAttributableShare,
       years,
       calendarYears,
     };

@@ -47,6 +47,7 @@ interface StockData {
   currency: string;
   source: "edgar+yahoo" | "yahoo";
   fcfAttributableShare?: number | null;
+  netIncomeAttributableShare?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
 }
@@ -403,6 +404,13 @@ export function StockAnalyzer() {
                   ? " · SEC EDGAR + Yahoo Finance"
                   : " · Yahoo Finance only"}
               </p>
+              {stockData.netIncomeAttributableShare != null && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Net income and EPS scaled to the ~{Math.round(stockData.netIncomeAttributableShare * 100)}%
+                  shareholder-attributable share — reported consolidated figures include large
+                  non-controlling interests.
+                </p>
+              )}
               {stockData.source === "yahoo" && (
                 <p className="text-[10px] text-yellow-500/80">
                   Non-US tickers are limited to ~4 years of data (Yahoo Finance only).
