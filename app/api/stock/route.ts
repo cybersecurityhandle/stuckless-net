@@ -3,18 +3,22 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.9.2"; // 1.9.2 = attributable net income share (e.g. ACP.WA)
+const API_VERSION = "1.9.3"; // 1.9.3 = KPG.AX FCF share recalibrated to reported NPATA
 
 // Consolidated figures overstate what belongs to shareholders when the listed
 // entity only part-owns its operating businesses. Approximate attributable
 // shares for known cases. `netIncome` is only set where the upstream data is
 // consolidated-total (Yahoo varies: KPG.AX net income is already attributable;
 // ACP.WA's is consolidated incl. NCI).
-//   KPG.AX — owns ~51% of each practice; partner-owners hold the rest.
+//   KPG.AX — owns ~51% of each practice, but a flat 51% of consolidated
+//            OCF−capex still ignores holdco debt service, lease principal
+//            (AASB 16), and earnout payments. Calibrated instead to reported
+//            underlying NPATA attributable to shareholders vs consolidated
+//            FCF: FY25 A$9.1M / A$28.8M ≈ 0.32.
 //   ACP.WA — attributable/consolidated net profit was 37% (2022), 40% (2023),
 //            50% (2024), ~55% (2025); 0.45 is the midpoint of that range.
 const ATTRIBUTABLE_SHARE: Record<string, { fcf: number; netIncome?: number }> = {
-  "KPG.AX": { fcf: 0.51 },
+  "KPG.AX": { fcf: 0.32 },
   "ACP.WA": { fcf: 0.45, netIncome: 0.45 },
 };
 
