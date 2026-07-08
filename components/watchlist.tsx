@@ -60,7 +60,7 @@ interface WatchRow {
   error?: string;
 }
 
-const STORAGE_KEY = "stuckless-watchlist-v6"; // v6: + ACP.WA
+const STORAGE_KEY = "stuckless-watchlist-v7"; // v7: + DAC
 const SEED_TICKERS = [
   // Market infrastructure & data monopolies
   "IBKR", "VRSN", "CME", "ICE", "NDAQ", "SPGI", "MCO", "MSCI", "FICO", "VRSK",
@@ -72,6 +72,9 @@ const SEED_TICKERS = [
   "COST", "CPRT", "ORLY", "AZO", "CTAS", "WCN", "BRO",
   // More compounders
   "MSFT", "ASML", "INTU", "IDXX", "ZTS", "ODFL", "POOL", "FAST", "KNSL", "RACE",
+  // Deep value / cyclical (P/E-vs-median verdict reads these backwards:
+  // cyclicals look cheapest at peak earnings and richest at trough)
+  "DAC",
 ];
 
 // Client-side fetch batching — each ticker triggers EDGAR + Yahoo calls server-side,
