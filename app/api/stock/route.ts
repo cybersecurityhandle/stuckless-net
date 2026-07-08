@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.8.0"; // 1.8.0 = Redis-cached payloads (24h) with live quote refresh
+const API_VERSION = "1.9.0"; // 1.9.0 = per-year free cash flow (fcf, fcfMargin, pFcf)
 
 // Fundamentals change quarterly; the live quote is refreshed on every cache hit
 const REDIS_TTL_S = 24 * 60 * 60;
@@ -24,7 +24,7 @@ const M = 1_000_000;
 
 const HARDCODED_FINANCIALS: Record<string, {
   name: string;
-  yearData: Record<string, { revenue: number; netIncome: number; shares: number; dps: number; equity: number; totalAssets: number; longTermDebt: number }>;
+  yearData: Record<string, { revenue: number; netIncome: number; shares: number; dps: number; equity: number; totalAssets: number; longTermDebt: number; fcf?: number }>;
 }> = {
   OTCM: {
     name: "OTC Markets Group Inc.",
@@ -283,6 +283,18 @@ const LONG_TERM_DEBT_CONCEPTS = [
   "LongTermDebtAndCapitalLeaseObligations",
 ];
 
+// Cash flow concepts for free cash flow (FCF = operating cash flow − capex)
+const OPERATING_CASH_FLOW_CONCEPTS = [
+  "NetCashProvidedByUsedInOperatingActivities",
+  "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations",
+];
+
+const CAPEX_CONCEPTS = [
+  "PaymentsToAcquirePropertyPlantAndEquipment",
+  "PaymentsToAcquireProductiveAssets",
+  "PaymentsForCapitalImprovements",
+];
+
 async function fetchEdgarData(ticker: string) {
   const map = await getTickerMap();
   if (!map) return null;
@@ -322,6 +334,10 @@ async function fetchEdgarData(ticker: string) {
   const totalAssets = extractEdgar(allFacts, TOTAL_ASSETS_CONCEPTS);
   const longTermDebt = extractEdgar(allFacts, LONG_TERM_DEBT_CONCEPTS);
 
+  // Cash flow statement
+  const ocf = extractEdgar(allFacts, OPERATING_CASH_FLOW_CONCEPTS);
+  const capex = extractEdgar(allFacts, CAPEX_CONCEPTS);
+
   // Build year-based shares lookup (some share concepts use filing dates, not fiscal year-end)
   const sharesByYear: Record<number, number> = {};
   for (const [dateStr, val] of Object.entries(shares)) {
@@ -339,7 +355,7 @@ async function fetchEdgarData(ticker: string) {
 
   const yearData: Record<
     string,
-    { revenue?: number; netIncome?: number; shares?: number; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number }
+    { revenue?: number; netIncome?: number; shares?: number; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number; fcf?: number }
   > = {};
 
   for (const date of allDates) {
@@ -352,6 +368,7 @@ async function fetchEdgarData(ticker: string) {
       equity: equity[date],
       totalAssets: totalAssets[date],
       longTermDebt: longTermDebt[date],
+      fcf: ocf[date] != null ? ocf[date] - (capex[date] ?? 0) : undefined,
     };
   }
 
@@ -558,6 +575,7 @@ export async function GET(req: NextRequest) {
           equity: data.equity,
           totalAssets: data.totalAssets,
           longTermDebt: data.longTermDebt,
+          fcf: data.fcf,
         };
       }
     }
@@ -567,8 +585,18 @@ export async function GET(req: NextRequest) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const year = endDate.getMonth() < 5 ? endDate.getFullYear() - 1 : endDate.getFullYear();
 
-      // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks
-      if (yearMap[year]) continue;
+      const yfFcf =
+        entry.freeCashFlow ??
+        (entry.operatingCashFlow != null
+          ? entry.operatingCashFlow - Math.abs(entry.capitalExpenditure ?? 0)
+          : undefined);
+
+      // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks.
+      // Exception: backfill FCF where EDGAR/hardcoded data lacks it (e.g. CSU.TO).
+      if (yearMap[year]) {
+        if (yearMap[year].fcf == null && yfFcf != null) yearMap[year].fcf = yfFcf;
+        continue;
+      }
 
       const revenue = entry.totalRevenue;
       const netIncome = entry.netIncome;
@@ -588,6 +616,7 @@ export async function GET(req: NextRequest) {
         sharesOutstanding: sharesOut,
         eps: epsVal,
         dps: dpsVal,
+        fcf: yfFcf,
       };
     }
 
@@ -612,6 +641,11 @@ export async function GET(req: NextRequest) {
       const calPe = d.eps > 0 && calendarPrice ? calendarPrice / d.eps : 0;
       const calDivYield = calendarPrice > 0 ? d.dps / calendarPrice : 0;
 
+      // Informational FCF metrics (not part of the five-factor decomposition)
+      const fcfPerShare = d.fcf != null ? d.fcf / d.sharesOutstanding : null;
+      const fcfMargin = d.fcf != null ? d.fcf / d.revenue : null;
+      const pFcf = fcfPerShare != null && fcfPerShare > 0 ? price / fcfPerShare : null;
+
       years.push({
         year,
         endDate: d.endDate,
@@ -631,6 +665,10 @@ export async function GET(req: NextRequest) {
         equity: d.equity,
         totalAssets: d.totalAssets,
         longTermDebt: d.longTermDebt,
+        fcf: d.fcf ?? null,
+        fcfPerShare: fcfPerShare != null ? Math.round(fcfPerShare * 100) / 100 : null,
+        fcfMargin: fcfMargin != null ? Math.round(fcfMargin * 10000) / 10000 : null,
+        pFcf: pFcf != null ? Math.round(pFcf * 100) / 100 : null,
       });
     }
 

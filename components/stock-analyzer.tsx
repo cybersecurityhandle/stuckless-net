@@ -35,6 +35,10 @@ interface YearData {
   dividendYield: number;
   calendarPeMultiple: number;
   calendarDividendYield: number;
+  fcf?: number | null;
+  fcfPerShare?: number | null;
+  fcfMargin?: number | null;
+  pFcf?: number | null;
 }
 
 interface StockData {
@@ -711,6 +715,101 @@ export function StockAnalyzer() {
           </Card>
         </div>
       )}
+
+      {/* FCF sidebar — informational, not part of the five-factor math */}
+      {stockData && (() => {
+        const fcfYears = stockData.years.filter((y) => y.fcf != null);
+        if (fcfYears.length < 2) return null;
+        const chartRows = fcfYears.map((y) => ({
+          year: y.year,
+          fcf: y.fcf as number,
+          netIncome: y.netIncome,
+        }));
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">
+                Free Cash Flow — {stockData.ticker} <span className="font-normal text-muted-foreground">(informational)</span>
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                FCF = operating cash flow − capex. Shown alongside net income to reveal when
+                accounting earnings understate (or overstate) cash generation — e.g. acquirers
+                amortizing intangibles. Fiscal years; not part of the five-factor decomposition.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div>
+                  <div className="mb-2 flex gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-sm" style={{ background: "#059669" }} />
+                      Free Cash Flow
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-sm" style={{ background: "#3b82f6" }} />
+                      Net Income
+                    </span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={chartRows} margin={{ left: 10, right: 16, top: 4, bottom: 0 }}>
+                      <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                      <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
+                      <YAxis
+                        tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                        tickFormatter={(v) => fmtBig(Number(v), currency)}
+                        width={64}
+                      />
+                      <Tooltip
+                        contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" }}
+                        formatter={(value, name) => [fmtBig(Number(value), currency), name === "fcf" ? "Free Cash Flow" : "Net Income"]}
+                      />
+                      <ReferenceLine y={0} stroke="#3f3f46" />
+                      <Line type="monotone" dataKey="fcf" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: "#059669" }} activeDot={{ r: 5 }} />
+                      <Line type="monotone" dataKey="netIncome" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} activeDot={{ r: 5 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[380px] text-xs">
+                    <thead>
+                      <tr className="border-b border-border text-left text-muted-foreground">
+                        <th className="pb-2 pr-3 font-medium">Year</th>
+                        <th className="pb-2 pr-3 text-right font-medium">FCF</th>
+                        <th className="pb-2 pr-3 text-right font-medium">FCF/Sh</th>
+                        <th className="pb-2 pr-3 text-right font-medium">FCF Margin</th>
+                        <th className="pb-2 pr-3 text-right font-medium">P/FCF</th>
+                        <th className="pb-2 text-right font-medium">FCF Yield</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fcfYears.map((y) => (
+                        <tr key={y.year} className="border-b border-border/50">
+                          <td className="py-1.5 pr-3 text-muted-foreground">{y.year}</td>
+                          <td className={`py-1.5 pr-3 text-right font-mono ${(y.fcf ?? 0) < 0 ? "text-red-400" : ""}`}>
+                            {fmtBig(y.fcf as number, currency)}
+                          </td>
+                          <td className="py-1.5 pr-3 text-right font-mono">
+                            {y.fcfPerShare != null ? fmtNum(y.fcfPerShare) : "—"}
+                          </td>
+                          <td className="py-1.5 pr-3 text-right font-mono">
+                            {y.fcfMargin != null ? fmtPct(y.fcfMargin) : "—"}
+                          </td>
+                          <td className="py-1.5 pr-3 text-right font-mono">
+                            {y.pFcf != null && y.pFcf > 0 ? `${fmtNum(y.pFcf, 1)}x` : "N/M"}
+                          </td>
+                          <td className="py-1.5 text-right font-mono">
+                            {y.fcfPerShare != null && y.price > 0 ? fmtPct(y.fcfPerShare / y.price) : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* $100 Cost Basis Table */}
       {stockData && analysis && (

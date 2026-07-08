@@ -60,14 +60,14 @@ interface WatchRow {
   error?: string;
 }
 
-const STORAGE_KEY = "stuckless-watchlist-v3"; // v3: + CSU.TO
+const STORAGE_KEY = "stuckless-watchlist-v4"; // v4: + KPG.AX
 const SEED_TICKERS = [
   // Market infrastructure & data monopolies
   "IBKR", "VRSN", "CME", "ICE", "NDAQ", "SPGI", "MCO", "MSCI", "FICO", "VRSK",
   // Payments
   "MA", "V",
   // Serial acquirers & proprietary-parts industrials
-  "ROP", "TDG", "HEI", "CSU.TO", "TOI.V", "LMN.V",
+  "ROP", "TDG", "HEI", "CSU.TO", "TOI.V", "LMN.V", "KPG.AX",
   // Boring dominance
   "COST", "CPRT", "ORLY", "AZO", "CTAS", "WCN", "BRO",
   // More compounders
