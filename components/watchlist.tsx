@@ -60,7 +60,11 @@ function verdict(premium: number | null): { label: string; className: string } {
 
 /* ── Component ─────────────────────────────────── */
 
-export function Watchlist() {
+export function Watchlist({
+  onOpenAnalyzer,
+}: {
+  onOpenAnalyzer?: (ticker: string) => void;
+}) {
   const [tickers, setTickers] = useState<string[] | null>(null); // null until localStorage loads
   const [rows, setRows] = useState<Record<string, RowState>>({});
   const [updated, setUpdated] = useState<string | null>(null);
@@ -324,7 +328,15 @@ export function Watchlist() {
                 const v = verdict(row.premium);
                 return (
                   <TableRow key={row.ticker}>
-                    <TableCell className="font-semibold text-emerald-400">{row.ticker}</TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => onOpenAnalyzer?.(row.ticker)}
+                        className="font-semibold text-emerald-400 hover:text-emerald-300 hover:underline"
+                        title="Open in Five-Factor Analysis"
+                      >
+                        {row.ticker}
+                      </button>
+                    </TableCell>
                     <TableCell className="max-w-[200px] truncate text-muted-foreground">{row.name}</TableCell>
                     <TableCell className="text-right font-mono">
                       {row.currentPrice != null ? `$${row.currentPrice.toFixed(2)}` : "—"}

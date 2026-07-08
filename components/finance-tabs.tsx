@@ -15,6 +15,13 @@ type TabId = (typeof tabs)[number]["id"];
 
 export function FinanceTabs() {
   const [active, setActive] = useState<TabId>("stocks");
+  // Wrapped in an object so clicking the same ticker twice still re-triggers
+  const [analyzerTicker, setAnalyzerTicker] = useState<{ sym: string } | null>(null);
+
+  function openInAnalyzer(sym: string) {
+    setAnalyzerTicker({ sym });
+    setActive("stocks");
+  }
 
   return (
     <div>
@@ -56,7 +63,7 @@ export function FinanceTabs() {
               when their valuation dips below their own historical norm.
             </p>
           </div>
-          <Watchlist />
+          <Watchlist onOpenAnalyzer={openInAnalyzer} />
         </>
       )}
 
@@ -70,7 +77,7 @@ export function FinanceTabs() {
               dividend yield.
             </p>
           </div>
-          <StockAnalyzer />
+          <StockAnalyzer externalTicker={analyzerTicker} />
         </>
       )}
     </div>

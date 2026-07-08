@@ -187,7 +187,11 @@ function calcFiveFactors(start: YearData, end: YearData, cal = false): FiveFacto
 
 /* ── Component ─────────────────────────────────── */
 
-export function StockAnalyzer() {
+export function StockAnalyzer({
+  externalTicker,
+}: {
+  externalTicker?: { sym: string } | null;
+}) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -229,6 +233,15 @@ export function StockAnalyzer() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  // Load a ticker handed in from outside (e.g. a watchlist row click)
+  useEffect(() => {
+    if (externalTicker?.sym) {
+      setQuery(externalTicker.sym);
+      selectTicker(externalTicker.sym);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalTicker]);
 
   const searchTickers = useCallback(async (q: string) => {
     if (q.length < 1) {
