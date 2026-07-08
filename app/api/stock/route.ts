@@ -451,7 +451,14 @@ export async function GET(req: NextRequest) {
     const yahooFinance = await getYahooFinance();
 
     if (search) {
-      const result: any = await yahooFinance.search(search);
+      // Some foreign-ticker search responses fail yahoo-finance2's strict
+      // schema (e.g. "sygnity", "topicus") — skip validation, we only read
+      // symbol/name/exchange
+      const result: any = await yahooFinance.search(
+        search,
+        {},
+        { validateResult: false } as any
+      );
       const equities = (result.quotes || [])
         .filter((q: any) => q.quoteType === "EQUITY")
         .slice(0, 8)
