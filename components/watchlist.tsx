@@ -12,30 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  WATCHLIST_TICKERS,
+  MAX_ASSUMED_GROWTH,
+  buildRow,
+  type WatchRow,
+} from "@/lib/watchlist-data";
 
 /* ── Types ─────────────────────────────────────── */
-
-interface YearData {
-  year: number;
-  revenue: number;
-  netIncome: number;
-  sharesOutstanding: number;
-  eps: number;
-  price: number;
-  netMargin: number;
-  peMultiple: number;
-  dividendsPerShare: number;
-  equity?: number;
-  longTermDebt?: number;
-}
-
-interface StockData {
-  ticker: string;
-  name: string;
-  currency: string;
-  currentPrice: number | null;
-  years: YearData[];
-}
 
 interface SearchResult {
   symbol: string;
@@ -43,140 +27,28 @@ interface SearchResult {
   exchange: string;
 }
 
-interface WatchRow {
-  ticker: string;
-  name: string;
-  currency: string;
-  currentPrice: number | null;
-  currentPe: number | null;
-  medianPe: number | null;
-  premium: number | null; // current P/E vs own median: negative = discount
-  epsCAGR: number | null;
-  divYield: number | null;
-  impliedReturn: number | null;
-  qualityScore: number | null;
-  yearsOfData: number;
-  loading: boolean;
-  error?: string;
+// WatchRow + client-side fetch state (for tickers not in the static JSON)
+type RowState = WatchRow & { loading?: boolean; error?: string };
+
+interface WatchlistJson {
+  updated: string;
+  rows: WatchRow[];
 }
 
-const STORAGE_KEY = "stuckless-watchlist-v7"; // v7: + DAC
-const SEED_TICKERS = [
-  // Market infrastructure & data monopolies
-  "IBKR", "VRSN", "CME", "ICE", "NDAQ", "SPGI", "MCO", "MSCI", "FICO", "VRSK",
-  // Payments
-  "MA", "V",
-  // Serial acquirers & proprietary-parts industrials
-  "ROP", "TDG", "HEI", "CSU.TO", "TOI.V", "LMN.V", "KPG.AX", "SGN.WA", "ACP.WA",
-  // Boring dominance
-  "COST", "CPRT", "ORLY", "AZO", "CTAS", "WCN", "BRO",
-  // More compounders
-  "MSFT", "ASML", "INTU", "IDXX", "ZTS", "ODFL", "POOL", "FAST", "KNSL", "RACE",
-  // Deep value / cyclical (P/E-vs-median verdict reads these backwards:
-  // cyclicals look cheapest at peak earnings and richest at trough)
-  "DAC",
-];
-
-// Client-side fetch batching — each ticker triggers EDGAR + Yahoo calls server-side,
-// so a full seed list fired at once would trip SEC's rate limit
-const FETCH_BATCH_SIZE = 4;
+const STORAGE_KEY = "stuckless-watchlist-v7";
 
 // Verdict thresholds: current P/E vs own historical median
 const CHEAP_BELOW = -0.15;
 const RICH_ABOVE = 0.15;
 
-// Implied return: EPS growth assumption capped to avoid extrapolating blowout years
-const MAX_ASSUMED_GROWTH = 0.25;
+// Live fetches happen only for user-added tickers missing from watchlist.json;
+// keep them gentle on SEC EDGAR
+const FETCH_BATCH_SIZE = 4;
 
 /* ── Helpers ───────────────────────────────────── */
 
 function fmtPct(n: number) {
   return `${(n * 100).toFixed(1)}%`;
-}
-
-function median(values: number[]): number | null {
-  if (values.length === 0) return null;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
-}
-
-function cagr(start: number, end: number, years: number): number | null {
-  if (years <= 0 || start <= 0 || end <= 0) return null;
-  return Math.pow(end / start, 1 / years) - 1;
-}
-
-// Same quality score as the S&P 500 screener
-function qualityScore(years: YearData[]): number | null {
-  if (years.length < 2) return null;
-  const latest = years[years.length - 1];
-  const fiveAgo = years.find((y) => y.year === latest.year - 5) ?? years[0];
-  const span = latest.year - fiveAgo.year;
-
-  const roe = latest.equity && latest.equity > 0 ? latest.netIncome / latest.equity : null;
-  const capitalEmployed = (latest.equity ?? 0) + (latest.longTermDebt ?? 0);
-  const roce = capitalEmployed > 0 ? latest.netIncome / capitalEmployed : null;
-  const margin = latest.netMargin;
-  const epsG = fiveAgo.eps > 0 && latest.eps > 0 ? cagr(fiveAgo.eps, latest.eps, span) : null;
-  const revG = cagr(fiveAgo.revenue, latest.revenue, span);
-  const buyback =
-    fiveAgo.sharesOutstanding > 0 && span > 0
-      ? (fiveAgo.sharesOutstanding - latest.sharesOutstanding) / fiveAgo.sharesOutstanding / span
-      : null;
-
-  let score = 0, weights = 0;
-  if (roe !== null) { score += Math.min(roe, 1) * 25; weights += 25; }
-  if (roce !== null) { score += Math.min(roce, 1) * 20; weights += 20; }
-  score += Math.min(Math.max(margin, 0), 0.5) * 2 * 15; weights += 15;
-  if (epsG !== null) { score += Math.min(Math.max(epsG, 0), 0.5) * 2 * 15; weights += 15; }
-  if (revG !== null) { score += Math.min(Math.max(revG, 0), 0.5) * 2 * 15; weights += 15; }
-  if (buyback !== null) { score += Math.min(Math.max(buyback, 0), 0.1) * 10 * 10; weights += 10; }
-  return weights > 0 ? (score / weights) * 100 : null;
-}
-
-function buildRow(ticker: string, data: StockData): WatchRow {
-  const years = data.years;
-  const latest = years[years.length - 1];
-  const fiveAgo = years.find((y) => y.year === latest.year - 5) ?? years[0];
-  const span = latest.year - fiveAgo.year;
-
-  // Median P/E over up to the last 10 years with positive earnings
-  const peHistory = years
-    .slice(-10)
-    .map((y) => y.peMultiple)
-    .filter((pe) => pe > 0);
-  const medianPe = median(peHistory);
-
-  const price = data.currentPrice;
-  const currentPe = price && latest.eps > 0 ? price / latest.eps : null;
-  const premium = currentPe != null && medianPe != null && medianPe > 0 ? currentPe / medianPe - 1 : null;
-
-  const epsCAGR = fiveAgo.eps > 0 && latest.eps > 0 ? cagr(fiveAgo.eps, latest.eps, span) : null;
-  const divYield = price && price > 0 ? latest.dividendsPerShare / price : null;
-
-  // If P/E reverts to its median while EPS compounds at the (capped) historical rate
-  let impliedReturn: number | null = null;
-  if (price && price > 0 && medianPe != null && latest.eps > 0 && epsCAGR != null) {
-    const g = Math.min(Math.max(epsCAGR, 0), MAX_ASSUMED_GROWTH);
-    const futurePrice = medianPe * latest.eps * Math.pow(1 + g, 5);
-    impliedReturn = Math.pow(futurePrice / price, 1 / 5) - 1 + (divYield ?? 0);
-  }
-
-  return {
-    ticker: data.ticker,
-    name: data.name,
-    currency: data.currency,
-    currentPrice: price,
-    currentPe,
-    medianPe,
-    premium,
-    epsCAGR,
-    divYield,
-    impliedReturn,
-    qualityScore: qualityScore(years),
-    yearsOfData: years.length,
-    loading: false,
-  };
 }
 
 function verdict(premium: number | null): { label: string; className: string } {
@@ -190,7 +62,9 @@ function verdict(premium: number | null): { label: string; className: string } {
 
 export function Watchlist() {
   const [tickers, setTickers] = useState<string[] | null>(null); // null until localStorage loads
-  const [rows, setRows] = useState<Record<string, WatchRow>>({});
+  const [rows, setRows] = useState<Record<string, RowState>>({});
+  const [updated, setUpdated] = useState<string | null>(null);
+  const [staticLoaded, setStaticLoaded] = useState(false);
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -201,10 +75,10 @@ export function Watchlist() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      const list: string[] = saved ? JSON.parse(saved) : SEED_TICKERS;
-      setTickers(Array.isArray(list) && list.length > 0 ? list : SEED_TICKERS);
+      const list: string[] = saved ? JSON.parse(saved) : WATCHLIST_TICKERS;
+      setTickers(Array.isArray(list) && list.length > 0 ? list : WATCHLIST_TICKERS);
     } catch {
-      setTickers(SEED_TICKERS);
+      setTickers(WATCHLIST_TICKERS);
     }
   }, []);
 
@@ -213,10 +87,34 @@ export function Watchlist() {
     if (tickers) localStorage.setItem(STORAGE_KEY, JSON.stringify(tickers));
   }, [tickers]);
 
+  // Load precomputed rows from the static JSON (no EDGAR/Yahoo queries)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/watchlist.json");
+        if (res.ok) {
+          const data: WatchlistJson = await res.json();
+          setUpdated(data.updated);
+          setRows((r) => {
+            const next = { ...r };
+            for (const row of data.rows) {
+              if (!next[row.ticker]) next[row.ticker] = row;
+            }
+            return next;
+          });
+        }
+      } catch {
+        // fall back to live fetching everything
+      } finally {
+        setStaticLoaded(true);
+      }
+    })();
+  }, []);
+
   const fetchTicker = useCallback(async (symbol: string) => {
     setRows((r) => ({
       ...r,
-      [symbol]: { ...(r[symbol] ?? ({} as WatchRow)), ticker: symbol, name: symbol, loading: true } as WatchRow,
+      [symbol]: { ...(r[symbol] ?? ({} as RowState)), ticker: symbol, name: symbol, loading: true } as RowState,
     }));
     try {
       const res = await fetch(`/api/stock?ticker=${encodeURIComponent(symbol)}`);
@@ -228,7 +126,7 @@ export function Watchlist() {
       setRows((r) => ({
         ...r,
         [symbol]: {
-          ...(r[symbol] as WatchRow),
+          ...(r[symbol] as RowState),
           loading: false,
           error: err instanceof Error ? err.message : "Fetch failed",
         },
@@ -236,10 +134,11 @@ export function Watchlist() {
     }
   }, []);
 
-  // Fetch any tickers we don't have data for yet, a few at a time
+  // Live-fetch only tickers the static JSON doesn't cover (user-added ones),
+  // after the static file has had its chance
   const inFlight = useRef<Set<string>>(new Set());
   useEffect(() => {
-    if (!tickers) return;
+    if (!tickers || !staticLoaded) return;
     const missing = tickers.filter((t) => !rows[t] && !inFlight.current.has(t));
     if (missing.length === 0) return;
     let cancelled = false;
@@ -256,7 +155,7 @@ export function Watchlist() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickers, fetchTicker]);
+  }, [tickers, staticLoaded, fetchTicker]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -358,6 +257,10 @@ export function Watchlist() {
             against each stock&apos;s own ~10-year median — <span className="text-emerald-400">Cheap</span> is
             more than 15% below its norm, <span className="text-red-400">Rich</span> more than 15% above.
             Saved in your browser.
+            {updated && (
+              <span className="text-muted-foreground/60"> Data as of {updated} (precomputed; run{" "}
+              <code className="text-[10px]">npm run refresh-watchlist</code> to update).</span>
+            )}
           </p>
         </CardContent>
       </Card>
@@ -386,7 +289,7 @@ export function Watchlist() {
               {sortedRows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={12} className="text-center text-sm text-muted-foreground">
-                    {tickers === null ? "Loading..." : "Watchlist is empty — search above to add tickers."}
+                    {tickers === null || !staticLoaded ? "Loading..." : "Watchlist is empty — search above to add tickers."}
                   </TableCell>
                 </TableRow>
               )}
