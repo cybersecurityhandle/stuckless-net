@@ -46,6 +46,7 @@ interface StockData {
   name: string;
   currency: string;
   source: "edgar+yahoo" | "yahoo";
+  fcfAttributableShare?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
 }
@@ -736,6 +737,13 @@ export function StockAnalyzer() {
                 accounting earnings understate (or overstate) cash generation — e.g. acquirers
                 amortizing intangibles. Fiscal years; not part of the five-factor decomposition.
               </p>
+              {stockData.fcfAttributableShare != null && (
+                <p className="text-xs text-yellow-500/80">
+                  FCF scaled to the ~{Math.round(stockData.fcfAttributableShare * 100)}% shareholder-attributable
+                  share — the rest of consolidated cash flow belongs to non-controlling interests
+                  (e.g. partner-owners of the operating businesses). Net income is as reported.
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               <div className="grid gap-6 md:grid-cols-2">

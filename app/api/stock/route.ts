@@ -3,7 +3,15 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.9.0"; // 1.9.0 = per-year free cash flow (fcf, fcfMargin, pFcf)
+const API_VERSION = "1.9.1"; // 1.9.1 = attributable-FCF share for partially-owned structures
+
+// Consolidated cash flow overstates what belongs to shareholders when the
+// listed entity owns only part of its operating businesses. Approximate the
+// attributable share for known cases (e.g. Kelly Partners owns ~51% of each
+// practice; the other 49% belongs to partner-owners, i.e. NCI).
+const FCF_ATTRIBUTABLE_SHARE: Record<string, number> = {
+  "KPG.AX": 0.51,
+};
 
 // Fundamentals change quarterly; the live quote is refreshed on every cache hit
 const REDIS_TTL_S = 24 * 60 * 60;
@@ -648,9 +656,12 @@ export async function GET(req: NextRequest) {
       const calPe = d.eps > 0 && calendarPrice ? calendarPrice / d.eps : 0;
       const calDivYield = calendarPrice > 0 ? d.dps / calendarPrice : 0;
 
-      // Informational FCF metrics (not part of the five-factor decomposition)
-      const fcfPerShare = d.fcf != null ? d.fcf / d.sharesOutstanding : null;
-      const fcfMargin = d.fcf != null ? d.fcf / d.revenue : null;
+      // Informational FCF metrics (not part of the five-factor decomposition).
+      // Scaled to the shareholder-attributable portion for partially-owned structures.
+      const fcfShare = FCF_ATTRIBUTABLE_SHARE[ticker.toUpperCase()] ?? 1;
+      const fcfAttr = d.fcf != null ? d.fcf * fcfShare : null;
+      const fcfPerShare = fcfAttr != null ? fcfAttr / d.sharesOutstanding : null;
+      const fcfMargin = fcfAttr != null ? fcfAttr / d.revenue : null;
       const pFcf = fcfPerShare != null && fcfPerShare > 0 ? price / fcfPerShare : null;
 
       years.push({
@@ -672,7 +683,7 @@ export async function GET(req: NextRequest) {
         equity: d.equity,
         totalAssets: d.totalAssets,
         longTermDebt: d.longTermDebt,
-        fcf: d.fcf ?? null,
+        fcf: fcfAttr,
         fcfPerShare: fcfPerShare != null ? Math.round(fcfPerShare * 100) / 100 : null,
         fcfMargin: fcfMargin != null ? Math.round(fcfMargin * 10000) / 10000 : null,
         pFcf: pFcf != null ? Math.round(pFcf * 100) / 100 : null,
@@ -807,6 +818,8 @@ export async function GET(req: NextRequest) {
     const livePrice = (yfSummary?.price as any)?.regularMarketPrice;
     const lastClose = livePrice || getClosestPrice(priceHistory, new Date());
 
+    const fcfAttributableShare = FCF_ATTRIBUTABLE_SHARE[ticker.toUpperCase()] ?? null;
+
     const payload = {
       ticker: ticker.toUpperCase(),
       name: companyName,
@@ -814,6 +827,7 @@ export async function GET(req: NextRequest) {
       version: API_VERSION,
       source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
       currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
+      fcfAttributableShare,
       years,
       calendarYears,
     };
