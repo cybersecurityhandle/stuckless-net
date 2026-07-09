@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.2"; // 1.11.2 = share-class conversion for cross-class tickers (BRK-B)
+const API_VERSION = "1.11.3"; // 1.11.3 = market-cap anchor for whole-series share-unit errors (EG, COP)
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -847,6 +847,32 @@ export async function GET(req: NextRequest) {
         d.sharesOutstanding *= classMult;
         d.eps /= classMult;
         d.dps /= classMult;
+      }
+    }
+
+    // Absolute share-scale anchor: some filers report the entire series in
+    // thousands (EG, COP), which the relative median repair cannot detect.
+    // Compare the latest year against shares implied by live market cap and
+    // rescale the whole series by the nearest power of 1,000. Deliberately
+    // no-ops for ADR ratios (not powers of 1000) and normal buyback drift.
+    {
+      const mc = (yfSummary?.price as any)?.marketCap;
+      const px = (yfSummary?.price as any)?.regularMarketPrice;
+      const yrs = Object.keys(yearMap).map(Number);
+      if (mc && px && yrs.length) {
+        const latest = yearMap[Math.max(...yrs)];
+        if (latest?.sharesOutstanding > 0) {
+          const lg = Math.log10(mc / px / latest.sharesOutstanding);
+          const k = Math.round(lg / 3) * 3;
+          if (k !== 0 && Math.abs(lg - k) < 0.35) {
+            const scale = Math.pow(10, k);
+            for (const d of Object.values(yearMap)) {
+              d.sharesOutstanding *= scale;
+              d.eps /= scale;
+              d.dps /= scale;
+            }
+          }
+        }
       }
     }
 
