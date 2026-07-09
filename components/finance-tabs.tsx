@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MortgageCalculator } from "./mortgage-calculator";
 import { StockAnalyzer } from "./stock-analyzer";
 import { Watchlist } from "./watchlist";
@@ -24,6 +24,14 @@ export function FinanceTabs() {
     setAnalyzerTicker({ sym });
     setActive("stocks");
   }
+
+  // Deep link: /finance?ticker=XXX opens the analyzer with that ticker
+  // (e.g. from a screener row click)
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("ticker");
+    if (t) openInAnalyzer(t.toUpperCase());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
