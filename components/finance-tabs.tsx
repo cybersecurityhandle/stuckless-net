@@ -4,10 +4,12 @@ import { useState } from "react";
 import { MortgageCalculator } from "./mortgage-calculator";
 import { StockAnalyzer } from "./stock-analyzer";
 import { Watchlist } from "./watchlist";
+import { BetaSection } from "./beta-section";
 
 const tabs = [
   { id: "stocks" as const, label: "Five-Factor Analysis" },
   { id: "watchlist" as const, label: "Watchlist" },
+  { id: "beta" as const, label: "Beta" },
   { id: "mortgage" as const, label: "Rent vs Buy" },
 ];
 
@@ -64,6 +66,19 @@ export function FinanceTabs() {
             </p>
           </div>
           <Watchlist onOpenAnalyzer={openInAnalyzer} />
+        </>
+      )}
+
+      {active === "beta" && (
+        <>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight">Short-Horizon Beta</h1>
+            <p className="mt-2 text-muted-foreground">
+              12-week beta vs the S&amp;P 500 for the watchlist names — volatility statistics
+              in institutional dialect, deliberately kept away from the five factors.
+            </p>
+          </div>
+          <BetaSection />
         </>
       )}
 

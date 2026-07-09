@@ -36,6 +36,7 @@ export interface StockData {
   name: string;
   currency: string;
   currentPrice: number | null;
+  beta12w?: number | null;
   years: YearData[];
 }
 
@@ -51,6 +52,7 @@ export interface WatchRow {
   divYield: number | null;
   impliedReturn: number | null;
   qualityScore: number | null;
+  beta12w: number | null;
   yearsOfData: number;
 }
 
@@ -138,6 +140,7 @@ export function buildRow(ticker: string, data: StockData): WatchRow {
     divYield,
     impliedReturn,
     qualityScore: qualityScore(years),
+    beta12w: data.beta12w ?? null,
     yearsOfData: years.length,
   };
 }

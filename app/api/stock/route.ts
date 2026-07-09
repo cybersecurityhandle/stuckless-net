@@ -3,7 +3,11 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.9.3"; // 1.9.3 = KPG.AX FCF share recalibrated to reported NPATA
+const API_VERSION = "1.10.0"; // 1.10.0 = short-horizon beta (12w daily returns vs S&P 500)
+
+// Trading days for short-horizon beta (~12 weeks). Daily returns give ~60
+// observations; weekly returns over the same window would give only 12.
+const BETA_TRADING_DAYS = 60;
 
 // Consolidated figures overstate what belongs to shareholders when the listed
 // entity only part-owns its operating businesses. Approximate attributable
@@ -457,6 +461,94 @@ function splitFactorAfterDate(
   return factor;
 }
 
+// ── Short-horizon beta ─────────────────────────────────────────
+
+/** Daily closes for the last ~6 months, as a date → close map. */
+async function fetchDailyCloses(
+  yahooFinance: any,
+  symbol: string
+): Promise<Record<string, number> | null> {
+  try {
+    const chart = await yahooFinance.chart(symbol, {
+      period1: new Date(Date.now() - 200 * 86400000),
+      period2: new Date(),
+      interval: "1d",
+    });
+    const closes: Record<string, number> = {};
+    for (const q of chart?.quotes ?? []) {
+      if (q.close != null) {
+        const d = q.date instanceof Date ? q.date : new Date(q.date);
+        closes[d.toISOString().slice(0, 10)] = q.close;
+      }
+    }
+    return Object.keys(closes).length > 20 ? closes : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Beta over the trailing BETA_TRADING_DAYS daily returns vs the S&P 500.
+ * Foreign tickers are regressed in their local currency against ^GSPC —
+ * a rough but conventional shortcut.
+ */
+function computeBeta(
+  stockCloses: Record<string, number>,
+  marketCloses: Record<string, number>
+): number | null {
+  const dates = Object.keys(stockCloses)
+    .filter((d) => marketCloses[d] != null)
+    .sort();
+  if (dates.length < 30) return null;
+
+  const rs: number[] = [];
+  const rm: number[] = [];
+  for (let i = 1; i < dates.length; i++) {
+    rs.push(stockCloses[dates[i]] / stockCloses[dates[i - 1]] - 1);
+    rm.push(marketCloses[dates[i]] / marketCloses[dates[i - 1]] - 1);
+  }
+  const s = rs.slice(-BETA_TRADING_DAYS);
+  const m = rm.slice(-BETA_TRADING_DAYS);
+  const n = s.length;
+  if (n < 30) return null;
+
+  const meanS = s.reduce((a, b) => a + b, 0) / n;
+  const meanM = m.reduce((a, b) => a + b, 0) / n;
+  let cov = 0;
+  let varM = 0;
+  for (let i = 0; i < n; i++) {
+    cov += (s[i] - meanS) * (m[i] - meanM);
+    varM += (m[i] - meanM) ** 2;
+  }
+  if (varM === 0) return null;
+  return Math.round((cov / varM) * 100) / 100;
+}
+
+/** S&P 500 daily closes, shared across tickers via Redis (6h TTL). */
+async function getMarketCloses(
+  yahooFinance: any,
+  redis: ReturnType<typeof getRedis>
+): Promise<Record<string, number> | null> {
+  const key = "mkt:gspc:1d";
+  if (redis) {
+    try {
+      const cached = await redis.get(key);
+      if (cached) return typeof cached === "string" ? JSON.parse(cached) : (cached as any);
+    } catch {
+      // fall through
+    }
+  }
+  const closes = await fetchDailyCloses(yahooFinance, "^GSPC");
+  if (closes && redis) {
+    try {
+      await redis.set(key, JSON.stringify(closes), { ex: 6 * 3600 });
+    } catch {
+      // best-effort
+    }
+  }
+  return closes;
+}
+
 // ── Main handler ───────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -516,7 +608,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch in parallel: SEC EDGAR, Yahoo (prices + info + annual/quarterly fundamentals + splits)
     const startDate = new Date(new Date().getFullYear() - 20, 0, 1);
-    const [edgar, yfSummary, yfFundamentals, yfQuarterly, historical, chartData] =
+    const [edgar, yfSummary, yfFundamentals, yfQuarterly, historical, chartData, dailyCloses, marketCloses] =
       await Promise.all([
         fetchEdgarData(ticker).catch(() => null),
         yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
@@ -548,7 +640,12 @@ export async function GET(req: NextRequest) {
             return: "array",
           } as any)
           .catch(() => null),
+        fetchDailyCloses(yahooFinance, ticker),
+        getMarketCloses(yahooFinance, redis),
       ]);
+
+    const beta12w =
+      dailyCloses && marketCloses ? computeBeta(dailyCloses, marketCloses) : null;
 
     const splits: Array<{ date: Date | string; numerator: number; denominator: number }> =
       (chartData as any)?.events?.splits || [];
@@ -847,6 +944,7 @@ export async function GET(req: NextRequest) {
       version: API_VERSION,
       source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
       currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
+      beta12w,
       fcfAttributableShare,
       netIncomeAttributableShare,
       years,
