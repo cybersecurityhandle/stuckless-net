@@ -3,7 +3,15 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.1"; // 1.11.1 = repair share-count unit-scale flips (e.g. MCD 746 vs 746M)
+const API_VERSION = "1.11.2"; // 1.11.2 = share-class conversion for cross-class tickers (BRK-B)
+
+// Tickers whose EDGAR filings report share counts for a different share
+// class than the listed ticker. BRK filings carry Class A equivalents;
+// 1 A converts to exactly 1,500 B. Per-share values divide by the same
+// factor (BRK pays no dividend, but handled for completeness).
+const SHARE_CLASS_MULTIPLIER: Record<string, number> = {
+  "BRK-B": 1500,
+};
 
 // Some foreign listings price in USD while Yahoo serves their financials in
 // the local reporting currency, inflating every per-share and money figure.
@@ -737,6 +745,7 @@ export async function GET(req: NextRequest) {
     const yearMap: Record<number, any> = {};
 
     // 1. SEC EDGAR data (10+ years) — adjust for stock splits
+    const classMult = SHARE_CLASS_MULTIPLIER[ticker.toUpperCase()] ?? 1;
     if (edgarData?.yearData) {
       for (const [dateStr, data] of Object.entries(edgarData.yearData)) {
         const endDate = new Date(dateStr);
@@ -828,6 +837,16 @@ export async function GET(req: NextRequest) {
         if (d.equity != null) d.equity *= fxRate;
         if (d.totalAssets != null) d.totalAssets *= fxRate;
         if (d.longTermDebt != null) d.longTermDebt *= fxRate;
+      }
+    }
+
+    // Convert cross-class share counts (both EDGAR and Yahoo serve BRK-B
+    // as Class A equivalents) — applied after all sources have filled yearMap
+    if (classMult !== 1) {
+      for (const d of Object.values(yearMap)) {
+        d.sharesOutstanding *= classMult;
+        d.eps /= classMult;
+        d.dps /= classMult;
       }
     }
 
@@ -926,7 +945,7 @@ export async function GET(req: NextRequest) {
       const fxQ = fxRate ?? 1;
       const revenue = (entry.totalRevenue || 0) * fxQ;
       const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1) * fxQ;
-      const sharesQ = entry.ordinarySharesNumber || 0;
+      const sharesQ = (entry.ordinarySharesNumber || 0) * classMult;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
       const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0) * fxQ;
 
