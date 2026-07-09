@@ -35,7 +35,7 @@ interface WatchlistJson {
   rows: WatchRow[];
 }
 
-const STORAGE_KEY = "stuckless-watchlist-v7";
+const STORAGE_KEY = "stuckless-watchlist-v8"; // v8: + UBER, HKEX, ASX, BSE, MonotaRO, BAP
 
 // Verdict thresholds: current P/E vs own historical median
 const CHEAP_BELOW = -0.15;

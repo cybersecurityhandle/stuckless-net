@@ -48,6 +48,7 @@ interface StockData {
   source: "edgar+yahoo" | "yahoo";
   fcfAttributableShare?: number | null;
   netIncomeAttributableShare?: number | null;
+  reportingFx?: { from: string; rate: number } | null;
   years: YearData[];
   calendarYears?: YearData[];
 }
@@ -417,6 +418,13 @@ export function StockAnalyzer({
                   ? " · SEC EDGAR + Yahoo Finance"
                   : " · Yahoo Finance only"}
               </p>
+              {stockData.reportingFx && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Financials reported in {stockData.reportingFx.from}, converted to the listing
+                  currency at today&apos;s rate ({stockData.reportingFx.rate.toFixed(4)}) — historical
+                  years use the current rate, an approximation.
+                </p>
+              )}
               {stockData.netIncomeAttributableShare != null && (
                 <p className="text-[10px] text-yellow-500/80">
                   Net income and EPS scaled to the ~{Math.round(stockData.netIncomeAttributableShare * 100)}%

@@ -15,6 +15,8 @@ export const WATCHLIST_TICKERS = [
   // Deep value / cyclical (P/E-vs-median verdict reads these backwards:
   // cyclicals look cheapest at peak earnings and richest at trough)
   "DAC",
+  // Global quality & exchanges
+  "UBER", "0388.HK", "ASX.AX", "BSE.NS", "3064.T", "BAP",
 ];
 
 export interface YearData {

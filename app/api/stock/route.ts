@@ -3,7 +3,18 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.10.0"; // 1.10.0 = short-horizon beta (12w daily returns vs S&P 500)
+const API_VERSION = "1.11.0"; // 1.11.0 = reporting-currency FX conversion (e.g. BAP: PEN → USD)
+
+// Some foreign listings price in USD while Yahoo serves their financials in
+// the local reporting currency, inflating every per-share and money figure.
+// Map ticker → reporting currency; values are converted to the price currency
+// at the current FX rate (approximation: historical years use today's rate).
+// Only pure cases belong here (1:1 share listing, no ADR ratio) — e.g. TSM
+// (1 ADR = 5 shares) needs more than FX and is deliberately excluded.
+const REPORTING_FX: Record<string, string> = {
+  BAP: "PEN", // Credicorp — NYSE-listed, reports in Peruvian soles
+  IFS: "PEN", // Intercorp Financial — same
+};
 
 // Trading days for short-horizon beta (~12 weeks). Daily returns give ~60
 // observations; weekly returns over the same window would give only 12.
@@ -664,6 +675,19 @@ export async function GET(req: NextRequest) {
         getMarketCloses(yahooFinance, redis),
       ]);
 
+    // FX rate for tickers whose financials arrive in a different currency
+    // than their listing price
+    const reportCur = REPORTING_FX[ticker.toUpperCase()];
+    let fxRate: number | null = null;
+    if (reportCur) {
+      try {
+        const q: any = await yahooFinance.quote(`${reportCur}USD=X`);
+        fxRate = q?.regularMarketPrice ?? null;
+      } catch {
+        fxRate = null; // serve unconverted rather than fail
+      }
+    }
+
     const beta12w =
       dailyCloses && marketCloses ? computeBeta(dailyCloses, marketCloses) : null;
 
@@ -771,6 +795,20 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Convert reporting-currency financials to the listing currency
+    if (fxRate) {
+      for (const d of Object.values(yearMap)) {
+        d.revenue *= fxRate;
+        d.netIncome *= fxRate;
+        d.eps *= fxRate;
+        d.dps *= fxRate;
+        if (d.fcf != null) d.fcf *= fxRate;
+        if (d.equity != null) d.equity *= fxRate;
+        if (d.totalAssets != null) d.totalAssets *= fxRate;
+        if (d.longTermDebt != null) d.longTermDebt *= fxRate;
+      }
+    }
+
     // 3. Compute derived metrics with historical prices
     const years = [];
     const sortedYears = Object.keys(yearMap)
@@ -863,11 +901,12 @@ export async function GET(req: NextRequest) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const cy = endDate.getFullYear();
 
-      const revenue = entry.totalRevenue || 0;
-      const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1);
+      const fxQ = fxRate ?? 1;
+      const revenue = (entry.totalRevenue || 0) * fxQ;
+      const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1) * fxQ;
       const sharesQ = entry.ordinarySharesNumber || 0;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
-      const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0);
+      const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0) * fxQ;
 
       if (!yfCalAgg[cy])
         yfCalAgg[cy] = { revenue: 0, netIncome: 0, shares: 0, divPaid: 0, eps: 0, quarters: 0 };
@@ -967,6 +1006,7 @@ export async function GET(req: NextRequest) {
       beta12w,
       fcfAttributableShare,
       netIncomeAttributableShare,
+      reportingFx: fxRate && reportCur ? { from: reportCur, rate: fxRate } : null,
       years,
       calendarYears,
     };
