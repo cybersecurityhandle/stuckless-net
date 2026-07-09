@@ -599,6 +599,26 @@ export async function GET(req: NextRequest) {
           } catch {
             // keep cached price
           }
+          // Self-heal a missing beta (e.g. the ^GSPC fetch was throttled when
+          // this payload was first computed)
+          if (payload.beta12w == null) {
+            const [dc, mc] = await Promise.all([
+              fetchDailyCloses(yahooFinance, ticker),
+              getMarketCloses(yahooFinance, redis),
+            ]);
+            if (dc && mc) {
+              const b = computeBeta(dc, mc);
+              if (b != null) {
+                payload.beta12w = b;
+                try {
+                  const ttl = await redis.ttl(cacheKey);
+                  await redis.set(cacheKey, JSON.stringify(payload), { ex: ttl > 0 ? ttl : REDIS_TTL_S });
+                } catch {
+                  // best-effort
+                }
+              }
+            }
+          }
           return NextResponse.json(payload, { headers: CACHE_HEADERS });
         }
       } catch {
