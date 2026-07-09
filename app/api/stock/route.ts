@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.0"; // 1.11.0 = reporting-currency FX conversion (e.g. BAP: PEN → USD)
+const API_VERSION = "1.11.1"; // 1.11.1 = repair share-count unit-scale flips (e.g. MCD 746 vs 746M)
 
 // Some foreign listings price in USD while Yahoo serves their financials in
 // the local reporting currency, inflating every per-share and money figure.
@@ -327,6 +327,27 @@ const CAPEX_CONCEPTS = [
   "PaymentsForCapitalImprovements",
 ];
 
+/**
+ * Repair unit-scale flips in a share-count series. Some filers switch between
+ * raw counts and thousands/millions across years (MCD: 744,600,000 → "746"),
+ * which poisons every per-share metric. Real share counts never move 100x in
+ * a year (worst reverse splits are ~1:20, and splits are adjusted separately),
+ * so rescale outliers by powers of 1000 toward the series' median magnitude.
+ */
+function repairShareScale(series: Record<string, number>): void {
+  const vals = Object.values(series).filter((v) => v > 0);
+  if (vals.length < 3) return;
+  const logs = vals.map((v) => Math.log10(v)).sort((a, b) => a - b);
+  const medLog = logs[Math.floor(logs.length / 2)];
+  for (const key of Object.keys(series)) {
+    let v = series[key];
+    if (v <= 0) continue;
+    while (Math.log10(v) < medLog - 2) v *= 1000;
+    while (Math.log10(v) > medLog + 2) v /= 1000;
+    series[key] = v;
+  }
+}
+
 async function fetchEdgarData(ticker: string) {
   const map = await getTickerMap();
   if (!map) return null;
@@ -356,6 +377,7 @@ async function fetchEdgarData(ticker: string) {
     ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap"], true),
     ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares", ["us-gaap"], true),
   };
+  repairShareScale(shares);
 
   // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
   // This ensures consistency between displayed EPS, share count, and margin

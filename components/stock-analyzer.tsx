@@ -101,6 +101,8 @@ function fmtBig(n: number, currency: string) {
   if (abs >= 1e12) return `${currency === "USD" ? "$" : currency}${(n / 1e12).toFixed(1)}T`;
   if (abs >= 1e9) return `${currency === "USD" ? "$" : currency}${(n / 1e9).toFixed(1)}B`;
   if (abs >= 1e6) return `${currency === "USD" ? "$" : currency}${(n / 1e6).toFixed(1)}M`;
+  // Empty currency = unitless (share counts); an invalid code throws RangeError
+  if (!currency) return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
   return fmtCurrency(n, currency);
 }
 
