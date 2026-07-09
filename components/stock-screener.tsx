@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -450,14 +449,17 @@ export function StockScreener() {
               <TableBody>
                 {sortedRows.map((row) => (
                   <TableRow key={row.ticker}>
+                    {/* Plain <a>, not next/link: a full-document GET survives the
+                        deployment version skew caused by the nightly data-refresh
+                        deploys (stale clients + RSC navigation fetches 404) */}
                     <TableCell className="font-mono font-bold">
-                      <Link
+                      <a
                         href={`/finance?ticker=${encodeURIComponent(row.ticker)}`}
                         className="hover:text-emerald-400 hover:underline"
                         title="Open in Five-Factor Analysis"
                       >
                         {row.ticker}
-                      </Link>
+                      </a>
                     </TableCell>
                     <TableCell className="max-w-[180px] truncate text-sm text-muted-foreground">
                       {row.name}
