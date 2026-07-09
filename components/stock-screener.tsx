@@ -31,6 +31,7 @@ interface YearData {
 interface StockData {
   ticker: string;
   name: string;
+  beta12w?: number | null;
   years: YearData[];
 }
 
@@ -48,6 +49,7 @@ interface ScreenerRow {
   revCAGR: number | null;
   buybackYield: number | null;
   qualityScore: number;
+  beta12w?: number | null;
 }
 
 interface Sp500Cache {
@@ -111,6 +113,7 @@ function computeMetrics(data: StockData, sector?: string): ScreenerRow | null {
     name: data.name,
     sector,
     price: latest.price,
+    beta12w: data.beta12w ?? null,
     roe,
     roce,
     margin,
@@ -281,6 +284,7 @@ export function StockScreener() {
     { key: "revCAGR", label: "Rev CAGR", pct: true },
     { key: "buybackYield", label: "Buyback", pct: true },
     { key: "price", label: "Price" },
+    { key: "beta12w", label: "β 12w" },
     { key: "qualityScore", label: "Score" },
   ];
 
@@ -474,6 +478,9 @@ export function StockScreener() {
                       </TableCell>
                     ))}
                     <TableCell className="font-mono">{fmtPrice(row.price)}</TableCell>
+                    <TableCell className="font-mono text-muted-foreground">
+                      {fmt(row.beta12w ?? null)}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={

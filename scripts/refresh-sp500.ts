@@ -44,6 +44,7 @@ interface YearData {
 interface StockData {
   ticker: string;
   name: string;
+  beta12w?: number | null;
   years: YearData[];
 }
 
@@ -61,6 +62,7 @@ export interface ScreenerRow {
   revCAGR: number | null;
   buybackYield: number | null;
   qualityScore: number;
+  beta12w: number | null;
 }
 
 /* ── S&P 500 constituent list ───────────────────────────────── */
@@ -183,6 +185,7 @@ function computeMetrics(data: StockData, sector: string): ScreenerRow | null {
     revCAGR: revCAGR !== null ? r3(revCAGR) : null,
     buybackYield: buybackYield !== null ? r3(buybackYield) : null,
     qualityScore,
+    beta12w: data.beta12w ?? null,
   };
 }
 
