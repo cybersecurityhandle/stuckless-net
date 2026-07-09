@@ -750,6 +750,32 @@ export function StockAnalyzer({
       {stockData && (() => {
         const fcfYears = stockData.years.filter((y) => y.fcf != null);
         if (fcfYears.length < 2) return null;
+
+        // Banks/brokers/insurers: operating cash flow includes customer float
+        // (deposits, payables, segregated cash), so OCF−capex is not owner FCF.
+        // No operating company sustains FCF above revenue — a median FCF margin
+        // >100% is the fingerprint of financial-statement float. Judge on the
+        // last 8 years: what the business is now, not what it was in 2009.
+        const margins = fcfYears
+          .slice(-8)
+          .map((y) => y.fcfMargin)
+          .filter((m): m is number => m != null)
+          .sort((a, b) => a - b);
+        const medianMargin = margins.length
+          ? margins[Math.floor(margins.length / 2)]
+          : 0;
+        if (medianMargin > 1) {
+          return (
+            <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 text-xs text-yellow-400">
+              Free cash flow is not shown for {stockData.ticker}: its cash flow statement has the
+              signature of a financial company (median &quot;FCF&quot; {fmtPct(medianMargin)} of
+              revenue). For banks, brokers, and insurers, operating cash flow includes customer
+              float — deposits, payables, segregated funds — so OCF − capex measures balance-sheet
+              growth, not owner earnings. Use net income, ROE, and book value instead.
+            </div>
+          );
+        }
+
         const chartRows = fcfYears.map((y) => ({
           year: y.year,
           fcf: y.fcf as number,
