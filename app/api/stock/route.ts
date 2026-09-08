@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.3"; // 1.11.3 = market-cap anchor for whole-series share-unit errors (EG, COP)
+const API_VERSION = "1.11.4"; // 1.11.4 = REPORTING_FX converts to actual listing currency (was hardcoded to USD); added TOI.V (EUR)
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -22,6 +22,7 @@ const SHARE_CLASS_MULTIPLIER: Record<string, number> = {
 const REPORTING_FX: Record<string, string> = {
   BAP: "PEN", // Credicorp — NYSE-listed, reports in Peruvian soles
   IFS: "PEN", // Intercorp Financial — same
+  "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
 };
 
 // Trading days for short-horizon beta (~12 weeks). Daily returns give ~60
@@ -706,12 +707,15 @@ export async function GET(req: NextRequest) {
       ]);
 
     // FX rate for tickers whose financials arrive in a different currency
-    // than their listing price
+    // than their listing price. Converts straight to the listing currency —
+    // BAP/IFS happen to list in USD (reportCur→USD), but TOI.V lists in CAD,
+    // so the pair has to follow the actual quote currency, not assume USD.
+    const listingCurrency: string = yfSummary?.price?.currency || "USD";
     const reportCur = REPORTING_FX[ticker.toUpperCase()];
     let fxRate: number | null = null;
-    if (reportCur) {
+    if (reportCur && reportCur !== listingCurrency) {
       try {
-        const q: any = await yahooFinance.quote(`${reportCur}USD=X`);
+        const q: any = await yahooFinance.quote(`${reportCur}${listingCurrency}=X`);
         fxRate = q?.regularMarketPrice ?? null;
       } catch {
         fxRate = null; // serve unconverted rather than fail
@@ -737,7 +741,7 @@ export async function GET(req: NextRequest) {
       yfSummary?.price?.shortName ||
       edgarData?.name ||
       ticker.toUpperCase();
-    const currency = yfSummary?.price?.currency || "USD";
+    const currency = listingCurrency;
 
     // ═══════════════════════════════════════════════════════════════
     // FISCAL YEAR DATA
