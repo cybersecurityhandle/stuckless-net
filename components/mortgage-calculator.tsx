@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
@@ -121,7 +121,15 @@ export function MortgageCalculator() {
     const finalBoostedEquity = finalOwnEquity + basementInvestments;
     const finalRentWealth = investmentBalance;
 
-    const verdict = finalOwnEquity > finalRentWealth ? "BUY HOUSE" : "RENT + INVEST";
+    // Picks the actual max of all three displayed scenarios — previously only
+    // compared Buy vs. Rent+Invest, so "Buy + Basement" could show the
+    // largest final number right below a headline naming a different winner.
+    const verdict =
+      finalBoostedEquity >= finalOwnEquity && finalBoostedEquity >= finalRentWealth
+        ? "BUY + BASEMENT"
+        : finalOwnEquity >= finalRentWealth
+          ? "BUY HOUSE"
+          : "RENT + INVEST";
 
     const monthlyIncome = annualIncome / 12;
     const totalMonthlyRent = monthlyRent + monthlyRentInsurance + monthlyStrataFee;
@@ -161,7 +169,12 @@ export function MortgageCalculator() {
     hardMode, extraUtilities, lifestyleExtra, lifestyleInflationPct,
   ]);
 
-  const verdictColor = results.verdict === "BUY HOUSE" ? "text-emerald-500" : "text-violet-400";
+  const verdictColor =
+    results.verdict === "BUY HOUSE"
+      ? "text-emerald-500"
+      : results.verdict === "BUY + BASEMENT"
+        ? "text-amber-400"
+        : "text-violet-400";
 
   return (
     <div className="space-y-8">
@@ -418,6 +431,20 @@ function Field({
   step?: number;
   hint?: string;
 }) {
+  // Local text buffer, decoupled from the coerced-to-0 parent value: lets the
+  // field sit genuinely empty while the user retypes it. Coercing every
+  // keystroke through `parseFloat(...) || 0` snapped the controlled value to
+  // "0" the instant the box was cleared, and since the DOM rewrite doesn't
+  // move the cursor, every following digit landed after that stray zero
+  // instead of replacing it (e.g. clearing then typing "800000" -> "0800000").
+  const [raw, setRaw] = useState(String(value));
+
+  // Pick up external changes (e.g. reset buttons) without fighting in-progress typing.
+  useEffect(() => {
+    if (parseFloat(raw) !== value) setRaw(String(value));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
   return (
     <div>
       <label className="mb-1 block text-xs text-muted-foreground">{label}</label>
@@ -425,9 +452,20 @@ function Field({
         {prefix && <span className="text-xs text-muted-foreground">{prefix}</span>}
         <Input
           type="number"
-          value={value}
+          value={raw}
           step={step}
-          onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setRaw(next);
+            const parsed = parseFloat(next);
+            if (!Number.isNaN(parsed)) onChange(parsed);
+          }}
+          onBlur={() => {
+            if (raw === "" || Number.isNaN(parseFloat(raw))) {
+              setRaw("0");
+              onChange(0);
+            }
+          }}
           className="h-8 text-sm"
         />
         {suffix && <span className="text-xs text-muted-foreground">{suffix}</span>}
