@@ -15,13 +15,13 @@ export default function ThreatIntelPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Threat Intelligence</h1>
         <p className="mt-2 text-muted-foreground">
-          Real-time CVE feed, vulnerability search, and threat actor directory.
+          The newest CVEs from the NVD (refreshed every 5 minutes), vulnerability search, and a threat actor directory.
         </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* Main column */}
-        <div className="space-y-8">
+        <div className="min-w-0 space-y-8">
           {/* CVE Search */}
           <section>
             <h2 className="mb-4 text-lg font-semibold">CVE Search</h2>
@@ -44,7 +44,8 @@ export default function ThreatIntelPage() {
 
           {/* Live Feed */}
           <section>
-            <h2 className="mb-4 text-lg font-semibold">Latest CVEs</h2>
+            <h2 className="mb-1 text-lg font-semibold">Latest CVEs</h2>
+            <p className="mb-4 text-xs text-muted-foreground">Published in the last 7 days · click for NVD details</p>
             <CveFeed />
           </section>
         </div>

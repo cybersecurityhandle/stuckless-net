@@ -1,76 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import type { CVE } from "@/lib/nvd";
-
-const COLORS: Record<string, string> = {
-  CRITICAL: "#dc2626",
-  HIGH: "#f97316",
-  MEDIUM: "#eab308",
-  LOW: "#3b82f6",
-  NONE: "#6b7280",
-};
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { useRecentCVEs } from "@/lib/use-recent-cves";
+import { SEVERITIES, severityHex } from "@/lib/severity";
 
 export function ThreatChart() {
-  const [data, setData] = useState<{ name: string; count: number }[]>([]);
+  const { cves, loading, error } = useRecentCVEs();
 
-  useEffect(() => {
-    fetch("/api/cves")
-      .then((res) => res.json())
-      .then((cves: CVE[]) => {
-        if (!Array.isArray(cves)) return;
-        const counts: Record<string, number> = {
-          CRITICAL: 0,
-          HIGH: 0,
-          MEDIUM: 0,
-          LOW: 0,
-          NONE: 0,
-        };
-        cves.forEach((c) => {
-          counts[c.severity] = (counts[c.severity] || 0) + 1;
-        });
-        setData(
-          Object.entries(counts)
-            .filter(([, v]) => v > 0)
-            .map(([name, count]) => ({ name, count }))
-        );
-      });
-  }, []);
+  const data = SEVERITIES.map((severity) => ({
+    name: severity === "NONE" ? "N/A" : severity,
+    severity,
+    count: cves?.filter((c) => c.severity === severity).length ?? 0,
+  }));
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">CVE Severity Breakdown</CardTitle>
+        <CardTitle className="text-sm">Severity breakdown</CardTitle>
+        <CardDescription className="text-xs">
+          {cves ? `Newest ${cves.length} CVEs on the NVD` : "Newest CVEs on the NVD"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        {data.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Loading chart...</p>
+        {loading ? (
+          <div className="h-[220px] animate-pulse rounded-md bg-muted/50" />
+        ) : error ? (
+          <p className="text-sm text-muted-foreground">Chart unavailable right now.</p>
         ) : (
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={data}>
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#a1a1aa" }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#a1a1aa" }} />
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10, fill: "#a1a1aa" }}
+                tickLine={false}
+                axisLine={{ stroke: "#27272a" }}
+                interval={0}
+              />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#a1a1aa" }} tickLine={false} axisLine={false} />
               <Tooltip
+                cursor={{ fill: "rgba(255,255,255,0.04)" }}
                 contentStyle={{
                   backgroundColor: "#18181b",
                   border: "1px solid #27272a",
                   borderRadius: "8px",
                   fontSize: "12px",
                 }}
+                labelStyle={{ color: "#fafafa" }}
+                itemStyle={{ color: "#a1a1aa" }}
               />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="count" name="CVEs" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                 {data.map((entry) => (
-                  <Cell key={entry.name} fill={COLORS[entry.name] || "#6b7280"} />
+                  <Cell key={entry.severity} fill={severityHex[entry.severity]} />
                 ))}
               </Bar>
             </BarChart>

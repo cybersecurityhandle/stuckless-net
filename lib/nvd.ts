@@ -4,40 +4,54 @@ export interface CVE {
   published: string;
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "NONE";
   score: number | null;
+  cvssVersion: string | null;
   references: string[];
 }
 
 const NVD_BASE = "https://services.nvd.nist.gov/rest/json/cves/2.0";
+const CVE_ID = /^CVE-\d{4}-\d{4,}$/i;
+const REVALIDATE = 300;
 
-function extractSeverity(cveItem: Record<string, unknown>): { severity: CVE["severity"]; score: number | null } {
+// Newest scoring standard first; fresh CVEs often only carry CVSS 4.0.
+const CVSS_KEYS = [
+  ["cvssMetricV40", "4.0"],
+  ["cvssMetricV31", "3.1"],
+  ["cvssMetricV30", "3.0"],
+] as const;
+
+function severityFromScore(score: number): CVE["severity"] {
+  if (score >= 9) return "CRITICAL";
+  if (score >= 7) return "HIGH";
+  if (score >= 4) return "MEDIUM";
+  if (score > 0) return "LOW";
+  return "NONE";
+}
+
+function extractSeverity(cveItem: Record<string, unknown>): Pick<CVE, "severity" | "score" | "cvssVersion"> {
   const metrics = cveItem.metrics as Record<string, unknown> | undefined;
-  if (!metrics) return { severity: "NONE", score: null };
+  if (!metrics) return { severity: "NONE", score: null, cvssVersion: null };
 
-  // Try CVSS 3.1 first, then 3.0, then 2.0
-  for (const key of ["cvssMetricV31", "cvssMetricV30"]) {
+  for (const [key, version] of CVSS_KEYS) {
     const metricArray = metrics[key] as Array<Record<string, unknown>> | undefined;
-    if (metricArray?.[0]) {
-      const cvssData = metricArray[0].cvssData as Record<string, unknown>;
+    const cvssData = metricArray?.[0]?.cvssData as Record<string, unknown> | undefined;
+    if (cvssData) {
+      const score = (cvssData.baseScore as number) ?? null;
+      const severity = (cvssData.baseSeverity as string | undefined)?.toUpperCase() as CVE["severity"] | undefined;
       return {
-        severity: (cvssData.baseSeverity as string)?.toUpperCase() as CVE["severity"] ?? "NONE",
-        score: cvssData.baseScore as number ?? null,
+        severity: severity ?? (score !== null ? severityFromScore(score) : "NONE"),
+        score,
+        cvssVersion: version,
       };
     }
   }
 
   const v2 = metrics.cvssMetricV2 as Array<Record<string, unknown>> | undefined;
   if (v2?.[0]) {
-    const cvssData = v2[0].cvssData as Record<string, unknown>;
-    const score = cvssData.baseScore as number;
-    let severity: CVE["severity"] = "NONE";
-    if (score >= 9) severity = "CRITICAL";
-    else if (score >= 7) severity = "HIGH";
-    else if (score >= 4) severity = "MEDIUM";
-    else if (score > 0) severity = "LOW";
-    return { severity, score };
+    const score = (v2[0].cvssData as Record<string, unknown>).baseScore as number;
+    return { severity: severityFromScore(score), score, cvssVersion: "2.0" };
   }
 
-  return { severity: "NONE", score: null };
+  return { severity: "NONE", score: null, cvssVersion: null };
 }
 
 function parseCVE(vuln: Record<string, unknown>): CVE {
@@ -45,32 +59,53 @@ function parseCVE(vuln: Record<string, unknown>): CVE {
   const descriptions = cve.descriptions as Array<{ lang: string; value: string }>;
   const enDesc = descriptions?.find((d) => d.lang === "en")?.value ?? "";
   const refs = cve.references as Array<{ url: string }> | undefined;
-  const { severity, score } = extractSeverity(cve);
 
   return {
     id: cve.id as string,
     description: enDesc,
     published: cve.published as string,
-    severity,
-    score,
+    ...extractSeverity(cve),
     references: refs?.slice(0, 3).map((r) => r.url) ?? [],
   };
 }
 
-export async function fetchRecentCVEs(count = 20): Promise<CVE[]> {
-  const url = `${NVD_BASE}?resultsPerPage=${count}`;
-  const res = await fetch(url, { next: { revalidate: 300 } });
+async function nvdFetch(params: URLSearchParams) {
+  const headers: HeadersInit = {};
+  if (process.env.NVD_API_KEY) headers.apiKey = process.env.NVD_API_KEY;
+  const res = await fetch(`${NVD_BASE}?${params}`, { headers, next: { revalidate: REVALIDATE } });
   if (!res.ok) throw new Error(`NVD API error: ${res.status}`);
-  const data = await res.json();
-  const vulnerabilities = data.vulnerabilities as Array<Record<string, unknown>> ?? [];
-  return vulnerabilities.map(parseCVE);
+  return res.json() as Promise<{ totalResults: number; vulnerabilities?: Array<Record<string, unknown>> }>;
 }
 
-export async function searchCVEs(keyword: string, count = 20): Promise<CVE[]> {
-  const url = `${NVD_BASE}?keywordSearch=${encodeURIComponent(keyword)}&resultsPerPage=${count}`;
-  const res = await fetch(url, { next: { revalidate: 300 } });
-  if (!res.ok) throw new Error(`NVD API error: ${res.status}`);
-  const data = await res.json();
-  const vulnerabilities = data.vulnerabilities as Array<Record<string, unknown>> ?? [];
-  return vulnerabilities.map(parseCVE);
+// NVD returns results oldest-first, so read the total, then fetch the last page and reverse it.
+async function fetchNewest(params: URLSearchParams, count: number): Promise<CVE[]> {
+  params.set("noRejected", "");
+  params.set("resultsPerPage", "1");
+  const { totalResults } = await nvdFetch(params);
+  if (totalResults === 0) return [];
+
+  params.set("resultsPerPage", String(count));
+  params.set("startIndex", String(Math.max(0, totalResults - count)));
+  const data = await nvdFetch(params);
+  return (data.vulnerabilities ?? []).map(parseCVE).reverse();
+}
+
+export async function fetchRecentCVEs(count = 50): Promise<CVE[]> {
+  // Floor the window end to the cache interval so the URL (and cache key) is stable.
+  const end = new Date(Math.floor(Date.now() / (REVALIDATE * 1000)) * REVALIDATE * 1000);
+  const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const params = new URLSearchParams({
+    pubStartDate: start.toISOString(),
+    pubEndDate: end.toISOString(),
+  });
+  return fetchNewest(params, count);
+}
+
+export async function searchCVEs(query: string, count = 25): Promise<CVE[]> {
+  const q = query.trim();
+  if (CVE_ID.test(q)) {
+    const data = await nvdFetch(new URLSearchParams({ cveId: q.toUpperCase() }));
+    return (data.vulnerabilities ?? []).map(parseCVE);
+  }
+  return fetchNewest(new URLSearchParams({ keywordSearch: q }), count);
 }
