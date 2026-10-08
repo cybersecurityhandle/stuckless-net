@@ -7,22 +7,23 @@ import { Shield } from "lucide-react";
 export function Navbar() {
   const pathname = usePathname();
 
-  const links = [
+  const links: { href: string; label: string; short?: string }[] = [
     { href: "/", label: "Home" },
-    { href: "/intel", label: "Threat Intel" },
+    { href: "/intel", label: "Threat Intel", short: "Intel" },
     { href: "/finance", label: "Finance" },
     { href: "/screener", label: "Screener" },
+    { href: "/about", label: "About" },
   ];
 
   return (
     <nav className="border-b border-border bg-card">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-lg font-bold">
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link href="/" aria-label="stuckless.net" className="flex shrink-0 items-center gap-2 text-lg font-bold">
             <Shield className="h-5 w-5 text-emerald-500" />
-            stuckless.net
+            <span className="hidden sm:inline">stuckless.net</span>
           </Link>
-          <div className="flex gap-6">
+          <div className="flex min-w-0 gap-4 overflow-x-auto whitespace-nowrap sm:gap-6">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -33,7 +34,14 @@ export function Navbar() {
                     : "text-muted-foreground"
                 }`}
               >
-                {link.label}
+                {link.short ? (
+                  <>
+                    <span className="sm:hidden">{link.short}</span>
+                    <span className="hidden sm:inline">{link.label}</span>
+                  </>
+                ) : (
+                  link.label
+                )}
               </Link>
             ))}
           </div>

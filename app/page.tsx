@@ -48,7 +48,7 @@ const cards = [
     description: "// identity & contact information",
     href: "/about",
     icon: User,
-    status: "LOCKED",
+    status: "ACTIVE",
   },
   {
     title: "/github",
