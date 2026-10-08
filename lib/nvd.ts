@@ -6,6 +6,12 @@ export interface CVE {
   score: number | null;
   cvssVersion: string | null;
   references: string[];
+  /** FIRST EPSS exploit probability (0-1), when scored. */
+  epss?: number | null;
+  epssPercentile?: number | null;
+  /** Listed in the CISA Known Exploited Vulnerabilities catalog. */
+  kev?: boolean;
+  ransomware?: boolean;
 }
 
 const NVD_BASE = "https://services.nvd.nist.gov/rest/json/cves/2.0";
@@ -78,19 +84,20 @@ async function nvdFetch(params: URLSearchParams) {
 }
 
 // NVD returns results oldest-first, so read the total, then fetch the last page and reverse it.
-async function fetchNewest(params: URLSearchParams, count: number): Promise<CVE[]> {
+async function fetchNewest(params: URLSearchParams, count: number): Promise<{ total: number; cves: CVE[] }> {
   params.set("noRejected", "");
   params.set("resultsPerPage", "1");
   const { totalResults } = await nvdFetch(params);
-  if (totalResults === 0) return [];
+  if (totalResults === 0) return { total: 0, cves: [] };
 
   params.set("resultsPerPage", String(count));
   params.set("startIndex", String(Math.max(0, totalResults - count)));
   const data = await nvdFetch(params);
-  return (data.vulnerabilities ?? []).map(parseCVE).reverse();
+  return { total: totalResults, cves: (data.vulnerabilities ?? []).map(parseCVE).reverse() };
 }
 
-export async function fetchRecentCVEs(count = 50): Promise<CVE[]> {
+/** Newest CVEs published in the last 7 days, plus the 7-day total. */
+export async function fetchRecentCVEs(count = 50): Promise<{ total: number; cves: CVE[] }> {
   // Floor the window end to the cache interval so the URL (and cache key) is stable.
   const end = new Date(Math.floor(Date.now() / (REVALIDATE * 1000)) * REVALIDATE * 1000);
   const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -107,5 +114,5 @@ export async function searchCVEs(query: string, count = 25): Promise<CVE[]> {
     const data = await nvdFetch(new URLSearchParams({ cveId: q.toUpperCase() }));
     return (data.vulnerabilities ?? []).map(parseCVE);
   }
-  return fetchNewest(new URLSearchParams({ keywordSearch: q }), count);
+  return (await fetchNewest(new URLSearchParams({ keywordSearch: q }), count)).cves;
 }
