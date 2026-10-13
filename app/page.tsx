@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, TrendingUp, User, Code, BarChart3 } from "lucide-react";
+import { Shield, TrendingUp, User, Code, BarChart3, Cake } from "lucide-react";
 
 const ASCII_ART = [
   "  ___  _____  _  _  ___  _  _ _    ___  ___  ___ ",
@@ -42,6 +42,13 @@ const cards = [
     href: "/screener",
     icon: BarChart3,
     status: "ACTIVE",
+  },
+  {
+    title: "/wishday",
+    description: "// open-source android birthday app",
+    href: "https://github.com/cybersecurityhandle/wishday/releases/latest",
+    icon: Cake,
+    status: "RELEASED",
   },
   {
     title: "/about",
@@ -168,8 +175,8 @@ export default function Home() {
         <div className={`mt-10 border-t border-green-500/10 pt-4 text-xs text-green-500/30 transition-all duration-700 ${
           showCards ? "opacity-100" : "opacity-0"
         }`}>
-          <p>// cybersecurity &middot; finance &middot; technology</p>
-          <p className="mt-1">// all connections monitored and logged</p>
+          <p>{"// cybersecurity · finance · technology"}</p>
+          <p className="mt-1">{"// all connections monitored and logged"}</p>
         </div>
       </div>
     </div>

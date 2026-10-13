@@ -19,6 +19,7 @@ const FOCUS = [
 ];
 
 const NOW = [
+  "Shipped Wishday, an open-source Android app that remembers birthdays and sends the wishes for you",
   "Running a Tor relay on OVH, deployed with Terraform",
   "Working through OSCP-style labs for fun",
   "Reading Mark Leonard's Constellation Software shareholder letters",
