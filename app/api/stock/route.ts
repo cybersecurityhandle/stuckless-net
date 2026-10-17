@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.6"; // 1.11.6 = FFH.TO revenue rebuilt ex-investment-gains from filings; 1.11.5 = BACKFILL_FX for CSU.TO/FFH.TO backfilled FCF
+const API_VERSION = "1.12.0"; // 1.12.0 = watchlist audit: ASML EUR, ACP.WA NI not double-scaled, quarterly/Yahoo DPS backfill (VRSK, IBKR)
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -23,6 +23,7 @@ const REPORTING_FX: Record<string, string> = {
   BAP: "PEN", // Credicorp — NYSE-listed, reports in Peruvian soles
   IFS: "PEN", // Intercorp Financial — same
   "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
+  ASML: "EUR", // ASML — NASDAQ shares are 1:1 ordinary, reports in EUR
 };
 
 // Hard-coded tickers whose yearData is already in the listing currency, but
@@ -40,18 +41,19 @@ const BETA_TRADING_DAYS = 60;
 // Consolidated figures overstate what belongs to shareholders when the listed
 // entity only part-owns its operating businesses. Approximate attributable
 // shares for known cases. `netIncome` is only set where the upstream data is
-// consolidated-total (Yahoo varies: KPG.AX net income is already attributable;
-// ACP.WA's is consolidated incl. NCI).
+// consolidated-total. Yahoo's KPG.AX and ACP.WA net income are both already
+// attributable (ACP.WA FY24 PLN 519.9M / FY25 PLN 1,138.7M match Asseco's
+// reported profit attributable to the parent), so only FCF is scaled.
 //   KPG.AX — owns ~51% of each practice, but a flat 51% of consolidated
 //            OCF−capex still ignores holdco debt service, lease principal
 //            (AASB 16), and earnout payments. Calibrated instead to reported
 //            underlying NPATA attributable to shareholders vs consolidated
 //            FCF: FY25 A$9.1M / A$28.8M ≈ 0.32.
-//   ACP.WA — attributable/consolidated net profit was 37% (2022), 40% (2023),
-//            50% (2024), ~55% (2025); 0.45 is the midpoint of that range.
+//   ACP.WA — consolidated FCF scaled by attributable/consolidated net profit:
+//            37% (2022), 40% (2023), 50% (2024), ~55% (2025); 0.45 midpoint.
 const ATTRIBUTABLE_SHARE: Record<string, { fcf: number; netIncome?: number }> = {
   "KPG.AX": { fcf: 0.32 },
-  "ACP.WA": { fcf: 0.45, netIncome: 0.45 },
+  "ACP.WA": { fcf: 0.45 },
 };
 
 // Fundamentals change quarterly; the live quote is refreshed on every cache hit
@@ -226,6 +228,36 @@ function extractEdgar(
         result[end] = periodEntries[0].val;
       }
     }
+  }
+  return result;
+}
+
+/**
+ * Per-share annual totals for filers that tag only quarterly values: sums the
+ * four distinct ~quarter periods (60–120 days) ending within each fiscal year.
+ * Earliest filing wins per period (split-unadjusted, like preferEarliestFiling).
+ */
+function extractEdgarQuarterlySum(
+  facts: Record<string, any>,
+  conceptNames: string[],
+  fiscalYearEnds: string[]
+): Record<string, number> {
+  const quarters: Record<string, { end: number; val: number; filed: string }> = {};
+  for (const name of conceptNames) {
+    for (const e of facts["us-gaap"]?.[name]?.units?.["USD/shares"] ?? []) {
+      if ((e.form !== "10-K" && e.form !== "10-Q") || !e.start || !e.end) continue;
+      const end = new Date(e.end).getTime();
+      const days = (end - new Date(e.start).getTime()) / 86400000;
+      if (days < 60 || days > 120) continue;
+      const key = `${e.start}|${e.end}`;
+      if (!quarters[key] || e.filed < quarters[key].filed) quarters[key] = { end, val: e.val, filed: e.filed };
+    }
+  }
+  const result: Record<string, number> = {};
+  for (const fy of fiscalYearEnds) {
+    const fyEnd = new Date(fy).getTime();
+    const inYear = Object.values(quarters).filter((q) => q.end <= fyEnd && q.end > fyEnd - 355 * 86400000);
+    if (inYear.length === 4) result[fy] = inYear.reduce((sum, q) => sum + q.val, 0);
   }
   return result;
 }
@@ -406,6 +438,9 @@ async function fetchEdgarData(ticker: string) {
   // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
   // This ensures consistency between displayed EPS, share count, and margin
   const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
+  // Some filers (e.g. VRSK) tag only per-quarter DPS in their 10-K
+  const qDps = extractEdgarQuarterlySum(allFacts, DPS_CONCEPTS, Object.keys(netIncomes));
+  for (const [end, v] of Object.entries(qDps)) if (dps[end] == null) dps[end] = v;
 
   // Balance sheet (point-in-time values, no split adjustment needed)
   const equity = extractEdgar(allFacts, STOCKHOLDERS_EQUITY_CONCEPTS);
@@ -779,7 +814,7 @@ export async function GET(req: NextRequest) {
 
         const netIncome = data.netIncome;
         const epsVal = netIncome / data.shares; // Basic EPS = netIncome / basicShares
-        const dpsVal = data.dps ?? 0;
+        const dpsVal = data.dps; // undefined = not filed; Yahoo may backfill below
 
         const sf = splitFactorAfterDate(splits, endDate);
 
@@ -789,7 +824,7 @@ export async function GET(req: NextRequest) {
           netIncome,
           sharesOutstanding: data.shares * sf,
           eps: epsVal / sf,
-          dps: dpsVal / sf,
+          dps: dpsVal != null ? dpsVal / sf : undefined,
           equity: data.equity,
           totalAssets: data.totalAssets,
           longTermDebt: data.longTermDebt,
@@ -810,9 +845,13 @@ export async function GET(req: NextRequest) {
           : undefined);
 
       // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks.
-      // Exception: backfill FCF where EDGAR/hardcoded data lacks it (e.g. CSU.TO).
-      // Mismatched currencies without a rate → skip rather than mislabel.
+      // Exceptions: backfill FCF where EDGAR/hardcoded data lacks it (e.g. CSU.TO;
+      // mismatched currencies without a rate → skip rather than mislabel), and
+      // DPS where EDGAR has no usable dividend tag (e.g. IBKR 2024+).
       if (yearMap[year]) {
+        const yfDiv = entry.commonStockDividendPaid ?? entry.cashDividendsPaid;
+        if (yearMap[year].dps == null && yfDiv != null && entry.ordinarySharesNumber > 0)
+          yearMap[year].dps = Math.abs(yfDiv) / entry.ordinarySharesNumber;
         if (yearMap[year].fcf == null && yfFcf != null) {
           if (!backfillCur || backfillCur === listingCurrency) yearMap[year].fcf = yfFcf;
           else if (backfillFx) yearMap[year].fcf = yfFcf * backfillFx;
@@ -827,7 +866,7 @@ export async function GET(req: NextRequest) {
 
       const epsVal = netIncome / sharesOut;
       const dividendsPaid = Math.abs(
-        entry.cashDividendsPaid || entry.commonStockDividendPaid || 0
+        entry.commonStockDividendPaid || entry.cashDividendsPaid || 0
       );
       const dpsVal = sharesOut > 0 ? dividendsPaid / sharesOut : 0;
 
@@ -841,6 +880,8 @@ export async function GET(req: NextRequest) {
         fcf: yfFcf,
       };
     }
+
+    for (const d of Object.values(yearMap)) d.dps ??= 0;
 
     // Scale consolidated-total net income down to the shareholder-attributable
     // portion where flagged (before any derived metrics are computed)
@@ -999,7 +1040,7 @@ export async function GET(req: NextRequest) {
       const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1) * fxQ;
       const sharesQ = (entry.ordinarySharesNumber || 0) * classMult;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
-      const divPaid = Math.abs(entry.cashDividendsPaid || entry.commonStockDividendPaid || 0) * fxQ;
+      const divPaid = Math.abs(entry.commonStockDividendPaid || entry.cashDividendsPaid || 0) * fxQ;
 
       if (!yfCalAgg[cy])
         yfCalAgg[cy] = { revenue: 0, netIncome: 0, shares: 0, divPaid: 0, eps: 0, quarters: 0 };
