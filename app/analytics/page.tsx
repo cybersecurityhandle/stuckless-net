@@ -57,6 +57,7 @@ export default async function AnalyticsPage({
   const maxDay = Math.max(1, ...stats.days.map((d) => d.visits));
   const maxCountry = Math.max(1, ...stats.countries.map((c) => c.count));
   const maxPath = Math.max(1, ...stats.paths.map((p) => p.count));
+  const maxRecentRef = Math.max(1, ...stats.recentReferrers.map((r) => r.count));
 
   const tiles = [
     { label: "All-time visits", value: stats.total },
@@ -157,6 +158,56 @@ export default async function AnalyticsPage({
               </tbody>
             </table>
           </details>
+        </CardContent>
+      </Card>
+
+      {/* Referrers — how people arrived */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">How People Found the Site</CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Arrivals from the last {stats.recentWindow.toLocaleString()} visits that came from
+            outside the site. &ldquo;direct&rdquo; means typed in, bookmarked, or the referrer
+            was stripped (many apps and email clients do this).
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {stats.recentReferrers.length === 0 && (
+            <p className="text-xs text-muted-foreground">No data yet.</p>
+          )}
+          {stats.recentReferrers.map((r) => (
+            <div key={r.name} className="flex items-center gap-3 text-xs">
+              <span className="w-40 shrink-0 truncate font-mono" title={r.name}>
+                {r.name}
+              </span>
+              <div className="h-3 flex-1 overflow-hidden rounded-r-[4px]">
+                <div
+                  className="h-full rounded-r-[4px]"
+                  style={{ background: SERIES.visits, width: `${(r.count / maxRecentRef) * 100}%` }}
+                />
+              </div>
+              <span className="w-12 shrink-0 text-right tabular-nums text-muted-foreground">
+                {r.count.toLocaleString()}
+              </span>
+            </div>
+          ))}
+          {stats.referrers.length > 0 && (
+            <details className="pt-2">
+              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+                All-time totals (tracked since Oct 17, 2026)
+              </summary>
+              <table className="mt-2 text-xs">
+                <tbody>
+                  {stats.referrers.map((r) => (
+                    <tr key={r.name}>
+                      <td className="pr-6 font-mono">{r.name}</td>
+                      <td className="text-right tabular-nums">{r.count.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </details>
+          )}
         </CardContent>
       </Card>
 

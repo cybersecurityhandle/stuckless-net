@@ -8,6 +8,7 @@ import { Redis } from "@upstash/redis";
  *   va:uniq:{date}    — per-day unique IPs (HyperLogLog, 400-day TTL)
  *   va:countries      — zset country → visits
  *   va:paths          — zset path → visits
+ *   va:referrers      — zset referring site → arrivals (internal navigation excluded)
  *   va:recent         — list of recent visits as JSON (capped)
  */
 
@@ -33,6 +34,10 @@ export interface Stats {
   days: DayStat[];
   countries: { name: string; count: number }[];
   paths: { name: string; count: number }[];
+  referrers: { name: string; count: number }[];
+  /** Referrer breakdown of the last RECENT_MAX visits — covers traffic from before va:referrers existed */
+  recentReferrers: { name: string; count: number }[];
+  recentWindow: number;
   recent: Visit[];
 }
 
@@ -44,6 +49,27 @@ export function getRedis(): Redis | null {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
   return new Redis({ url, token });
+}
+
+/* Where a visit came from: referring hostname, "direct" when the browser sent
+ * no referrer, or null for clicks within the site itself. */
+export function referrerSource(referer: string): string | null {
+  if (!referer) return "direct";
+  let host: string;
+  try {
+    host = new URL(referer).hostname.toLowerCase();
+  } catch {
+    return "direct";
+  }
+  if (
+    host === "stuckless.net" ||
+    host.endsWith(".stuckless.net") ||
+    host.endsWith(".vercel.app") ||
+    host === "localhost"
+  ) {
+    return null;
+  }
+  return host.replace(/^www\./, "");
 }
 
 function dayKey(ts: number): string {
@@ -60,6 +86,8 @@ export async function recordVisit(redis: Redis, v: Visit): Promise<void> {
   p.expire(`va:uniq:${day}`, DAY_TTL_S);
   p.zincrby("va:countries", 1, v.country || "unknown");
   p.zincrby("va:paths", 1, v.path);
+  const source = referrerSource(v.referer);
+  if (source) p.zincrby("va:referrers", 1, source);
   p.lpush("va:recent", JSON.stringify(v));
   p.ltrim("va:recent", 0, RECENT_MAX - 1);
   await p.exec();
@@ -86,7 +114,8 @@ export async function readStats(redis: Redis, numDays = 30): Promise<Stats> {
   for (const d of days) p.pfcount(`va:uniq:${d}`);
   p.zrange("va:countries", 0, 19, { rev: true, withScores: true });
   p.zrange("va:paths", 0, 19, { rev: true, withScores: true });
-  p.lrange("va:recent", 0, 99);
+  p.zrange("va:referrers", 0, 19, { rev: true, withScores: true });
+  p.lrange("va:recent", 0, RECENT_MAX - 1);
   const res = await p.exec<unknown[]>();
 
   const total = Number(res[0] ?? 0);
@@ -100,9 +129,32 @@ export async function readStats(redis: Redis, numDays = 30): Promise<Stats> {
   const paths = parseZset(res[2 + 2 * numDays] as unknown[]);
 
   // @upstash/redis may auto-deserialize JSON list entries
-  const recent: Visit[] = ((res[3 + 2 * numDays] as unknown[]) ?? []).map((x) =>
+  const referrers = parseZset(res[3 + 2 * numDays] as unknown[]);
+  const recentAll: Visit[] = ((res[4 + 2 * numDays] as unknown[]) ?? []).map((x) =>
     typeof x === "string" ? (JSON.parse(x) as Visit) : (x as Visit)
   );
 
-  return { total, days: dayStats, countries, paths, recent };
+  const refCounts = new Map<string, number>();
+  let recentWindow = 0;
+  for (const v of recentAll) {
+    const source = referrerSource(v.referer);
+    if (!source) continue;
+    recentWindow++;
+    refCounts.set(source, (refCounts.get(source) ?? 0) + 1);
+  }
+  const recentReferrers = [...refCounts]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 20);
+
+  return {
+    total,
+    days: dayStats,
+    countries,
+    paths,
+    referrers,
+    recentReferrers,
+    recentWindow,
+    recent: recentAll.slice(0, 100),
+  };
 }
