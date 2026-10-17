@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.11.4"; // 1.11.4 = REPORTING_FX converts to actual listing currency (was hardcoded to USD); added TOI.V (EUR)
+const API_VERSION = "1.11.6"; // 1.11.6 = FFH.TO revenue rebuilt ex-investment-gains from filings; 1.11.5 = BACKFILL_FX for CSU.TO/FFH.TO backfilled FCF
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -23,6 +23,14 @@ const REPORTING_FX: Record<string, string> = {
   BAP: "PEN", // Credicorp — NYSE-listed, reports in Peruvian soles
   IFS: "PEN", // Intercorp Financial — same
   "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
+};
+
+// Hard-coded tickers whose yearData is already in the listing currency, but
+// whose Yahoo-backfilled FCF arrives in the reporting currency. Only the
+// backfilled FCF is converted (current FX rate, same approximation as above).
+const BACKFILL_FX: Record<string, string> = {
+  "CSU.TO": "USD", // Constellation — hard-coded in CAD, Yahoo serves USD
+  "FFH.TO": "USD", // Fairfax — same
 };
 
 // Trading days for short-horizon beta (~12 weeks). Daily returns give ~60
@@ -83,19 +91,26 @@ const HARDCODED_FINANCIALS: Record<string, {
     },
   },
   // Fairfax Financial Holdings — TSX:FFH (CAD). Yahoo Finance ticker: FFH.TO
+  // Revenue is ex-investment-gains, from Fairfax's Q4 press releases (US$):
+  // net premiums earned (IFRS 4, 2016–21) / insurance revenue − cost of
+  // reinsurance (IFRS 17, 2022 restated onward) + interest and dividends +
+  // share of profit of associates + other/non-insurance revenue. Net gains on
+  // investments are excluded so sales growth and margin don't track markets.
+  // Converted at each year's netIncome CAD/US$ ratio (the rate the rest of
+  // this row uses). Other fields are Seeking Alpha / S&P Capital IQ (CAD).
   "FFH.TO": {
     name: "Fairfax Financial Holdings Ltd.",
     yearData: {
-      "2016-12-31": { revenue: 12487.7*M, netIncome: -688.2*M,  shares: 23.0*M, dps: 13.43, equity: 11393.3*M, totalAssets: 58257.4*M,  longTermDebt: 5910.2*M },
-      "2017-12-31": { revenue: 19116.8*M, netIncome: 2188.3*M,  shares: 25.4*M, dps: 12.57, equity: 15684.2*M, totalAssets: 80573.4*M,  longTermDebt: 7766.5*M },
-      "2018-12-31": { revenue: 24238.9*M, netIncome: 513.2*M,   shares: 27.5*M, dps: 13.65, equity: 16078.5*M, totalAssets: 87866.6*M,  longTermDebt: 8628.4*M },
-      "2019-12-31": { revenue: 27960.1*M, netIncome: 2602.3*M,  shares: 26.9*M, dps: 12.98, equity: 16935.7*M, totalAssets: 91554.6*M,  longTermDebt: 8964.3*M },
-      "2020-12-31": { revenue: 25038.4*M, netIncome: 277.9*M,   shares: 26.4*M, dps: 12.72, equity: 15932.1*M, totalAssets: 94227.8*M,  longTermDebt: 10764.2*M },
-      "2021-12-31": { revenue: 33135.6*M, netIncome: 4300.8*M,  shares: 26.0*M, dps: 12.65, equity: 19030.7*M, totalAssets: 109565.7*M, longTermDebt: 9629.3*M },
-      "2022-12-31": { revenue: 37645.5*M, netIncome: 4568.5*M,  shares: 23.6*M, dps: 13.54, equity: 24073.6*M, totalAssets: 106716.3*M, longTermDebt: 11664.1*M },
-      "2023-12-31": { revenue: 42179.4*M, netIncome: 5805.8*M,  shares: 23.2*M, dps: 19.87, equity: 28639.2*M, totalAssets: 121877.5*M, longTermDebt: 12513.7*M },
-      "2024-12-31": { revenue: 50038.4*M, netIncome: 5570.9*M,  shares: 22.4*M, dps: 21.57, equity: 33009.1*M, totalAssets: 139135.8*M, longTermDebt: 16898.2*M },
-      "2025-12-31": { revenue: 53962.9*M, netIncome: 6550.5*M,  shares: 21.4*M, dps: 20.59, equity: 36074.7*M, totalAssets: 147946.2*M, longTermDebt: 18725.8*M },
+      "2016-12-31": { revenue: 14104.0*M, netIncome: -688.2*M,  shares: 23.0*M, dps: 13.43, equity: 11393.3*M, totalAssets: 58257.4*M,  longTermDebt: 5910.2*M },
+      "2017-12-31": { revenue: 17272.2*M, netIncome: 2188.3*M,  shares: 25.4*M, dps: 12.57, equity: 15684.2*M, totalAssets: 80573.4*M,  longTermDebt: 7766.5*M },
+      "2018-12-31": { revenue: 23892.2*M, netIncome: 513.2*M,   shares: 27.5*M, dps: 13.65, equity: 16078.5*M, totalAssets: 87866.6*M,  longTermDebt: 8628.4*M },
+      "2019-12-31": { revenue: 25731.6*M, netIncome: 2602.3*M,  shares: 26.9*M, dps: 12.98, equity: 16935.7*M, totalAssets: 91554.6*M,  longTermDebt: 8964.3*M },
+      "2020-12-31": { revenue: 24640.3*M, netIncome: 277.9*M,   shares: 26.4*M, dps: 12.72, equity: 15932.1*M, totalAssets: 94227.8*M,  longTermDebt: 10764.2*M },
+      "2021-12-31": { revenue: 28779.2*M, netIncome: 4300.8*M,  shares: 26.0*M, dps: 12.65, equity: 19030.7*M, totalAssets: 109565.7*M, longTermDebt: 9629.3*M },
+      "2022-12-31": { revenue: 37585.8*M, netIncome: 4568.5*M,  shares: 23.6*M, dps: 13.54, equity: 24073.6*M, totalAssets: 106716.3*M, longTermDebt: 11664.1*M },
+      "2023-12-31": { revenue: 41724.0*M, netIncome: 5805.8*M,  shares: 23.2*M, dps: 19.87, equity: 28639.2*M, totalAssets: 121877.5*M, longTermDebt: 12513.7*M },
+      "2024-12-31": { revenue: 50344.1*M, netIncome: 5570.9*M,  shares: 22.4*M, dps: 21.57, equity: 33009.1*M, totalAssets: 139135.8*M, longTermDebt: 16898.2*M },
+      "2025-12-31": { revenue: 52158.9*M, netIncome: 6550.5*M,  shares: 21.4*M, dps: 20.59, equity: 36074.7*M, totalAssets: 147946.2*M, longTermDebt: 18725.8*M },
     },
   },
   // Constellation Software — TSX:CSU (CAD). Yahoo Finance ticker: CSU.TO
@@ -711,16 +726,19 @@ export async function GET(req: NextRequest) {
     // BAP/IFS happen to list in USD (reportCur→USD), but TOI.V lists in CAD,
     // so the pair has to follow the actual quote currency, not assume USD.
     const listingCurrency: string = yfSummary?.price?.currency || "USD";
-    const reportCur = REPORTING_FX[ticker.toUpperCase()];
-    let fxRate: number | null = null;
-    if (reportCur && reportCur !== listingCurrency) {
+    const fetchFx = async (from: string | undefined): Promise<number | null> => {
+      if (!from || from === listingCurrency) return null;
       try {
-        const q: any = await yahooFinance.quote(`${reportCur}${listingCurrency}=X`);
-        fxRate = q?.regularMarketPrice ?? null;
+        const q: any = await yahooFinance.quote(`${from}${listingCurrency}=X`);
+        return q?.regularMarketPrice ?? null;
       } catch {
-        fxRate = null; // serve unconverted rather than fail
+        return null;
       }
-    }
+    };
+    const reportCur = REPORTING_FX[ticker.toUpperCase()];
+    const fxRate = await fetchFx(reportCur); // null → serve unconverted rather than fail
+    const backfillCur = BACKFILL_FX[ticker.toUpperCase()];
+    const backfillFx = await fetchFx(backfillCur);
 
     const beta12w =
       dailyCloses && marketCloses ? computeBeta(dailyCloses, marketCloses) : null;
@@ -793,8 +811,12 @@ export async function GET(req: NextRequest) {
 
       // Don't override EDGAR data — EDGAR 10-K filings are the authoritative source for US stocks.
       // Exception: backfill FCF where EDGAR/hardcoded data lacks it (e.g. CSU.TO).
+      // Mismatched currencies without a rate → skip rather than mislabel.
       if (yearMap[year]) {
-        if (yearMap[year].fcf == null && yfFcf != null) yearMap[year].fcf = yfFcf;
+        if (yearMap[year].fcf == null && yfFcf != null) {
+          if (!backfillCur || backfillCur === listingCurrency) yearMap[year].fcf = yfFcf;
+          else if (backfillFx) yearMap[year].fcf = yfFcf * backfillFx;
+        }
         continue;
       }
 
