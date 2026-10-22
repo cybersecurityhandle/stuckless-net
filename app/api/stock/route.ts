@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.13.0"; // 1.13.0 = calendar years: skip empty Yahoo quarters (VRSN CY2025 was 3 quarters), derive EDGAR fiscal Q4 from 10-K annual
+const API_VERSION = "1.14.0"; // 1.14.0 = split adjustment keyed to 10-K filing date (CPRT), IBKR net revenues, CPRT revenue tag, BRK class-dimension shares
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -11,6 +11,23 @@ const API_VERSION = "1.13.0"; // 1.13.0 = calendar years: skip empty Yahoo quart
 // factor (BRK pays no dividend, but handled for completeness).
 const SHARE_CLASS_MULTIPLIER: Record<string, number> = {
   "BRK-B": 1500,
+};
+
+// Weighted-average basic shares (as filed) for years where the filer tags shares
+// only by share-class dimension, which the SEC companyfacts API drops. Keyed by
+// CIK so BRK-A and BRK-B share it. Values from each 10-K's XBRL instance.
+// TODO(yearly, ~March): add the new year once Berkshire files its 10-K (FY2026 due
+// ~Feb 2027) — without it that year falls back to Yahoo (no equity, revenue incl.
+// investment gains). Source: WeightedAverageNumberOfSharesOutstandingBasic with
+// context member brka:EquivalentClassAMember in brka-YYYYMMDD_htm.xml.
+const EDGAR_SHARES_OVERRIDE: Record<string, Record<string, number>> = {
+  // Berkshire: brka:EquivalentClassAMember (Class A equivalents)
+  "0001067983": {
+    "2015-12-31": 1643183, "2016-12-31": 1643826, "2017-12-31": 1644615,
+    "2018-12-31": 1643795, "2019-12-31": 1633946, "2020-12-31": 1594469,
+    "2021-12-31": 1510180, "2022-12-31": 1468876, "2023-12-31": 1448880,
+    "2024-12-31": 1437720, "2025-12-31": 1438223,
+  },
 };
 
 // Some foreign listings price in USD while Yahoo serves their financials in
@@ -175,7 +192,8 @@ function extractEdgar(
   conceptNames: string[],
   units = "USD",
   namespaces = ["us-gaap"],
-  preferEarliestFiling = false // For per-share data: use earliest filing to avoid split-restated values
+  preferEarliestFiling = false, // For per-share data: use earliest filing to avoid split-restated values
+  filedOut?: Record<string, string> // Receives the filing date of each chosen value
 ): Record<string, number> {
   const result: Record<string, number> = {};
 
@@ -221,11 +239,13 @@ function extractEdgar(
           const max = Math.max(...vals);
           if (max / min > 1000) {
             result[end] = min;
+            if (filedOut) filedOut[end] = periodEntries.find((e: any) => e.val === min).filed;
             continue;
           }
         }
 
         result[end] = periodEntries[0].val;
+        if (filedOut) filedOut[end] = periodEntries[0].filed;
       }
     }
   }
@@ -340,11 +360,13 @@ function extractEdgarCalendarYear(
 
 // Concept name lists (shared between fiscal and calendar year extraction)
 const REVENUE_CONCEPTS = [
+  "RevenuesNetOfInterestExpense", // brokers (IBKR): net revenues; RevenueFromContract… is commissions only
   "Revenues",
   "RevenueFromContractWithCustomerExcludingAssessedTax",
   "SalesRevenueNet",
   "SalesRevenueGoodsNet",
   "SalesRevenueServicesNet",
+  "RevenueFromContractWithCustomerIncludingAssessedTax", // e.g. CPRT from FY2021
 ];
 
 // Priority: "available to common stockholders" first (matches per-share analysis),
@@ -451,10 +473,16 @@ async function fetchEdgarData(ticker: string) {
   // CommonStockSharesOutstanding (us-gaap only) is the fallback for companies that don't file
   // WeightedAverage. EntityCommonStockSharesOutstanding in DEI is excluded: for multi-class
   // companies (e.g. BRK-A/B) it reports each share class separately and gives wrong counts.
+  // Filing dates matter for split adjustment: a 10-K filed after a split already
+  // reports post-split shares (e.g. CPRT FY Jul-2023, split Aug-2023, filed Sep-2023).
+  const outstandingFiled: Record<string, string> = {};
+  const weightedFiled: Record<string, string> = {};
   const shares: Record<string, number> = {
-    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap"], true),
-    ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares", ["us-gaap"], true),
+    ...extractEdgar(allFacts, SHARES_OUTSTANDING_CONCEPTS, "shares", ["us-gaap"], true, outstandingFiled),
+    ...extractEdgar(allFacts, SHARES_WEIGHTED_CONCEPTS, "shares", ["us-gaap"], true, weightedFiled),
   };
+  const sharesFiled: Record<string, string> = { ...outstandingFiled, ...weightedFiled };
+  for (const [end, v] of Object.entries(EDGAR_SHARES_OVERRIDE[cik] ?? {})) shares[end] ??= v;
   repairShareScale(shares);
 
   // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
@@ -490,7 +518,7 @@ async function fetchEdgarData(ticker: string) {
 
   const yearData: Record<
     string,
-    { revenue?: number; netIncome?: number; shares?: number; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number; fcf?: number }
+    { revenue?: number; netIncome?: number; shares?: number; sharesFiled?: string; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number; fcf?: number }
   > = {};
 
   for (const date of allDates) {
@@ -499,6 +527,7 @@ async function fetchEdgarData(ticker: string) {
       revenue: revenues[date],
       netIncome: netIncomes[date],
       shares: shares[date] ?? sharesByYear[yr],
+      sharesFiled: shares[date] != null ? sharesFiled[date] : undefined,
       dps: dps[date],
       equity: equity[date],
       totalAssets: totalAssets[date],
@@ -838,7 +867,8 @@ export async function GET(req: NextRequest) {
         const epsVal = netIncome / data.shares; // Basic EPS = netIncome / basicShares
         const dpsVal = data.dps; // undefined = not filed; Yahoo may backfill below
 
-        const sf = splitFactorAfterDate(splits, endDate);
+        // Splits after the filing date only — the filing already reflects earlier ones
+        const sf = splitFactorAfterDate(splits, data.sharesFiled ? new Date(data.sharesFiled) : endDate);
 
         yearMap[year] = {
           endDate: dateStr,
