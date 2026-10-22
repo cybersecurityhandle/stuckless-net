@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.12.0"; // 1.12.0 = watchlist audit: ASML EUR, ACP.WA NI not double-scaled, quarterly/Yahoo DPS backfill (VRSK, IBKR)
+const API_VERSION = "1.13.0"; // 1.13.0 = calendar years: skip empty Yahoo quarters (VRSN CY2025 was 3 quarters), derive EDGAR fiscal Q4 from 10-K annual
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -264,7 +264,8 @@ function extractEdgarQuarterlySum(
 
 /**
  * Extract calendar-year totals by summing quarterly EDGAR data.
- * Collects entries with 60-120 day periods from 10-Q and 10-K filings,
+ * Collects entries with 60-120 day periods from 10-Q and 10-K filings (deriving
+ * fiscal Q4 from the 10-K annual total where it isn't tagged separately),
  * groups by calendar year of end date, and sums.
  * Only returns years with exactly 4 unique quarter periods.
  */
@@ -284,16 +285,37 @@ function extractEdgarCalendarYear(
 
       // Within this concept+namespace, group by period key, keep latest filing
       const byPeriod: Record<string, any> = {};
+      const annual: Record<string, any> = {};
       for (const e of entries) {
         if (!e.start || !e.end) continue;
         if (e.form !== "10-Q" && e.form !== "10-K") continue;
         const days = (new Date(e.end).getTime() - new Date(e.start).getTime()) / 86400000;
-        if (days < 60 || days > 120) continue;
-
         const key = `${e.start}_${e.end}`;
-        if (!byPeriod[key] || e.filed > byPeriod[key].filed) {
-          byPeriod[key] = e;
+        const bucket = days >= 60 && days <= 120 ? byPeriod : e.form === "10-K" && days >= 350 && days <= 380 ? annual : null;
+        if (!bucket) continue;
+        if (!bucket[key] || e.filed > bucket[key].filed) {
+          bucket[key] = e;
         }
+      }
+
+      // Most filers tag fiscal Q4 only inside the 10-K annual total, so derive it
+      // as annual minus the three quarters filed in that fiscal year's 10-Qs
+      const DAY = 86400000;
+      for (const a of Object.values(annual)) {
+        const aStart = new Date(a.start).getTime();
+        const aEnd = new Date(a.end).getTime();
+        const within = Object.values(byPeriod).filter(
+          (q: any) => new Date(q.start).getTime() >= aStart - 7 * DAY && new Date(q.end).getTime() <= aEnd + 7 * DAY
+        );
+        const hasQ4 = within.some((q: any) => Math.abs(new Date(q.end).getTime() - aEnd) <= 7 * DAY);
+        if (hasQ4 || within.length !== 3) continue;
+        const q3End = Math.max(...within.map((q: any) => new Date(q.end).getTime()));
+        const q4Start = new Date(q3End + DAY).toISOString().slice(0, 10);
+        byPeriod[`${q4Start}_${a.end}`] = {
+          end: a.end,
+          val: a.val - within.reduce((sum: number, q: any) => sum + q.val, 0),
+          filed: a.filed,
+        };
       }
 
       // Higher priority concepts (earlier in list, processed later) overwrite same period
@@ -1034,6 +1056,9 @@ export async function GET(req: NextRequest) {
     for (const entry of yfQuarterly as any[]) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const cy = endDate.getFullYear();
+      // Yahoo sometimes returns placeholder quarters with no figures (e.g. VRSN Q1 2025);
+      // counting them would pass the 4-quarter check with only three quarters of data
+      if (entry.totalRevenue == null || entry.netIncome == null) continue;
 
       const fxQ = fxRate ?? 1;
       const revenue = (entry.totalRevenue || 0) * fxQ;
