@@ -1,8 +1,20 @@
 {
  "refresh-backtest": {
-  "ranAt": "2026-10-25T18:27:00.588Z",
+  "ranAt": "2026-10-25T19:10:19.018Z",
   "ok": true,
   "summary": "83 managers backtested",
   "seconds": 10
+ },
+ "refresh-13f": {
+  "ranAt": "2026-10-25T19:09:54.479Z",
+  "ok": true,
+  "summary": "83 managers",
+  "seconds": 147
+ },
+ "refresh-fivefactor": {
+  "ranAt": "2026-10-25T19:11:03.096Z",
+  "ok": true,
+  "summary": "7 managers decomposed",
+  "seconds": 44
  }
 }

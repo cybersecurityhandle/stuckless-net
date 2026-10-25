@@ -17,7 +17,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import type { InsiderBuysJson, RealtimeJson } from "../lib/insiders";
-import { buildIssuers, type LatestHoldingsJson, type SuperinvestorsJson } from "../lib/superinvestors";
+import { buildIssuers, issuerKey, type LatestHoldingsJson, type SuperinvestorsJson } from "../lib/superinvestors";
 
 const STATE = join(process.cwd(), "data", "alerts-state.json");
 const SITE = "https://stuckless.net";
@@ -101,7 +101,7 @@ async function main() {
   const issuers = buildIssuers(latest, index.managers.filter((m) => m.favorite));
   const favTicker = new Map<string, string[]>();
   for (const [cusip, sec] of Object.entries(latest.securities)) {
-    const owners = issuers.get(cusip.slice(0, 6))?.owners;
+    const owners = issuers.get(issuerKey(cusip, sec))?.owners;
     if (sec.t && owners?.length) favTicker.set(sec.t, owners.map((o) => o.name));
   }
   for (const b of officers) {

@@ -18,7 +18,7 @@ import {
   buildRow,
   type WatchRow,
 } from "@/lib/watchlist-data";
-import { buildIssuers, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
+import { buildIssuers, issuerKey, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
 import type { InsiderBuysJson } from "@/lib/insiders";
 
 /* ── Types ─────────────────────────────────────── */
@@ -85,7 +85,7 @@ function useSmartMoney(): Map<string, SmartMoney> {
         if (idx && lat) {
           const issuers = buildIssuers(lat, idx.managers);
           for (const [cusip, sec] of Object.entries(lat.securities)) {
-            const owners = issuers.get(cusip.slice(0, 6))?.owners;
+            const owners = issuers.get(issuerKey(cusip, sec))?.owners;
             if (!sec.t || !owners || out.has(sec.t)) continue;
             out.set(sec.t, {
               favorites: owners.filter((o) => o.favorite).length,

@@ -25,6 +25,7 @@ import { dirname, join } from "path";
 import {
   cleanCompanyTitle,
   CUSIP_OVERRIDES,
+  PREFERRED_CUSIPS,
   MANAGERS,
   NAME_FIXES,
   type HistoryPosition,
@@ -37,6 +38,7 @@ import {
   type EventsJson,
   type Quote,
   type SuperinvestorsJson,
+  issuerKey,
   portfolioImpact,
   prettyIssuer,
 } from "../lib/superinvestors";
@@ -238,20 +240,72 @@ async function loadFiling(f: Filing): Promise<CachedFiling> {
 
 /**
  * Holdings for one quarter: the original 13F-HR, then amendments in filing
- * order — RESTATEMENT replaces everything, NEW HOLDINGS appends (e.g.
- * positions released from confidential treatment).
+ * order — RESTATEMENT replaces everything, NEW HOLDINGS adds positions (e.g.
+ * released from confidential treatment). Some filers label full re-filings
+ * as NEW HOLDINGS (Check Capital Q2 2026, twice — the second dropping 36
+ * small positions), so an amendment worth 90%+ of the quarter is treated as
+ * a restatement (as Dataroma does), and otherwise its rows replace existing
+ * rows for the same security rather than double-counting them.
  */
 async function quarterRows(filings: Filing[]): Promise<{ rows: RawRow[]; latest: Filing }> {
-  const sorted = [...filings].sort((a, b) => a.filed.localeCompare(b.filed));
+  // Same-day amendments are ordered by accession number (filing sequence)
+  const sorted = [...filings].sort((a, b) => a.filed.localeCompare(b.filed) || a.accession.localeCompare(b.accession));
+  const key = (r: RawRow) => `${r.cusip}|${r.putCall ?? ""}`;
   let rows: RawRow[] = [];
   let latest = sorted[0];
   for (const f of sorted) {
     const { rows: filed, amendmentType } = await loadFiling(f);
     if (!filed) continue; // cover-page-only amendment
-    rows = f.form === "13F-HR" || amendmentType?.includes("RESTATEMENT") ? filed : [...rows, ...filed];
+    const total = (rs: RawRow[]) => rs.reduce((s, r) => s + r.value, 0);
+    if (f.form === "13F-HR" || amendmentType?.includes("RESTATEMENT") || total(filed) >= 0.9 * total(rows)) {
+      rows = filed;
+    } else {
+      const amended = new Set(filed.map(key));
+      rows = [...rows.filter((r) => !amended.has(key(r))), ...filed];
+    }
     latest = f;
   }
-  return { rows: fixUnits(rows, latest), latest };
+  return { rows: fixUnits(rows, latest).filter((r) => !isDebt(r) && !isPreferred(r)), latest };
+}
+
+/**
+ * Convertible bonds and notes are reported by principal amount, so their
+ * "share price" is ~$1 and they'd skew weights (Oaktree files ~90). The
+ * sshPrnamtType flag isn't in the filing cache, so go by class title
+ * ("CONVERTIBLE BOND", "NOTE 3.875%11/3", "NOTE12/0") plus a per-unit value
+ * near par — bond ETFs ("SHORT TRM BOND") trade per share well above $10.
+ */
+function isDebt(r: RawRow) {
+  return (
+    /\bNOTE|\bBOND|\bDEBENTURE|\bDEBT\b/i.test(r.class) &&
+    !/\bPFD|\bPREF/i.test(r.class) &&
+    r.shares > 0 &&
+    r.value / r.shares < 10
+  );
+}
+
+/**
+ * Preferred shares, convertible or not, including preferred ADRs (ITUB,
+ * GGB). Holdings are common stock only, as on Dataroma — Torray's Alphabet
+ * and KKR preferreds otherwise shifted every weight ~10%.
+ */
+function isPreferred(r: RawRow) {
+  return (
+    PREFERRED_CUSIPS.has(r.cusip) ||
+    /\bPFD|\bPREF|\bDEP(OSITARY)?\s*SH/i.test(r.class) ||
+    /\bPFD\b|\bPREFERRED\b/i.test(r.issuer)
+  );
+}
+
+/**
+ * Warrants, rights and SPAC units have their own CUSIPs but name matching
+ * gives them the common stock's ticker (Alvotech's warrants as ALVO), which
+ * then borrows its price and merges its shares. They keep no ticker.
+ */
+function isWarrantLike(r: RawRow) {
+  // SPAC units only ("UNIT 99/99/9999", bare "UNITS") — not partnership
+  // units ("UNIT LTD PARTNR", "COM UNITS LP"), which are the common equity
+  return /W(AR)?R(AN)?TS?\b|\*W\b|\bWTS?\b|\bRIGHTS?\b|\bRTS?\b|\bUNIT\s*99|^UNITS?$/i.test(r.class.trim());
 }
 
 /**
@@ -410,7 +464,9 @@ async function splitFactor(cur: RawRow, prev: RawRow, ticker: string | null, fro
   const splits = ticker ? await splitsFor(ticker, to) : null;
   if (splits) {
     const factor = splits.filter((s) => s.date > from && s.date <= to).reduce((f, s) => f * s.ratio, 1);
-    if (factor !== 1 && Math.abs(Math.log(priceMove / factor)) < Math.log(1.6)) return factor;
+    // Yahoo's split plus a big price jump is enough; the remaining price move
+    // can be large in a strong quarter (KLAC Q2 2026: 10-for-1 and +105%)
+    if (factor !== 1 && Math.abs(Math.log(priceMove / factor)) < Math.log(3)) return factor;
     if (factor !== 1) return 1;
   }
   return isExactSplit(cur, prev) ? cur.shares / prev.shares : 1;
@@ -638,21 +694,39 @@ async function buildHistory(
   const compact = (r: RawRow): HistoryPosition => ({ k: positionKey(r), s: r.shares, v: Math.round(r.value) });
   const byValue = (a: HistoryPosition, b: HistoryPosition) => b.v - a.v;
 
+  const tickerFor = (r: RawRow) => (isWarrantLike(r) ? null : tickerOf(r.cusip));
   const out: HistoryQuarter[] = [];
   for (const [i, q] of quarters.entries()) {
     const prevQ = quarters[i + 1];
     const prev = prevQ?.positions;
+    // A company that changed CUSIP (new holding company, spin-off, reverse
+    // split: XOM, DD, HON, CCL in 2026) is the same holding, not a sale plus
+    // a buy — match vanished prior positions by ticker
+    const vanished = new Map<string, string>(); // ticker|putCall → prior key
+    for (const [key, r] of prev ?? []) {
+      const t = tickerFor(r);
+      if (t && !q.positions.has(key)) vanished.set(`${t}|${r.putCall ?? ""}`, key);
+    }
+    const carried = new Set<string>();
     const positions: HistoryPosition[] = [];
     for (const [key, r] of q.positions) {
-      if (!securities[r.cusip]) {
-        const t = tickerOf(r.cusip);
-        securities[r.cusip] = { t, n: r.issuer, cl: r.class, d: displayName(t, r.issuer) };
+      const t = tickerFor(r);
+      if (!securities[r.cusip]) securities[r.cusip] = { t, n: r.issuer, cl: r.class, d: displayName(t, r.issuer) };
+      let before = prev?.get(key);
+      if (prev && !before && t) {
+        const was = vanished.get(`${t}|${r.putCall ?? ""}`);
+        if (was && !carried.has(was)) {
+          before = prev.get(was);
+          carried.add(was);
+        }
       }
-      const c = prev ? await change(r, prev.get(key), tickerOf(r.cusip), prevQ.period, q.period) : {};
+      const c = prev ? await change(r, before, t, prevQ.period, q.period) : {};
       positions.push({ ...compact(r), ...c });
     }
     const sold = prev
-      ? [...prev].filter(([key]) => !q.positions.has(key)).map(([, r]) => ({ ...compact(r), c: "sold" as const }))
+      ? [...prev]
+          .filter(([key]) => !q.positions.has(key) && !carried.has(key))
+          .map(([, r]) => ({ ...compact(r), c: "sold" as const }))
       : [];
     out.push({
       period: q.period,
@@ -695,7 +769,7 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
     period: q.period,
     filed: q.filed,
     totalValue: q.total,
-    positions: longs.length,
+    positions: new Set(longs.map((p) => issuerKey(p.k, h.securities[p.k]))).size, // companies, share classes combined
     firstPeriod: h.quarters[h.quarters.length - 1].period,
     top: longs.slice(0, 3).map((p) => h.securities[p.k].t ?? h.securities[p.k].d),
     ...styleStats(h),
@@ -775,7 +849,8 @@ function collectEvents(m: Manager, h: ManagerHistoryJson, out: EventsJson) {
       if (!p.c || p.k.includes("|")) continue;
       const impact = portfolioImpact(p, q, prev);
       if (!m.favorite && Math.abs(impact) < EVENT_MIN_IMPACT) continue;
-      (out[p.k.slice(0, 6)] ??= []).push([
+      const cusip = p.k.split("|")[0];
+      (out[issuerKey(cusip, h.securities[cusip])] ??= []).push([
         q.period,
         m.id,
         p.c,
@@ -871,7 +946,10 @@ function lookThrough(positions: LatestPosition[], latest: LatestHoldingsJson): M
 function similarity(summaries: ManagerSummary[], latest: LatestHoldingsJson) {
   const vecs = summaries.map((m) => {
     const v = new Map<string, number>();
-    for (const p of latest.holdings[m.id] ?? []) v.set(p.k.slice(0, 6), (v.get(p.k.slice(0, 6)) ?? 0) + p.w);
+    for (const p of latest.holdings[m.id] ?? []) {
+      const key = issuerKey(p.k, latest.securities[p.k]);
+      v.set(key, (v.get(key) ?? 0) + p.w);
+    }
     return v;
   });
   const norm = vecs.map((v) => Math.sqrt([...v.values()].reduce((s, x) => s + x * x, 0)) || 1);
@@ -924,7 +1002,7 @@ async function main() {
   console.log(`Refreshing 13F holdings for ${list.length} managers\n`);
   const cache = readJson<Record<string, string>>(TICKER_CACHE, {});
   const misses = readJson<Record<string, string>>(MISS_CACHE, {});
-  const tickerOf = (c: string) => CUSIP_OVERRIDES[c] ?? cache[c] ?? null;
+  const tickerOf = (c: string) => (c in CUSIP_OVERRIDES ? CUSIP_OVERRIDES[c] : (cache[c] ?? null));
   const summaries: ManagerSummary[] = [];
   const latest: LatestHoldingsJson = { updated: today(), securities: {}, holdings: {}, quotes: {} };
   const failed: string[] = [];
@@ -1013,6 +1091,9 @@ async function main() {
   similarity(summaries, latest);
   latest.securities = sortKeys(latest.securities);
   console.log(`\nQuotes: ${Object.keys(latest.quotes).length} of ${tickers.length} tickers`);
+  latest.splits = await splitsSinceFiling(latest, summaries);
+  saveSplitCache();
+  console.log(`Splits since quarter end: ${Object.keys(latest.splits).join(", ") || "none"}`);
 
   const index: SuperinvestorsJson = { updated: today(), managers: summaries, failed };
   writeJson(indexPath, index);
@@ -1033,6 +1114,34 @@ async function main() {
   console.log(`Wrote ${summaries.length} managers to public/superinvestors.json + public/superinvestors/`);
   if (failed.length) console.log(`Failed: ${failed.join(", ")}`);
   recordStatus("refresh-13f", started, !failed.length, `${summaries.length} managers${failed.length ? `, failed: ${failed.join(", ")}` : ""}`);
+}
+
+/**
+ * Splits after a holder's quarter end, so "± reported price" compares like
+ * with like (APH 2-for-1 on 2026-09-03 otherwise reads as -50%). Only
+ * positions whose current price is far from the reported one are checked —
+ * a split is the usual reason, and that keeps Yahoo lookups to a handful.
+ */
+async function splitsSinceFiling(latest: LatestHoldingsJson, summaries: ManagerSummary[]) {
+  const period = new Map(summaries.map((s) => [s.id, s.period]));
+  const since = new Map<string, string>(); // ticker → earliest holder period
+  for (const [id, positions] of Object.entries(latest.holdings)) {
+    for (const p of positions) {
+      const t = latest.securities[p.k]?.t;
+      const quote = t ? latest.quotes[t] : undefined;
+      if (!t || !quote || !p.s || !p.v) continue;
+      const ratio = quote.price / (p.v / p.s);
+      if (ratio > 0.6 && ratio < 1.7) continue;
+      const from = period.get(id)!;
+      if (!since.has(t) || from < since.get(t)!) since.set(t, from);
+    }
+  }
+  const out: NonNullable<LatestHoldingsJson["splits"]> = {};
+  for (const [t, from] of [...since].sort()) {
+    const splits = (await splitsFor(t, today()))?.filter((s) => s.date > from);
+    if (splits?.length) out[t] = splits;
+  }
+  return out;
 }
 
 function today() {
