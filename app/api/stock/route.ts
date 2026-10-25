@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRedis } from "@/lib/analytics";
+import { LOOK_THROUGH_HOLDCOS, type LookThroughJson } from "@/lib/lookthrough";
+import lookThroughData from "@/data/lookthrough.json";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.19.0"; // 1.19.0 = period-end prices from daily closes (last close on or before the period end); unrealized-gain fallback tags
+const API_VERSION = "1.20.0"; // 1.20.0 = look-through retained earnings for holdcos (BRK, MKL) from their 13Fs; one-time TCJA tax effect removed
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -174,6 +176,7 @@ function getHardcodedEdgarData(ticker: string) {
     calendarYearData: {},
     sharesByYear,
     operatingBasis: false,
+    tcja: {} as Record<string, number>,
     investmentGains: {} as Record<string, number>,
     calInvestmentGains: {} as Record<number, number>,
   };
@@ -420,6 +423,27 @@ const OPERATING_BASIS_MIN_YEARS = 2;
 // the business, not noise around it — stripping them leaves BX negative
 const OPERATING_BASIS_EXCLUDED = new Set(["BX", "KKR", "APO", "ARES", "CG", "TPG", "OWL", "BAM", "BN"]);
 
+// One-time 2017 tax-reform (TCJA) deferred-tax remeasurement and transition
+// tax: non-cash, removed as Semper Augustus does (Berkshire 2017: −$28.2B
+// benefit; Alphabet: $10.2B charge). Positive = tax expense. Dollar tags
+// first; Alphabet tags only a % of pretax income.
+const TCJA_AMOUNT_CONCEPTS = [
+  "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017Amount",
+  "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017TransitionTaxOnAccumulatedForeignEarningsAmount",
+  // Last: this family's sign isn't reliable (BRK files its benefit positive),
+  // but MSFT tags its $13.7B charge only here
+  "TaxCutsAndJobsActOf2017IncomeTaxExpenseBenefit",
+];
+const TCJA_PERCENT_CONCEPTS = [
+  "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017Percent",
+  "EffectiveIncomeTaxRateReconciliationTaxCutsAndJobsActOf2017TransitionTaxOnAccumulatedForeignEarningsPercent",
+];
+const PRETAX_INCOME_CONCEPTS = [
+  "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+  "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+];
+const TCJA_PERIODS = (end: string) => end >= "2017-12-01" && end <= "2019-06-30";
+
 function afterTaxGain(periodEnd: string, pretax: number) {
   return pretax * (periodEnd >= "2018-01-01" ? 0.79 : 0.65); // 21% / 35% federal rate
 }
@@ -516,6 +540,19 @@ async function fetchEdgarData(ticker: string) {
   const investmentGains: Record<string, number> = {};
   for (const [end, v] of Object.entries(extractEdgar(allFacts, INVESTMENT_GAIN_CONCEPTS)))
     investmentGains[end] = afterTaxGain(end, v);
+  // TCJA one-time tax effect, added back to (charge) or out of (benefit) net income
+  const tcja: Record<string, number> = {};
+  {
+    const amounts = extractEdgar(allFacts, TCJA_AMOUNT_CONCEPTS);
+    const percents = extractEdgar(allFacts, TCJA_PERCENT_CONCEPTS, "pure");
+    const pretax = extractEdgar(allFacts, PRETAX_INCOME_CONCEPTS);
+    for (const end of Object.keys(netIncomes).filter(TCJA_PERIODS)) {
+      const v = amounts[end] ?? (percents[end] != null && pretax[end] != null ? percents[end] * pretax[end] : undefined);
+      if (v) tcja[end] = v;
+    }
+  }
+  for (const [end, v] of Object.entries(tcja)) netIncomes[end] += v;
+
   const materialYears = Object.keys(netIncomes)
     .sort()
     .slice(-10)
@@ -616,6 +653,10 @@ async function fetchEdgarData(ticker: string) {
   // ── Calendar year data (from quarterly 10-Q + 10-K) ──
   const calRevenues = extractEdgarCalendarYear(allFacts, REVENUE_CONCEPTS);
   const calNetIncomes = extractEdgarCalendarYear(allFacts, NET_INCOME_CONCEPTS);
+  for (const [end, v] of Object.entries(tcja)) {
+    const cy = Number(end.slice(0, 4));
+    if (end.endsWith("-12-31") && calNetIncomes[cy] != null) calNetIncomes[cy] += v;
+  }
   const calInvestmentGains: Record<number, number> = {};
   if (operatingBasis) {
     for (const [cy, v] of Object.entries(extractEdgarCalendarYear(allFacts, INVESTMENT_GAIN_CONCEPTS)))
@@ -642,6 +683,7 @@ async function fetchEdgarData(ticker: string) {
     calendarYearData,
     sharesByYear,
     operatingBasis,
+    tcja,
     investmentGains: operatingBasis ? investmentGains : {},
     calInvestmentGains,
   };
@@ -1030,6 +1072,21 @@ export async function GET(req: NextRequest) {
 
     for (const d of Object.values(yearMap)) d.dps ??= 0;
 
+    // Holdcos with listed portfolios: in place of the investment gains just
+    // removed, add retained earnings of investees (lib/lookthrough.ts)
+    const holdco = edgarData?.operatingBasis ? LOOK_THROUGH_HOLDCOS[ticker.toUpperCase()] : undefined;
+    const lookThroughYears = holdco ? (lookThroughData as LookThroughJson).holdcos[holdco] : undefined;
+    const lookThrough: Record<number, number> = {};
+    if (lookThroughYears) {
+      for (const [y, d] of Object.entries(yearMap)) {
+        const lt = lookThroughYears[y]?.lookThrough;
+        if (lt == null) continue;
+        lookThrough[Number(y)] = lt;
+        d.netIncome += lt;
+        d.eps += lt / d.sharesOutstanding;
+      }
+    }
+
     // Scale consolidated-total net income down to the shareholder-attributable
     // portion where flagged (before any derived metrics are computed)
     const attrShare = ATTRIBUTABLE_SHARE[ticker.toUpperCase()];
@@ -1222,6 +1279,14 @@ export async function GET(req: NextRequest) {
       };
     }
 
+    // Same look-through as the fiscal years (13F values are as of Dec 31)
+    for (const [cy, d] of Object.entries(calYearMap)) {
+      const lt = lookThroughYears?.[cy]?.lookThrough;
+      if (lt == null) continue;
+      d.netIncome += lt;
+      d.eps = d.netIncome / d.sharesOutstanding;
+    }
+
     // 3. Fill gaps: for December FYE companies, fiscal year ≈ calendar year.
     //    Copy fiscal data for any missing CY years when FYE is Nov-Jan.
     {
@@ -1306,6 +1371,15 @@ export async function GET(req: NextRequest) {
               .filter(([, g]) => g != null)
           )
         : null,
+      // One-time 2017 tax-reform effect removed from net income, by fiscal year
+      // (positive = a charge added back)
+      tcja: Object.fromEntries(
+        years
+          .map((y) => [y.year, edgarData?.tcja[y.endDate]] as const)
+          .filter(([, v]) => v != null)
+      ),
+      // After-tax retained earnings of investees added to holdco net income, by year
+      lookThrough: Object.keys(lookThrough).length ? lookThrough : null,
       years,
       calendarYears,
     };

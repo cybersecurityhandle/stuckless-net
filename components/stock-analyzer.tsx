@@ -56,6 +56,8 @@ interface StockData {
   reportingFx?: { from: string; rate: number } | null;
   earningsBasis?: "operating" | "gaap";
   investmentGains?: Record<string, number> | null; // after-tax, by fiscal year
+  lookThrough?: Record<string, number> | null; // after-tax retained investee earnings added, by year
+  tcja?: Record<string, number>; // one-time 2017 tax-reform effect removed (positive = charge added back)
   currentPrice?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
@@ -472,17 +474,30 @@ export function StockAnalyzer({
               {stockData.earningsBasis === "operating" && (() => {
                 const last = stockData.years[stockData.years.length - 1];
                 const gain = stockData.investmentGains?.[last.year];
+                const lt = stockData.lookThrough?.[last.year];
+                const gaap = gain != null ? last.netIncome + gain - (lt ?? 0) : null;
                 return (
                   <p className="text-[10px] text-yellow-500/80">
                     Operating earnings: net income and EPS exclude after-tax investment gains and
                     losses, which since 2018 include unrealized stock-price changes and swamp GAAP
                     earnings here. Gains are from SEC filings, taxed at an assumed 21% (35% before 2018).
-                    {gain != null &&
-                      ` FY${last.year}: GAAP ${fmtBig(last.netIncome + gain, stockData.currency)} → operating ${fmtBig(last.netIncome, stockData.currency)}.`}{" "}
+                    {stockData.lookThrough &&
+                      " In their place, look-through earnings: its share of the retained earnings (EPS less dividends) of the listed stocks in its year-end 13F, excluding equity-method stakes (e.g. Kraft Heinz) whose earnings GAAP already counts, taxed at 3%. This follows Semper Augustus's Berkshire method."}
+                    {gaap != null &&
+                      ` FY${last.year}: GAAP ${fmtBig(gaap, stockData.currency)} → ${lt != null ? `operating ${fmtBig(gaap - gain!, stockData.currency)} + look-through ${fmtBig(lt, stockData.currency)} = ` : "operating "}${fmtBig(last.netIncome, stockData.currency)}.`}{" "}
                     Key Stats P/E (ttm) stays GAAP.
                   </p>
                 );
               })()}
+              {stockData.tcja && Object.keys(stockData.tcja).length > 0 && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Excludes the one-time, non-cash 2017 tax-reform (TCJA) effect:{" "}
+                  {Object.entries(stockData.tcja)
+                    .map(([y, v]) => `FY${y} ${v > 0 ? "charge" : "benefit"} ${fmtBig(Math.abs(v), stockData.currency)}`)
+                    .join(", ")}
+                  .
+                </p>
+              )}
               {stockData.netIncomeAttributableShare != null && (
                 <p className="text-[10px] text-yellow-500/80">
                   Net income and EPS scaled to the ~{Math.round(stockData.netIncomeAttributableShare * 100)}%

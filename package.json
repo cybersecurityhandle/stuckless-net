@@ -12,6 +12,7 @@
     "refresh-threat-actors": "tsx scripts/refresh-threat-actors.ts",
     "refresh-13f": "tsx scripts/refresh-13f.ts",
     "refresh-insiders": "tsx scripts/refresh-insiders.ts",
+    "refresh-lookthrough": "tsx scripts/refresh-lookthrough.ts",
     "send-alerts": "tsx scripts/send-alerts.ts",
     "refresh-backtest": "tsx scripts/refresh-backtest.ts",
     "refresh-fivefactor": "tsx scripts/refresh-fivefactor.ts"

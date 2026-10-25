@@ -1,0 +1,191 @@
+{
+ "updated": "2026-10-25",
+ "holdcos": {
+  "buffett": {
+   "2013": {
+    "lookThrough": 4851529274,
+    "portfolio": 104836593000,
+    "covered": 0.526,
+    "equityMethod": []
+   },
+   "2014": {
+    "lookThrough": 3179078620,
+    "portfolio": 109365274000,
+    "covered": 0.527,
+    "equityMethod": []
+   },
+   "2015": {
+    "lookThrough": 3743276709,
+    "portfolio": 131855536000,
+    "covered": 0.693,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2016": {
+    "lookThrough": 4809614052,
+    "portfolio": 147985198000,
+    "covered": 0.96,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2017": {
+    "lookThrough": 4846012511,
+    "portfolio": 191242697000,
+    "covered": 0.952,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2018": {
+    "lookThrough": 9440783625,
+    "portfolio": 183066067000,
+    "covered": 0.955,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2019": {
+    "lookThrough": 9759670836,
+    "portfolio": 242050717000,
+    "covered": 0.937,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2020": {
+    "lookThrough": 4843709407,
+    "portfolio": 269927528000,
+    "covered": 0.947,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2021": {
+    "lookThrough": 11390774762,
+    "portfolio": 330952724000,
+    "covered": 0.968,
+    "equityMethod": [
+     "KHC"
+    ]
+   },
+   "2022": {
+    "lookThrough": 12909144437,
+    "portfolio": 299007622119,
+    "covered": 0.979,
+    "equityMethod": [
+     "KHC",
+     "OXY"
+    ]
+   },
+   "2023": {
+    "lookThrough": 10964495567,
+    "portfolio": 351900674461,
+    "covered": 0.997,
+    "equityMethod": [
+     "OXY",
+     "KHC"
+    ]
+   },
+   "2024": {
+    "lookThrough": 6297274243,
+    "portfolio": 267175474249,
+    "covered": 1,
+    "equityMethod": [
+     "OXY",
+     "KHC"
+    ]
+   },
+   "2025": {
+    "lookThrough": 7201909260,
+    "portfolio": 274160086701,
+    "covered": 1,
+    "equityMethod": [
+     "OXY",
+     "KHC"
+    ]
+   }
+  },
+  "gayner": {
+   "2013": {
+    "lookThrough": 129062548,
+    "portfolio": 3163763000,
+    "covered": 0.644,
+    "equityMethod": []
+   },
+   "2014": {
+    "lookThrough": 121426758,
+    "portfolio": 3727668478,
+    "covered": 0.651,
+    "equityMethod": []
+   },
+   "2015": {
+    "lookThrough": 119393444,
+    "portfolio": 3694292000,
+    "covered": 0.675,
+    "equityMethod": []
+   },
+   "2016": {
+    "lookThrough": 125203106,
+    "portfolio": 4148987000,
+    "covered": 0.7,
+    "equityMethod": []
+   },
+   "2017": {
+    "lookThrough": 185214297,
+    "portfolio": 5296475000,
+    "covered": 0.752,
+    "equityMethod": []
+   },
+   "2018": {
+    "lookThrough": 191178686,
+    "portfolio": 5233817000,
+    "covered": 0.779,
+    "equityMethod": []
+   },
+   "2019": {
+    "lookThrough": 240517330,
+    "portfolio": 7202787000,
+    "covered": 0.797,
+    "equityMethod": []
+   },
+   "2020": {
+    "lookThrough": 119775266,
+    "portfolio": 6712786000,
+    "covered": 0.81,
+    "equityMethod": []
+   },
+   "2021": {
+    "lookThrough": 287031208,
+    "portfolio": 8736305000,
+    "covered": 0.848,
+    "equityMethod": []
+   },
+   "2022": {
+    "lookThrough": 292215272,
+    "portfolio": 7458348204,
+    "covered": 0.946,
+    "equityMethod": []
+   },
+   "2023": {
+    "lookThrough": 319362442,
+    "portfolio": 9198712939,
+    "covered": 0.996,
+    "equityMethod": []
+   },
+   "2024": {
+    "lookThrough": 375496633,
+    "portfolio": 11344171282,
+    "covered": 1,
+    "equityMethod": []
+   },
+   "2025": {
+    "lookThrough": 293145547,
+    "portfolio": 12544358274,
+    "covered": 1,
+    "equityMethod": []
+   }
+  }
+ }
+}
