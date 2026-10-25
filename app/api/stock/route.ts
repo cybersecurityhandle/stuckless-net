@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.14.0"; // 1.14.0 = split adjustment keyed to 10-K filing date (CPRT), IBKR net revenues, CPRT revenue tag, BRK class-dimension shares
+const API_VERSION = "1.16.0"; // 1.16.0 = Prosus (PRX.AS): USD reporting FX, weighted-average shares
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -41,7 +41,14 @@ const REPORTING_FX: Record<string, string> = {
   IFS: "PEN", // Intercorp Financial — same
   "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
   ASML: "EUR", // ASML — NASDAQ shares are 1:1 ordinary, reports in EUR
+  "PRX.AS": "USD", // Prosus — Euronext-listed in EUR, reports in USD
 };
+
+// Yahoo-sourced tickers whose EPS uses weighted-average rather than year-end
+// shares (year-end still fills years with no average). PRX.AS: Yahoo's FY23
+// year-end count reads 4,043M vs 2,750M weighted, and heavy buybacks make
+// year-end understate the period's share base anyway.
+const YAHOO_WEIGHTED_SHARES = new Set(["PRX.AS"]);
 
 // Hard-coded tickers whose yearData is already in the listing currency, but
 // whose Yahoo-backfilled FCF arrives in the reporting currency. Only the
@@ -913,7 +920,10 @@ export async function GET(req: NextRequest) {
 
       const revenue = entry.totalRevenue;
       const netIncome = entry.netIncome;
-      const sharesOut = entry.ordinarySharesNumber;
+      const sharesOut =
+        (YAHOO_WEIGHTED_SHARES.has(ticker.toUpperCase()) && entry.basicAverageShares > 0
+          ? entry.basicAverageShares
+          : undefined) ?? entry.ordinarySharesNumber;
       if (!revenue || !netIncome || !sharesOut) continue;
 
       const epsVal = netIncome / sharesOut;
