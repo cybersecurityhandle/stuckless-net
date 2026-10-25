@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.18.1"; // 1.18.1 = operating-basis threshold 10% (catches GOOGL SpaceX markups), alt managers excluded
+const API_VERSION = "1.19.0"; // 1.19.0 = period-end prices from daily closes (last close on or before the period end); unrealized-gain fallback tags
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -408,6 +408,9 @@ const INVESTMENT_GAIN_CONCEPTS = [
   "EquitySecuritiesFvNiGainLoss",
   "DebtAndEquitySecuritiesGainLoss",
   "RealizedInvestmentGainsLosses",
+  // Unrealized-only tags, for years a filer skips the totals (AMZN's 2021–22 Rivian marks)
+  "EquitySecuritiesFvNiUnrealizedGainLoss",
+  "MarketableSecuritiesUnrealizedGainLoss",
 ];
 // Material = after-tax gains ≥ 10% of operating earnings in at least two of
 // the last ten years (two, so a one-off stake sale doesn't flip the basis)
@@ -651,20 +654,23 @@ async function getYahooFinance() {
   return new YahooFinance({ suppressNotices: ["yahooSurvey"] });
 }
 
+// Last close on or before the target day — the period-end price, as in the
+// Semper Augustus tables (GOOGL 2021: Dec 31 close $144.85). The old nearest-
+// bar rule on weekly data picked the week *starting* Jan 3 and so its Jan 7
+// close ($137.02). Falls back to the earliest bar if none precede the target.
 function getClosestPrice(historical: any[], targetDate: Date): number {
-  let closest: any = null;
-  let minDiff = Infinity;
-
+  const target = targetDate.toISOString().slice(0, 10);
+  let best: any = null;
   for (const day of historical) {
-    const d = day.date instanceof Date ? day.date : new Date(day.date);
-    const diff = Math.abs(d.getTime() - targetDate.getTime());
-    if (diff < minDiff && day.close) {
-      minDiff = diff;
-      closest = day;
+    if (!day.close) continue;
+    const d = (day.date instanceof Date ? day.date : new Date(day.date)).toISOString().slice(0, 10);
+    if (d <= target) best = day;
+    else {
+      best ??= day;
+      break;
     }
   }
-
-  return closest?.close || 0;
+  return best?.close || 0;
 }
 
 /**
@@ -874,7 +880,7 @@ export async function GET(req: NextRequest) {
           })
           .catch(() => []),
         yahooFinance
-          .historical(ticker, { period1: startDate, period2: new Date(), interval: "1wk" })
+          .historical(ticker, { period1: startDate, period2: new Date(), interval: "1d" })
           .catch(() => []),
         yahooFinance
           .chart(ticker, {
