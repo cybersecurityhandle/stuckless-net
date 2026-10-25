@@ -25,10 +25,10 @@ import { ScopeToggle, type Scope } from "@/components/superinvestors";
 // Price since 2013 with each quarter's superinvestor buying and selling
 // marked at the quarter-end price: who bought near the lows, who sold the top.
 
-const LINE = "#a1a1aa";
+const LINE = "var(--color-zinc-400)";
 const BUY = "#10b981";
 const SELL = "#ef4444";
-const TOOLTIP_STYLE = { backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" };
+const TOOLTIP_STYLE = { backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" };
 
 interface Marker {
   t: number; // quarter end, ms
@@ -130,20 +130,20 @@ export function SuperinvestorMovesChart({ ticker }: { ticker: string }) {
       <div className="mt-4 rounded-md border border-border p-2">
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart data={line} margin={{ top: 8, right: 16, bottom: 0, left: 8 }}>
-            <CartesianGrid stroke="#27272a" strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" vertical={false} />
             <XAxis
               dataKey="t"
               type="number"
               scale="time"
               domain={["dataMin", "dataMax"]}
               tickFormatter={(t) => new Date(t).getUTCFullYear().toString()}
-              tick={{ fontSize: 11, fill: "#a1a1aa" }}
+              tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
               axisLine={false}
               tickLine={false}
               minTickGap={32}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "#a1a1aa" }}
+              tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
               axisLine={false}
               tickLine={false}
               width={52}

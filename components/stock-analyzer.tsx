@@ -889,18 +889,18 @@ export function StockAnalyzer({
                   </div>
                   <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={chartRows} margin={{ left: 10, right: 16, top: 4, bottom: 0 }}>
-                      <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
-                      <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
+                      <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" />
+                      <XAxis dataKey="year" tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }} />
                       <YAxis
-                        tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                        tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
                         tickFormatter={(v) => fmtBig(Number(v), currency)}
                         width={64}
                       />
                       <Tooltip
-                        contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" }}
+                        contentStyle={{ backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" }}
                         formatter={(value, name) => [fmtBig(Number(value), currency), name === "fcf" ? "Free Cash Flow" : "Net Income"]}
                       />
-                      <ReferenceLine y={0} stroke="#3f3f46" />
+                      <ReferenceLine y={0} stroke="var(--color-zinc-700)" />
                       <Line type="monotone" dataKey="fcf" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: "#059669" }} activeDot={{ r: 5 }} />
                       <Line type="monotone" dataKey="netIncome" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3, fill: "#3b82f6" }} activeDot={{ r: 5 }} />
                     </LineChart>
@@ -1051,16 +1051,16 @@ export function StockAnalyzer({
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={priceData} margin={{ left: 10, right: 16, top: 4, bottom: 0 }}>
-                  <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
-                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
+                  <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" />
+                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }} />
                   <YAxis
                     domain={[minP - pad, maxP + pad]}
-                    tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                    tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
                     tickFormatter={(v) => `$${Math.round(v)}`}
                     width={58}
                   />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" }}
+                    contentStyle={{ backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" }}
                     formatter={(value) => [`$${Number(value).toFixed(2)}`, "Price"]}
                   />
                   <Line type="monotone" dataKey="price" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} activeDot={{ r: 5 }} />
@@ -1084,25 +1084,25 @@ export function StockAnalyzer({
               <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
                 <XAxis
                   type="number"
-                  tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                  tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
                   tickFormatter={(v) => `${(v * 100).toFixed(1)}%`}
                 />
                 <YAxis
                   type="category"
                   dataKey="name"
-                  tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                  tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
                   width={100}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#18181b",
-                    border: "1px solid #27272a",
+                    backgroundColor: "var(--color-zinc-900)",
+                    border: "1px solid var(--color-zinc-800)",
                     borderRadius: "8px",
                     fontSize: "12px",
                   }}
                   formatter={(value) => fmtPct(Number(value))}
                 />
-                <ReferenceLine x={0} stroke="#27272a" />
+                <ReferenceLine x={0} stroke="var(--color-zinc-800)" />
                 <Bar dataKey="value" radius={[0, 3, 3, 0]}>
                   {chartData.map((entry, index) => (
                     <Cell key={index} fill={entry.color} />

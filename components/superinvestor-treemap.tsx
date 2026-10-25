@@ -38,7 +38,7 @@ function Box(props: { x?: number; y?: number; width?: number; height?: number; n
   const showLabel = width > 44 && height > 26;
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} fill={COLORS[c]} stroke="#0a0a0a" strokeWidth={2} rx={3} />
+      <rect x={x} y={y} width={width} height={height} fill={COLORS[c]} stroke="var(--background)" strokeWidth={2} rx={3} />
       {showLabel && (
         <>
           <text x={x + 6} y={y + 16} fill="#fafafa" fontSize={12} fontWeight={600}>{name}</text>
@@ -62,7 +62,7 @@ export function PortfolioTreemap({ history, positions, total }: { history: Manag
         <ResponsiveContainer width="100%" height={460}>
           <Treemap data={data} dataKey="size" isAnimationActive={false} content={<Box />}>
             <Tooltip
-              contentStyle={{ backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" }}
+              contentStyle={{ backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" }}
               formatter={(v, _n, item) => [`${(Number(v) * 100).toFixed(2)}% · ${LABEL[(item.payload as Cell).c]}`, (item.payload as Cell).full]}
             />
           </Treemap>

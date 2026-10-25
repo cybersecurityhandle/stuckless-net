@@ -28,8 +28,8 @@ import {
 // investor" (13Fs miss shorts, non-US stocks, cash and intra-quarter trades).
 
 const MANAGER = "#10b981";
-const BENCH = "#71717a";
-const TOOLTIP_STYLE = { backgroundColor: "#18181b", border: "1px solid #27272a", borderRadius: "8px", fontSize: "12px" };
+const BENCH = "var(--color-zinc-500)";
+const TOOLTIP_STYLE = { backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" };
 
 function useJson<T>(url: string): T | null | undefined {
   // undefined = loading, null = not available
@@ -55,20 +55,20 @@ function GrowthChart({ r, bench, name }: { r: BacktestManager; bench: string; na
   return (
     <ResponsiveContainer width="100%" height={260}>
       <LineChart data={data} margin={{ top: 8, right: 16, bottom: 0, left: 8 }}>
-        <CartesianGrid stroke="#27272a" strokeDasharray="3 3" vertical={false} />
+        <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="t"
           type="number"
           scale="time"
           domain={["dataMin", "dataMax"]}
           tickFormatter={(t) => new Date(t).getUTCFullYear().toString()}
-          tick={{ fontSize: 11, fill: "#a1a1aa" }}
+          tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
           axisLine={false}
           tickLine={false}
           minTickGap={32}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: "#a1a1aa" }}
+          tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
           axisLine={false}
           tickLine={false}
           width={60}

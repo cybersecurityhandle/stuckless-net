@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Shield } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -53,6 +54,7 @@ export function Navbar() {
             >
               Search <kbd className="hidden font-sans sm:inline">⌘K</kbd>
             </button>
+            <ThemeToggle />
           </div>
         </div>
       </div>

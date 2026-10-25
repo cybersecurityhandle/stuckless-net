@@ -388,15 +388,15 @@ export function MortgageCalculator() {
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
             <BarChart data={results.chartData}>
-              <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#a1a1aa" }} />
+              <XAxis dataKey="year" tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }} />
               <YAxis
-                tick={{ fontSize: 11, fill: "#a1a1aa" }}
+                tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }}
                 tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #27272a",
+                  backgroundColor: "var(--color-zinc-900)",
+                  border: "1px solid var(--color-zinc-800)",
                   borderRadius: "8px",
                   fontSize: "12px",
                 }}

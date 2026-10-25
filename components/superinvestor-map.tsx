@@ -23,10 +23,10 @@ const FAV = "#10b981";
 // distance from everyone; MDS piles them together, which reads as "similar".
 // Drawn hollow so the clump isn't misread.
 const UNIQUE_BELOW = 0.15;
-const OTHER = "#71717a";
+const OTHER = "var(--color-zinc-500)";
 const TOOLTIP_STYLE = {
-  backgroundColor: "#18181b",
-  border: "1px solid #27272a",
+  backgroundColor: "var(--color-zinc-900)",
+  border: "1px solid var(--color-zinc-800)",
   borderRadius: "8px",
   fontSize: "12px",
 };
@@ -83,7 +83,7 @@ export function SimilarityMapView({
       <div className="mt-4 rounded-md border border-border p-2">
         <ResponsiveContainer width="100%" height={560}>
           <ScatterChart margin={{ top: 16, right: 24, bottom: 16, left: 16 }}>
-            <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+            <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" />
             <XAxis type="number" dataKey="x" hide domain={["dataMin - 0.05", "dataMax + 0.05"]} />
             <YAxis type="number" dataKey="y" hide domain={["dataMin - 0.05", "dataMax + 0.05"]} />
             <Tooltip
@@ -124,7 +124,7 @@ export function SimilarityMapView({
                   const p = unique.find((x) => x.name === v);
                   return p?.favorite ? shortName(String(v)) : "";
                 }}
-                style={{ fill: "#a1a1aa", fontSize: 11 }}
+                style={{ fill: "var(--color-zinc-400)", fontSize: 11 }}
               />
             </Scatter>
             <Scatter data={favs} fill={FAV} onClick={(d) => onSelect((d as unknown as Point).id)} className="cursor-pointer">
@@ -132,7 +132,7 @@ export function SimilarityMapView({
                 dataKey="name"
                 position="top"
                 formatter={(v) => shortName(String(v))}
-                style={{ fill: "#e4e4e7", fontSize: 11 }}
+                style={{ fill: "var(--color-zinc-200)", fontSize: 11 }}
               />
             </Scatter>
           </ScatterChart>

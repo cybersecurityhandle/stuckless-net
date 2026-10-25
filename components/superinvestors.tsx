@@ -40,8 +40,8 @@ import {
 
 const ACCENT = "#10b981";
 const TOOLTIP_STYLE = {
-  backgroundColor: "#18181b",
-  border: "1px solid #27272a",
+  backgroundColor: "var(--color-zinc-900)",
+  border: "1px solid var(--color-zinc-800)",
   borderRadius: "8px",
   fontSize: "12px",
 };
@@ -498,12 +498,12 @@ function PositionHistory({ history, k }: { history: ManagerHistoryJson; k: strin
       </div>
       <ResponsiveContainer width="100%" height={120}>
         <BarChart data={rows} margin={{ left: 0, right: 8, top: 4, bottom: 0 }}>
-          <CartesianGrid stroke="#27272a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="period" tick={{ fontSize: 10, fill: "#a1a1aa" }} minTickGap={16} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} tickFormatter={(v) => `${v}%`} width={36} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="period" tick={{ fontSize: 10, fill: "var(--color-zinc-400)" }} minTickGap={16} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontSize: 10, fill: "var(--color-zinc-400)" }} tickFormatter={(v) => `${v}%`} width={36} axisLine={false} tickLine={false} />
           <Tooltip
             contentStyle={TOOLTIP_STYLE}
-            cursor={{ fill: "#27272a" }}
+            cursor={{ fill: "var(--color-zinc-800)" }}
             formatter={(v, _n, item) => [
               `${Number(v).toFixed(1)}% · ${item.payload.shares.toLocaleString()} sh`,
               "Weight",
@@ -851,9 +851,9 @@ function HistoryTab({ history }: { history: ManagerHistoryJson }) {
       </div>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data} margin={{ left: 8, right: 8, top: 4, bottom: 0 }}>
-          <CartesianGrid stroke="#27272a" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="period" tick={{ fontSize: 11, fill: "#a1a1aa" }} minTickGap={24} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fontSize: 11, fill: "#a1a1aa" }} tickFormatter={fmtMoney} width={64} axisLine={false} tickLine={false} />
+          <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey="period" tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }} minTickGap={24} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fontSize: 11, fill: "var(--color-zinc-400)" }} tickFormatter={fmtMoney} width={64} axisLine={false} tickLine={false} />
           <Tooltip
             contentStyle={TOOLTIP_STYLE}
             formatter={(v, _n, item) => [`${fmtMoney(Number(v))} · ${item.payload.positions} positions`, "Value"]}
