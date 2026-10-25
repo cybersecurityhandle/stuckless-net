@@ -414,6 +414,9 @@ export function Watchlist({
                       >
                         {row.ticker}
                       </button>
+                      {row.operatingEarnings && (
+                        <sup className="ml-1 text-[9px] text-yellow-500/80" title="Operating earnings: EPS excludes after-tax investment gains and losses">op</sup>
+                      )}
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate text-muted-foreground">{row.name}</TableCell>
                     <TableCell className="text-right font-mono">

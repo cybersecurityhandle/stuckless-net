@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.17.0"; // 1.17.0 = reporting FX for RACE, LMN.V, 0700.HK (and flushes 1.16.0 entries cached before diluted shares merged)
+const API_VERSION = "1.18.0"; // 1.18.0 = operating-earnings basis (net income less after-tax investment gains) where those gains are material
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -168,7 +168,15 @@ function getHardcodedEdgarData(ticker: string) {
   for (const [dateStr, d] of Object.entries(h.yearData)) {
     sharesByYear[new Date(dateStr).getFullYear()] = d.shares;
   }
-  return { name: h.name, yearData: h.yearData, calendarYearData: {}, sharesByYear };
+  return {
+    name: h.name,
+    yearData: h.yearData,
+    calendarYearData: {},
+    sharesByYear,
+    operatingBasis: false,
+    investmentGains: {} as Record<string, number>,
+    calInvestmentGains: {} as Record<number, number>,
+  };
 }
 
 // ── SEC EDGAR helpers ──────────────────────────────────────────
@@ -389,6 +397,27 @@ const NET_INCOME_CONCEPTS = [
   "ComprehensiveIncomeNetOfTaxIncludingPortionAttributableToNoncontrollingInterest",
 ];
 
+// Investment gains and losses (realized plus, since ASU 2016-01 in 2018,
+// unrealized on equities) run through net income, so for insurers and
+// holdcos (BRK, MKL, PGR) GAAP EPS mostly tracks the stock market. Where
+// they're material, earnings switch to an operating basis: net income less
+// after-tax gains — Berkshire's own presentation. BRK's after-tax figures
+// (2022 −$53.6B, 2024 $41.6B) match pre-tax × 0.79 within ~1%.
+const INVESTMENT_GAIN_CONCEPTS = [
+  "GainLossOnInvestments",
+  "EquitySecuritiesFvNiGainLoss",
+  "DebtAndEquitySecuritiesGainLoss",
+  "RealizedInvestmentGainsLosses",
+];
+// Material = after-tax gains ≥ 20% of operating earnings in at least two of
+// the last ten years (two, so a one-off stake sale doesn't flip the basis)
+const OPERATING_BASIS_SHARE = 0.2;
+const OPERATING_BASIS_MIN_YEARS = 2;
+
+function afterTaxGain(periodEnd: string, pretax: number) {
+  return pretax * (periodEnd >= "2018-01-01" ? 0.79 : 0.65); // 21% / 35% federal rate
+}
+
 const SHARES_WEIGHTED_CONCEPTS = [
   "WeightedAverageNumberOfSharesOutstandingBasic",
   "WeightedAverageNumberOfDilutedSharesOutstanding",
@@ -478,6 +507,18 @@ async function fetchEdgarData(ticker: string) {
   const revenues = extractEdgar(allFacts, REVENUE_CONCEPTS);
   const netIncomes = extractEdgar(allFacts, NET_INCOME_CONCEPTS);
 
+  const investmentGains: Record<string, number> = {};
+  for (const [end, v] of Object.entries(extractEdgar(allFacts, INVESTMENT_GAIN_CONCEPTS)))
+    investmentGains[end] = afterTaxGain(end, v);
+  const materialYears = Object.keys(netIncomes)
+    .sort()
+    .slice(-10)
+    .filter((end) => {
+      const gain = investmentGains[end];
+      return gain != null && Math.abs(gain) >= OPERATING_BASIS_SHARE * Math.abs(netIncomes[end] - gain);
+    }).length;
+  const operatingBasis = materialYears >= OPERATING_BASIS_MIN_YEARS;
+
   // Per-share data: use earliest filing to avoid split-restated values from later 10-Ks.
   // Weighted average basic shares has highest priority — it is the correct EPS denominator.
   // CommonStockSharesOutstanding (us-gaap only) is the fallback for companies that don't file
@@ -549,7 +590,10 @@ async function fetchEdgarData(ticker: string) {
     const yr = new Date(date).getFullYear();
     yearData[date] = {
       revenue: revenues[date],
-      netIncome: netIncomes[date],
+      netIncome:
+        operatingBasis && netIncomes[date] != null
+          ? netIncomes[date] - (investmentGains[date] ?? 0)
+          : netIncomes[date],
       shares: shares[date] ?? sharesByYear[yr],
       sharesFiled: shares[date] != null ? sharesFiled[date] : undefined,
       diluted: diluted[date],
@@ -565,6 +609,11 @@ async function fetchEdgarData(ticker: string) {
   // ── Calendar year data (from quarterly 10-Q + 10-K) ──
   const calRevenues = extractEdgarCalendarYear(allFacts, REVENUE_CONCEPTS);
   const calNetIncomes = extractEdgarCalendarYear(allFacts, NET_INCOME_CONCEPTS);
+  const calInvestmentGains: Record<number, number> = {};
+  if (operatingBasis) {
+    for (const [cy, v] of Object.entries(extractEdgarCalendarYear(allFacts, INVESTMENT_GAIN_CONCEPTS)))
+      calInvestmentGains[Number(cy)] = afterTaxGain(`${cy}-12-31`, v);
+  }
 
   const calendarYearData: Record<number, { revenue: number; netIncome: number }> = {};
   const allCalYears = new Set([
@@ -575,7 +624,7 @@ async function fetchEdgarData(ticker: string) {
     if (calRevenues[cy] != null && calNetIncomes[cy] != null) {
       calendarYearData[cy] = {
         revenue: calRevenues[cy],
-        netIncome: calNetIncomes[cy],
+        netIncome: calNetIncomes[cy] - (calInvestmentGains[cy] ?? 0),
       };
     }
   }
@@ -585,6 +634,9 @@ async function fetchEdgarData(ticker: string) {
     yearData,
     calendarYearData,
     sharesByYear,
+    operatingBasis,
+    investmentGains: operatingBasis ? investmentGains : {},
+    calInvestmentGains,
   };
 }
 
@@ -1146,6 +1198,8 @@ export async function GET(req: NextRequest) {
     for (const [cyStr, d] of Object.entries(yfCalAgg)) {
       const cy = Number(cyStr);
       if (d.quarters !== 4 || !d.shares) continue;
+      // Yahoo's quarters are GAAP; put them on the same operating basis
+      d.netIncome -= (edgarData?.calInvestmentGains[cy] ?? 0) * (fxRate ?? 1);
 
       const dps = d.shares > 0 ? d.divPaid / d.shares : 0;
       calYearMap[cy] = {
@@ -1232,6 +1286,16 @@ export async function GET(req: NextRequest) {
       fcfAttributableShare,
       netIncomeAttributableShare,
       reportingFx: fxRate && reportCur ? { from: reportCur, rate: fxRate } : null,
+      // "operating": netIncome/eps exclude after-tax investment gains, listed
+      // per fiscal year (reporting currency) so the page can show GAAP too
+      earningsBasis: edgarData?.operatingBasis ? "operating" : "gaap",
+      investmentGains: edgarData?.operatingBasis
+        ? Object.fromEntries(
+            years
+              .map((y) => [y.year, edgarData.investmentGains[y.endDate]] as const)
+              .filter(([, g]) => g != null)
+          )
+        : null,
       years,
       calendarYears,
     };

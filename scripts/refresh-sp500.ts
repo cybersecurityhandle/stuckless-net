@@ -45,6 +45,7 @@ interface StockData {
   ticker: string;
   name: string;
   beta12w?: number | null;
+  earningsBasis?: "operating" | "gaap";
   years: YearData[];
 }
 
@@ -63,6 +64,7 @@ export interface ScreenerRow {
   buybackYield: number | null;
   qualityScore: number;
   beta12w: number | null;
+  operatingEarnings?: boolean; // EPS excludes after-tax investment gains (stock API earningsBasis)
 }
 
 /* ── S&P 500 constituent list ───────────────────────────────── */
@@ -186,6 +188,7 @@ function computeMetrics(data: StockData, sector: string): ScreenerRow | null {
     buybackYield: buybackYield !== null ? r3(buybackYield) : null,
     qualityScore,
     beta12w: data.beta12w ?? null,
+    ...(data.earningsBasis === "operating" ? { operatingEarnings: true } : {}),
   };
 }
 

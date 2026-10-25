@@ -54,6 +54,8 @@ interface StockData {
   fcfAttributableShare?: number | null;
   netIncomeAttributableShare?: number | null;
   reportingFx?: { from: string; rate: number } | null;
+  earningsBasis?: "operating" | "gaap";
+  investmentGains?: Record<string, number> | null; // after-tax, by fiscal year
   currentPrice?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
@@ -467,6 +469,20 @@ export function StockAnalyzer({
                   years use the current rate, an approximation.
                 </p>
               )}
+              {stockData.earningsBasis === "operating" && (() => {
+                const last = stockData.years[stockData.years.length - 1];
+                const gain = stockData.investmentGains?.[last.year];
+                return (
+                  <p className="text-[10px] text-yellow-500/80">
+                    Operating earnings: net income and EPS exclude after-tax investment gains and
+                    losses, which since 2018 include unrealized stock-price changes and swamp GAAP
+                    earnings here. Gains are from SEC filings, taxed at an assumed 21% (35% before 2018).
+                    {gain != null &&
+                      ` FY${last.year}: GAAP ${fmtBig(last.netIncome + gain, stockData.currency)} → operating ${fmtBig(last.netIncome, stockData.currency)}.`}{" "}
+                    Key Stats P/E (ttm) stays GAAP.
+                  </p>
+                );
+              })()}
               {stockData.netIncomeAttributableShare != null && (
                 <p className="text-[10px] text-yellow-500/80">
                   Net income and EPS scaled to the ~{Math.round(stockData.netIncomeAttributableShare * 100)}%

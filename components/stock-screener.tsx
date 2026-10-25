@@ -50,6 +50,7 @@ interface ScreenerRow {
   buybackYield: number | null;
   qualityScore: number;
   beta12w?: number | null;
+  operatingEarnings?: boolean;
 }
 
 interface Sp500Cache {
@@ -460,6 +461,9 @@ export function StockScreener() {
                       >
                         {row.ticker}
                       </a>
+                      {row.operatingEarnings && (
+                        <sup className="ml-1 font-sans text-[9px] font-normal text-yellow-500/80" title="Operating earnings: EPS excludes after-tax investment gains and losses">op</sup>
+                      )}
                     </TableCell>
                     <TableCell className="max-w-[180px] truncate text-sm text-muted-foreground">
                       {row.name}

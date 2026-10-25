@@ -42,6 +42,7 @@ export interface StockData {
   currency: string;
   currentPrice: number | null;
   beta12w?: number | null;
+  earningsBasis?: "operating" | "gaap";
   years: YearData[];
 }
 
@@ -59,6 +60,7 @@ export interface WatchRow {
   qualityScore: number | null;
   beta12w: number | null;
   yearsOfData: number;
+  operatingEarnings?: boolean; // EPS excludes after-tax investment gains (stock API earningsBasis)
 }
 
 // Implied return: EPS growth assumption capped to avoid extrapolating blowout years
@@ -147,5 +149,6 @@ export function buildRow(ticker: string, data: StockData): WatchRow {
     qualityScore: qualityScore(years),
     beta12w: data.beta12w ?? null,
     yearsOfData: years.length,
+    ...(data.earningsBasis === "operating" ? { operatingEarnings: true } : {}),
   };
 }
