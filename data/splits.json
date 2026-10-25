@@ -1,0 +1,10110 @@
+{
+ "AA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-10-06",
+    "ratio": 0.3333333333333333
+   },
+   {
+    "date": "2016-11-01",
+    "ratio": 1.2484394506866416
+   }
+  ]
+ },
+ "AAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AAMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AAOI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AAON": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-07-03",
+    "ratio": 1.5
+   },
+   {
+    "date": "2014-07-17",
+    "ratio": 1.5
+   },
+   {
+    "date": "2023-08-17",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "AAP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AAPL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-09",
+    "ratio": 7
+   },
+   {
+    "date": "2020-08-31",
+    "ratio": 4
+   }
+  ]
+ },
+ "ABCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ABEO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-10-24",
+    "ratio": 0.02
+   },
+   {
+    "date": "2022-07-05",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "ABEV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-11-11",
+    "ratio": 5
+   }
+  ]
+ },
+ "ABG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ABM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ABNB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ABR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ABT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-01-02",
+    "ratio": 2.084201750729471
+   }
+  ]
+ },
+ "ACH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACIW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-11",
+    "ratio": 3
+   }
+  ]
+ },
+ "ACLS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-07-01",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "ACM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACMR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-03-24",
+    "ratio": 3
+   }
+  ]
+ },
+ "ACN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACNT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-09-01",
+    "ratio": 0.25
+   },
+   {
+    "date": "2021-02-17",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "ACTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACWI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ACWX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADBE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADMA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADNT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADPT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADSK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADTN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ADV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-03-27",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "AEG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AEHR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AEIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AEM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AEO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AEP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AER": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AERO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AFL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-03-19",
+    "ratio": 2
+   }
+  ]
+ },
+ "AFRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AFYA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AGCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AGI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AGL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-03-31",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "AGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AGX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AHCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIEV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIRG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AKAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AKBA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALAB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALGM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALGT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-10",
+    "ratio": 2
+   }
+  ]
+ },
+ "ALLE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALLY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-10",
+    "ratio": 310
+   }
+  ]
+ },
+ "ALNY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALTO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-14",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "ALV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-07-02",
+    "ratio": 1.388
+   }
+  ]
+ },
+ "ALVO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ALYAF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMBA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMBQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMCX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMKBY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-10",
+    "ratio": 2
+   }
+  ]
+ },
+ "AMKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMLX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMPX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMPY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-08-04",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "AMR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMSC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-03-25",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "AMTM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMZN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-06-06",
+    "ratio": 20
+   }
+  ]
+ },
+ "AN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ANAB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-20",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "ANET": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-11-18",
+    "ratio": 4
+   },
+   {
+    "date": "2024-12-04",
+    "ratio": 4
+   }
+  ]
+ },
+ "ANF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ANG-PD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ANGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-03-24",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "ANIP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-07-18",
+    "ratio": 0.16666666666666666
+   }
+  ]
+ },
+ "AORT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AOS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-16",
+    "ratio": 2
+   },
+   {
+    "date": "2016-10-06",
+    "ratio": 2
+   }
+  ]
+ },
+ "AOSL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APEI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-07-01",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "APGI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-10-10",
+    "ratio": 2
+   },
+   {
+    "date": "2021-03-05",
+    "ratio": 2
+   },
+   {
+    "date": "2024-06-12",
+    "ratio": 2
+   },
+   {
+    "date": "2026-09-03",
+    "ratio": 2
+   }
+  ]
+ },
+ "API": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APOG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APPF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "APTV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-12-05",
+    "ratio": 1.193
+   }
+  ]
+ },
+ "AR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARCB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARES": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARLP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-17",
+    "ratio": 2
+   }
+  ]
+ },
+ "ARMK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-10-02",
+    "ratio": 1.385
+   }
+  ]
+ },
+ "ARRY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ARW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASAIY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-05-15",
+    "ratio": 2.044
+   }
+  ]
+ },
+ "ASIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASML": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASPN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASPS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-05-28",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "ASPU": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-01-10",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "ASTE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ASYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ATEC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-25",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "ATHM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ATI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ATKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ATRA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-20",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "ATRO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-08",
+    "ratio": 1.249
+   },
+   {
+    "date": "2014-09-03",
+    "ratio": 1.202
+   },
+   {
+    "date": "2015-10-06",
+    "ratio": 1.15
+   },
+   {
+    "date": "2016-10-06",
+    "ratio": 1.15
+   },
+   {
+    "date": "2018-10-11",
+    "ratio": 1.182
+   },
+   {
+    "date": "2026-06-15",
+    "ratio": 1.253
+   }
+  ]
+ },
+ "ATYR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-07-01",
+    "ratio": 0.07142857142857142
+   }
+  ]
+ },
+ "AU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AUDC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AUR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AUROW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AVAH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AVD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AVGO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-07-15",
+    "ratio": 10
+   }
+  ]
+ },
+ "AVT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AVTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AVVIY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-06-06",
+    "ratio": 0.76
+   }
+  ]
+ },
+ "AX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-11-18",
+    "ratio": 4
+   }
+  ]
+ },
+ "AXGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AXP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AXS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AXSM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AXTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AXTI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AYI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AZO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AZTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AZUL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "B": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BABA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BAC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BAK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BALL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-05-17",
+    "ratio": 2
+   }
+  ]
+ },
+ "BAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BAND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BAP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-16",
+    "ratio": 1.039
+   }
+  ]
+ },
+ "BAX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-01",
+    "ratio": 1.841
+   }
+  ]
+ },
+ "BAYRY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-09-20",
+    "ratio": 4
+   }
+  ]
+ },
+ "BB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBCP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-03-26",
+    "ratio": 1.1
+   },
+   {
+    "date": "2016-04-18",
+    "ratio": 1.1
+   },
+   {
+    "date": "2017-05-02",
+    "ratio": 1.1
+   },
+   {
+    "date": "2019-04-01",
+    "ratio": 1.2
+   }
+  ]
+ },
+ "BBIO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBNX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BBWI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-08-03",
+    "ratio": 1.237
+   }
+  ]
+ },
+ "BBY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BCS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-19",
+    "ratio": 1.085
+   }
+  ]
+ },
+ "BE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BEKE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BELFA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BELFB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BEN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-07-26",
+    "ratio": 3
+   }
+  ]
+ },
+ "BF-A": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-19",
+    "ratio": 2
+   },
+   {
+    "date": "2018-02-07",
+    "ratio": 1.339
+   },
+   {
+    "date": "2018-03-01",
+    "ratio": 1.25
+   }
+  ]
+ },
+ "BF-B": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-19",
+    "ratio": 2
+   },
+   {
+    "date": "2018-03-01",
+    "ratio": 1.25
+   }
+  ]
+ },
+ "BFAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BFH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-11-08",
+    "ratio": 1.253
+   }
+  ]
+ },
+ "BFLY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BGS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BH-A": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BHE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BHF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BHR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-10-28",
+    "ratio": 1.01
+   }
+  ]
+ },
+ "BIDU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BIGGQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BIIB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BILI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BILL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BJRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BKD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BKE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-13",
+    "ratio": 1.0241
+   }
+  ]
+ },
+ "BKNG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-06",
+    "ratio": 25
+   }
+  ]
+ },
+ "BKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BKSY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-09",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "BL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLBD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLDR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLKB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLMN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BLZE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BMA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BMI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-09-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "BMRN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BMY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-04-15",
+    "ratio": 1.033
+   },
+   {
+    "date": "2015-05-13",
+    "ratio": 1.5
+   },
+   {
+    "date": "2016-06-20",
+    "ratio": 1.016
+   },
+   {
+    "date": "2020-04-02",
+    "ratio": 1.5
+   },
+   {
+    "date": "2022-12-12",
+    "ratio": 1.237
+   },
+   {
+    "date": "2025-10-10",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "BNED": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-12",
+    "ratio": 0.01
+   }
+  ]
+ },
+ "BNY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BOC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BOKF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BOOM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BOOT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BOX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRCC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-08-24",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "BRK-A": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRK-B": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-03-29",
+    "ratio": 2
+   }
+  ]
+ },
+ "BROS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BRZE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BSX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BTDR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BTI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-02-14",
+    "ratio": 2
+   }
+  ]
+ },
+ "BTMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BTU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BUD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BULL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BUR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BURL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BVN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BVS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-07-24",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "BWA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-17",
+    "ratio": 2
+   },
+   {
+    "date": "2023-07-05",
+    "ratio": 1.136
+   }
+  ]
+ },
+ "BWMN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BWXT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-01",
+    "ratio": 1.398
+   }
+  ]
+ },
+ "BX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BXMT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-07",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "BXP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BYND": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-08-14",
+    "ratio": 0.03333333333333333
+   }
+  ]
+ },
+ "BYRN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-04-27",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "BZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "BZH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "C": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CAAP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-02-02",
+    "ratio": 1.004
+   }
+  ]
+ },
+ "CABO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CACC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CAKE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CALM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-11-03",
+    "ratio": 2
+   }
+  ]
+ },
+ "CALY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CAR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CARG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CARS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CART": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CATO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CBL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CBRE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CBRL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CCK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CCS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CCU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CDE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CDLX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-06-08",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "CDNA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CDNS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CDR-PB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CDW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CECO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CEG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CENX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-18",
+    "ratio": 5
+   }
+  ]
+ },
+ "CFG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CFR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CFRUY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CGAU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CGC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-12-20",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "CGEM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CGEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CGNX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-17",
+    "ratio": 2
+   },
+   {
+    "date": "2017-12-04",
+    "ratio": 2
+   }
+  ]
+ },
+ "CHD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-09-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "CHDN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-01-28",
+    "ratio": 3
+   },
+   {
+    "date": "2023-05-22",
+    "ratio": 2
+   }
+  ]
+ },
+ "CHEF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHGG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHRD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CHWY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CIA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CIEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CIG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-02",
+    "ratio": 1.128
+   },
+   {
+    "date": "2014-01-13",
+    "ratio": 1.3076
+   },
+   {
+    "date": "2024-05-24",
+    "ratio": 1.3
+   }
+  ]
+ },
+ "CIGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-02",
+    "ratio": 1.709
+   }
+  ]
+ },
+ "CIM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-04-07",
+    "ratio": 0.2
+   },
+   {
+    "date": "2024-05-22",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "CLAR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-08-07",
+    "ratio": 1.002
+   }
+  ]
+ },
+ "CLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CLDX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-02-11",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "CLF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CLFD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CLNE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CLS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CLVT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-05-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "CMBMF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMCSA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-02-21",
+    "ratio": 2
+   },
+   {
+    "date": "2026-01-05",
+    "ratio": 1.067
+   }
+  ]
+ },
+ "CMDXF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-26",
+    "ratio": 50
+   }
+  ]
+ },
+ "CMLSQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMPR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CMTL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-02-20",
+    "ratio": 2
+   },
+   {
+    "date": "2019-02-07",
+    "ratio": 2
+   }
+  ]
+ },
+ "CNDT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "CNM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-08-22",
+    "ratio": 1.021
+   },
+   {
+    "date": "2024-06-11",
+    "ratio": 2
+   }
+  ]
+ },
+ "CNTY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CNX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-11-29",
+    "ratio": 1.2
+   }
+  ]
+ },
+ "CNXC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COHR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COHU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COLL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COMP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COOK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-03-18",
+    "ratio": 0.02
+   }
+  ]
+ },
+ "COP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CORT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CORZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COTY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "COYA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CPIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CPNG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CPRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CPRT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-04-11",
+    "ratio": 2
+   },
+   {
+    "date": "2022-11-04",
+    "ratio": 2
+   },
+   {
+    "date": "2023-08-22",
+    "ratio": 2
+   }
+  ]
+ },
+ "CR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRAI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRBU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRDO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRGY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRIS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-30",
+    "ratio": 0.2
+   },
+   {
+    "date": "2026-07-06",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "CRK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-01",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "CRM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-04-18",
+    "ratio": 4
+   }
+  ]
+ },
+ "CRMT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRNC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRNT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CROX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRTO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CRWD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-07-02",
+    "ratio": 4
+   }
+  ]
+ },
+ "CRWV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CSCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CSGP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-06-28",
+    "ratio": 10
+   }
+  ]
+ },
+ "CSL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CSWC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-08-16",
+    "ratio": 4
+   },
+   {
+    "date": "2015-10-01",
+    "ratio": 2.724
+   }
+  ]
+ },
+ "CSX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-06-29",
+    "ratio": 3
+   }
+  ]
+ },
+ "CTAS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-12",
+    "ratio": 4
+   }
+  ]
+ },
+ "CTEV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-23",
+    "ratio": 0.025
+   }
+  ]
+ },
+ "CTO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-18",
+    "ratio": 1.228
+   },
+   {
+    "date": "2022-07-01",
+    "ratio": 3
+   }
+  ]
+ },
+ "CTOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CTPR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CTSH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-03-10",
+    "ratio": 2
+   }
+  ]
+ },
+ "CULP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CUZ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-10-07",
+    "ratio": 1.417
+   },
+   {
+    "date": "2019-06-17",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "CVCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CVE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CVEO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-20",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "CVLG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-01-01",
+    "ratio": 2
+   },
+   {
+    "date": "2025-01-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "CVNA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-05-08",
+    "ratio": 5
+   }
+  ]
+ },
+ "CVRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CVS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CVSA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CVX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CWH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CWK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-04-23",
+    "ratio": 1.04
+   },
+   {
+    "date": "2014-04-22",
+    "ratio": 1.04
+   },
+   {
+    "date": "2015-04-28",
+    "ratio": 1.04
+   },
+   {
+    "date": "2016-04-29",
+    "ratio": 1.04
+   },
+   {
+    "date": "2017-05-03",
+    "ratio": 1.04
+   }
+  ]
+ },
+ "CYD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "CYH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-04-22",
+    "ratio": 1.21
+   }
+  ]
+ },
+ "CYRX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-05-19",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "CZR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DAKT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DAN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DAR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DASH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DAVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-06",
+    "ratio": 1.048
+   }
+  ]
+ },
+ "DBD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DBI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-11-04",
+    "ratio": 2
+   }
+  ]
+ },
+ "DBRHP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DCGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DCH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DCI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DCOM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-04-02",
+    "ratio": 1.487
+   },
+   {
+    "date": "2019-06-03",
+    "ratio": 0.4725
+   },
+   {
+    "date": "2025-11-03",
+    "ratio": 2.39
+   },
+   {
+    "date": "2026-06-24",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "DDD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-02-25",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "DDL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DDOG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DDS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DECK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-17",
+    "ratio": 6
+   }
+  ]
+ },
+ "DEI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DELL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-12-28",
+    "ratio": 1.806
+   },
+   {
+    "date": "2021-11-02",
+    "ratio": 1.973
+   }
+  ]
+ },
+ "DEO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DFNL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DGII": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DGX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DHI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DHT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DIDIY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DKS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DLO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DLTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DLX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DMAC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-11-15",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "DNA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-08-20",
+    "ratio": 0.025
+   }
+  ]
+ },
+ "DNOW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DOC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-01",
+    "ratio": 1.098
+   }
+  ]
+ },
+ "DOCN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DOCS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DOCU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DOUG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-06-21",
+    "ratio": 1.05
+   }
+  ]
+ },
+ "DOW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-17",
+    "ratio": 5
+   }
+  ]
+ },
+ "DRH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DRS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-09-14",
+    "ratio": 0.5
+   }
+  ]
+ },
+ "DSGX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DSX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DUOL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DVA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-09",
+    "ratio": 2
+   }
+  ]
+ },
+ "DVN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DWLD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DWSN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-04-26",
+    "ratio": 1.05
+   },
+   {
+    "date": "2015-02-12",
+    "ratio": 0.3333333333333333
+   },
+   {
+    "date": "2018-05-11",
+    "ratio": 1.05
+   }
+  ]
+ },
+ "DXC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-11-30",
+    "ratio": 1.7412
+   },
+   {
+    "date": "2018-06-01",
+    "ratio": 1.156
+   }
+  ]
+ },
+ "DXYN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "DZSIQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-03-01",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "EA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EAF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-08-29",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "EAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EBAY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-20",
+    "ratio": 2.376
+   }
+  ]
+ },
+ "ECHO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-09-11",
+    "ratio": 1.234
+   }
+  ]
+ },
+ "EDIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EDU": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-03-12",
+    "ratio": 10
+   },
+   {
+    "date": "2022-04-07",
+    "ratio": 0.1
+   },
+   {
+    "date": "2022-04-08",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "EEFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EFX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EGHT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EGO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-12-31",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "EGRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ELAN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ELF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ELS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-07-16",
+    "ratio": 2
+   },
+   {
+    "date": "2019-10-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "ELV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EMBC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EME": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EMN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EMR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ENPH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ENS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ENTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EOG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-01",
+    "ratio": 2
+   }
+  ]
+ },
+ "EONR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EPAC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EPAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EPD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-08-22",
+    "ratio": 2
+   }
+  ]
+ },
+ "EPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EPM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EQH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EQNR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EQT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-11-13",
+    "ratio": 1.837
+   }
+  ]
+ },
+ "EQX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-08-20",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "ESAB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ESRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ESTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ET": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-27",
+    "ratio": 2
+   },
+   {
+    "date": "2015-07-27",
+    "ratio": 2
+   }
+  ]
+ },
+ "ETON": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ETR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-12-13",
+    "ratio": 2
+   }
+  ]
+ },
+ "ETSY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EVER": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EVGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EVH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EVI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EVR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-12-14",
+    "ratio": 2
+   },
+   {
+    "date": "2020-06-01",
+    "ratio": 3
+   }
+  ]
+ },
+ "EWT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-07",
+    "ratio": 0.5
+   }
+  ]
+ },
+ "EWTX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EWY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXEEL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXEEZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXEL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXFY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXPE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EXTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EYE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "EZPW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "F": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FANG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FAST": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-05-23",
+    "ratio": 2
+   },
+   {
+    "date": "2025-05-22",
+    "ratio": 2
+   }
+  ]
+ },
+ "FATE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FBAK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-08-13",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "FBIN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-12-15",
+    "ratio": 1.17
+   }
+  ]
+ },
+ "FBTC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FCX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FDMT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FDS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FDX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-06-01",
+    "ratio": 1.241
+   }
+  ]
+ },
+ "FE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FET": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-10",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "FFIV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FHB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FHI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FHN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FICO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FINV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FIP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FISV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-17",
+    "ratio": 2
+   },
+   {
+    "date": "2018-03-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "FITB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FIVE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FIVN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FLEX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-01-03",
+    "ratio": 1.327
+   }
+  ]
+ },
+ "FLR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FLS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-06-24",
+    "ratio": 3
+   }
+  ]
+ },
+ "FLUT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FLWS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FLYW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FMC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-03-04",
+    "ratio": 1.153
+   }
+  ]
+ },
+ "FMCC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FMS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FMX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FNF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-01",
+    "ratio": 1.216
+   },
+   {
+    "date": "2017-10-02",
+    "ratio": 1.385
+   },
+   {
+    "date": "2022-12-01",
+    "ratio": 1.04
+   },
+   {
+    "date": "2025-12-17",
+    "ratio": 1.037
+   }
+  ]
+ },
+ "FOA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-07-26",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "FORM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FOSL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FOUR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FOX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FOXA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FOXF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FPH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FRCB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FRMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FROG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FRPH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-04-15",
+    "ratio": 2
+   }
+  ]
+ },
+ "FRSH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FSLY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FTAI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-08-02",
+    "ratio": 1.171
+   }
+  ]
+ },
+ "FTCHQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FTI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-02-16",
+    "ratio": 1.344
+   }
+  ]
+ },
+ "FTNT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-06-23",
+    "ratio": 5
+   }
+  ]
+ },
+ "FTRE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FTV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-09",
+    "ratio": 1.195
+   },
+   {
+    "date": "2025-06-30",
+    "ratio": 1.327
+   }
+  ]
+ },
+ "FUBO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-03-24",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "FUL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FUN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FUTU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FVRR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "FWONA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-24",
+    "ratio": 2.865
+   },
+   {
+    "date": "2014-11-05",
+    "ratio": 1.321
+   },
+   {
+    "date": "2016-04-18",
+    "ratio": 1.423988
+   },
+   {
+    "date": "2023-07-20",
+    "ratio": 1.018
+   }
+  ]
+ },
+ "G": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GAP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GBCI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GBXXY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GDDY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GDOT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GDXJ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-07-01",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "GE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-02-26",
+    "ratio": 1.04
+   },
+   {
+    "date": "2021-08-02",
+    "ratio": 0.125
+   },
+   {
+    "date": "2023-01-04",
+    "ratio": 1.281
+   },
+   {
+    "date": "2024-04-02",
+    "ratio": 1.253
+   }
+  ]
+ },
+ "GEF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GENC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-02",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "GEO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-04-25",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "GEOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GERN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-22",
+    "ratio": 1.058
+   }
+  ]
+ },
+ "GEV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GFI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-02-21",
+    "ratio": 1.161
+   }
+  ]
+ },
+ "GGB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-03-22",
+    "ratio": 1.05
+   },
+   {
+    "date": "2024-04-18",
+    "ratio": 1.2
+   }
+  ]
+ },
+ "GGG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-12-28",
+    "ratio": 3
+   }
+  ]
+ },
+ "GH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GHC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-01",
+    "ratio": 1.655
+   }
+  ]
+ },
+ "GHM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GIII": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-05-04",
+    "ratio": 2
+   }
+  ]
+ },
+ "GIL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-03-30",
+    "ratio": 2
+   }
+  ]
+ },
+ "GL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-02",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "GLBE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLDI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-09-27",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "GLIBA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLIBK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLNG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLOB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLRE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GLW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GMAB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-01",
+    "ratio": 5
+   }
+  ]
+ },
+ "GME": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-07-22",
+    "ratio": 4
+   }
+  ]
+ },
+ "GNE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GNRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GNW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GOOG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-03-27",
+    "ratio": 2.002
+   },
+   {
+    "date": "2015-04-27",
+    "ratio": 1.0027455
+   },
+   {
+    "date": "2022-07-18",
+    "ratio": 20
+   }
+  ]
+ },
+ "GOOGL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-03",
+    "ratio": 1.998
+   },
+   {
+    "date": "2022-07-18",
+    "ratio": 20
+   }
+  ]
+ },
+ "GOOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GOTU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GPC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GPGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-02-28",
+    "ratio": 1.204
+   }
+  ]
+ },
+ "GPK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GPOR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GPRE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GPRO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GRAB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GRAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GRBK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-09-24",
+    "ratio": 1.532
+   }
+  ]
+ },
+ "GRFS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-01-04",
+    "ratio": 2
+   }
+  ]
+ },
+ "GRND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GROV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-06-06",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "GRPN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-06-11",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "GS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GSHD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GSIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GSK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-07-19",
+    "ratio": 0.8
+   },
+   {
+    "date": "2022-07-22",
+    "ratio": 1.226
+   }
+  ]
+ },
+ "GSM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GTLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GTM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GTN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GTX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GUTS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-10-05",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "GVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "H": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HAE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HAFN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HAIN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-12-30",
+    "ratio": 2
+   }
+  ]
+ },
+ "HAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HALO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HAYW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HBB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HBM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HCA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HCC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HCI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HCKT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HCSG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HDB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-09-26",
+    "ratio": 2
+   },
+   {
+    "date": "2025-09-08",
+    "ratio": 2
+   }
+  ]
+ },
+ "HEI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-23",
+    "ratio": 1.25
+   },
+   {
+    "date": "2017-04-19",
+    "ratio": 1.25
+   },
+   {
+    "date": "2018-01-18",
+    "ratio": 1.25
+   },
+   {
+    "date": "2018-06-28",
+    "ratio": 1.25
+   }
+  ]
+ },
+ "HEI-A": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-23",
+    "ratio": 1.25
+   },
+   {
+    "date": "2017-04-19",
+    "ratio": 1.25
+   },
+   {
+    "date": "2018-01-18",
+    "ratio": 1.25
+   },
+   {
+    "date": "2018-06-28",
+    "ratio": 1.25
+   }
+  ]
+ },
+ "HELE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HHH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-08-01",
+    "ratio": 1.049
+   }
+  ]
+ },
+ "HIMS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HIMX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HIPO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-09-30",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "HL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-15",
+    "ratio": 2
+   }
+  ]
+ },
+ "HLI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLLY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLNE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HLT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-01-04",
+    "ratio": 0.4873294346978557
+   }
+  ]
+ },
+ "HNGE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HNI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HNRG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HOFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HOG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HOPE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HPE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-04-03",
+    "ratio": 1.3348
+   },
+   {
+    "date": "2017-09-01",
+    "ratio": 1.289
+   }
+  ]
+ },
+ "HPP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-12-02",
+    "ratio": 0.14285714285714285
+   }
+  ]
+ },
+ "HRB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HRI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-07-01",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "HRL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-02-10",
+    "ratio": 2
+   }
+  ]
+ },
+ "HSBC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HTHT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-25",
+    "ratio": 4
+   }
+  ]
+ },
+ "HTLD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HTT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HTZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HTZWW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HUBG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-01-29",
+    "ratio": 2
+   }
+  ]
+ },
+ "HUBS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HUCK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HUM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HUN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HUT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-12-04",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "HUYA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HWKN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-03-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "HWM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "HXL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IAG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IBIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IBKR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-06-18",
+    "ratio": 4
+   }
+  ]
+ },
+ "IBN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-12-09",
+    "ratio": 5
+   },
+   {
+    "date": "2017-06-19",
+    "ratio": 1.1
+   }
+  ]
+ },
+ "IBP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IBTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ICE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-04",
+    "ratio": 5
+   }
+  ]
+ },
+ "ICFI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ICHR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ICLR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ICUI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IDCC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IDN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-08-13",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "IDT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-08-01",
+    "ratio": 1.183
+   }
+  ]
+ },
+ "IDXX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "IEP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IESC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-08-24",
+    "ratio": 2
+   }
+  ]
+ },
+ "IHRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IIIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IIIV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IIPR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IJT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-19",
+    "ratio": 2
+   }
+  ]
+ },
+ "ILMN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-25",
+    "ratio": 1.028
+   }
+  ]
+ },
+ "IMKTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IMO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IMVT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IMXI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INBX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INCY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INDA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INDV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INFU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INFY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-12-08",
+    "ratio": 2
+   },
+   {
+    "date": "2015-06-25",
+    "ratio": 2
+   },
+   {
+    "date": "2018-09-12",
+    "ratio": 2
+   }
+  ]
+ },
+ "ING": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INNV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-06",
+    "ratio": 0.25
+   },
+   {
+    "date": "2024-01-25",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "INSG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-01-24",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "INSM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INSP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INTC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INTT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INTU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "INVA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-03",
+    "ratio": 1.241
+   }
+  ]
+ },
+ "INVE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-05-27",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "IONS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-02",
+    "ratio": 1.014
+   },
+   {
+    "date": "2021-10-01",
+    "ratio": 1.056
+   }
+  ]
+ },
+ "IPGP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IPI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-08-14",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "IQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IQV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ISRG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-10-06",
+    "ratio": 3
+   },
+   {
+    "date": "2021-10-05",
+    "ratio": 3
+   }
+  ]
+ },
+ "IT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ITB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ITRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ITRN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ITUB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-21",
+    "ratio": 1.1
+   },
+   {
+    "date": "2014-06-06",
+    "ratio": 1.1
+   },
+   {
+    "date": "2016-10-18",
+    "ratio": 1.1
+   },
+   {
+    "date": "2018-11-28",
+    "ratio": 1.5
+   },
+   {
+    "date": "2021-10-04",
+    "ratio": 1.213
+   },
+   {
+    "date": "2025-03-19",
+    "ratio": 1.1
+   },
+   {
+    "date": "2025-12-29",
+    "ratio": 1.03
+   }
+  ]
+ },
+ "IVV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IVVD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IVZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IWD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IWF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-29",
+    "ratio": 4
+   }
+  ]
+ },
+ "IWM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IWN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "IWR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-10-26",
+    "ratio": 4
+   }
+  ]
+ },
+ "IXN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-07-19",
+    "ratio": 6
+   }
+  ]
+ },
+ "J": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-30",
+    "ratio": 1.197
+   },
+   {
+    "date": "2025-05-16",
+    "ratio": 1.01
+   }
+  ]
+ },
+ "JACK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JAKK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-07-10",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "JAZZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JBI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JBL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JBLU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JBS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JCI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-09-06",
+    "ratio": 0.955
+   }
+  ]
+ },
+ "JD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JEF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-02-26",
+    "ratio": 1.027
+   },
+   {
+    "date": "2019-09-27",
+    "ratio": 1.068
+   },
+   {
+    "date": "2023-01-17",
+    "ratio": 1.046
+   }
+  ]
+ },
+ "JELD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JILL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-03-18",
+    "ratio": 1.191
+   },
+   {
+    "date": "2020-11-10",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "JKS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JLL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JNJ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JOBY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JOE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JOYY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JPM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "JXN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KALU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KARO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KBH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KBR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KEX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KEY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KEYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KFY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KGC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KKR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KLAC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-06-12",
+    "ratio": 10
+   }
+  ]
+ },
+ "KLIC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KMT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KMX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KOD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KODK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KOF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KOP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KOPN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KPLT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-07-28",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "KR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-14",
+    "ratio": 2
+   }
+  ]
+ },
+ "KRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KRSP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KRYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KSS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KTOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KWR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "L": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LAD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LAKE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LASR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LAZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LBRDK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LBTYA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-03-04",
+    "ratio": 1.957
+   },
+   {
+    "date": "2015-07-02",
+    "ratio": 1.058
+   },
+   {
+    "date": "2016-06-21",
+    "ratio": 1.146
+   },
+   {
+    "date": "2024-11-13",
+    "ratio": 1.941
+   }
+  ]
+ },
+ "LDOS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-30",
+    "ratio": 0.405
+   }
+  ]
+ },
+ "LE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LEA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LEGH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LEN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-11-09",
+    "ratio": 1.017
+   },
+   {
+    "date": "2025-01-21",
+    "ratio": 1.033
+   }
+  ]
+ },
+ "LEN-B": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-11-09",
+    "ratio": 1.02
+   },
+   {
+    "date": "2025-01-21",
+    "ratio": 1.052
+   }
+  ]
+ },
+ "LESLQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-09-29",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "LEVI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LFST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LFUS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LGIH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LGVN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-03-27",
+    "ratio": 0.1
+   },
+   {
+    "date": "2026-08-27",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "LH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-07-03",
+    "ratio": 1.164
+   }
+  ]
+ },
+ "LI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LIANY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LIF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LILA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-09-11",
+    "ratio": 1.061
+   },
+   {
+    "date": "2026-06-17",
+    "ratio": 1.472
+   }
+  ]
+ },
+ "LIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LINC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LIND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LITE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LIVN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LKNCY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LKQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LLY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LMAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LMB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LNC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LNG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LNT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-05-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "LNTH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LNVGY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LNWO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LOCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LODE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-11-10",
+    "ratio": 0.2
+   },
+   {
+    "date": "2019-11-29",
+    "ratio": 0.2
+   },
+   {
+    "date": "2025-02-25",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "LOGI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LOMA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LOW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LPG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LPL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LPLA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LPTH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LPX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LRCX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-10-03",
+    "ratio": 10
+   }
+  ]
+ },
+ "LSCC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LTH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LTRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LULU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LUMN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LUV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LUXE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LVS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LXFR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LXU": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-10-12",
+    "ratio": 1.3
+   }
+  ]
+ },
+ "LYB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LYFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LYG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LYTS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LYV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LZAGY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "LZB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "M": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-22",
+    "ratio": 10
+   }
+  ]
+ },
+ "MAC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MAN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MANE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MANH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-13",
+    "ratio": 4
+   }
+  ]
+ },
+ "MANU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MAR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MAS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-01",
+    "ratio": 1.138
+   }
+  ]
+ },
+ "MASS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MATV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MATW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MBC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MBI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MBUU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCHP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-10-13",
+    "ratio": 2
+   }
+  ]
+ },
+ "MCHX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MCY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "MDB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MDLZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MDU": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-06-01",
+    "ratio": 1.457
+   },
+   {
+    "date": "2024-11-01",
+    "ratio": 1.805
+   }
+  ]
+ },
+ "MEC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MED": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MEDP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MEI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MELI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MEOH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MET": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-08-07",
+    "ratio": 1.122
+   }
+  ]
+ },
+ "META": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "METC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-12-02",
+    "ratio": 1.01
+   },
+   {
+    "date": "2025-02-28",
+    "ratio": 1.014
+   }
+  ]
+ },
+ "METCB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-12-02",
+    "ratio": 1.023
+   },
+   {
+    "date": "2025-09-05",
+    "ratio": 1.011
+   },
+   {
+    "date": "2026-03-13",
+    "ratio": 1.012
+   },
+   {
+    "date": "2026-06-12",
+    "ratio": 1.012
+   }
+  ]
+ },
+ "MFA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-04-05",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "MFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MGA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-03-26",
+    "ratio": 2
+   }
+  ]
+ },
+ "MGM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MGNI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MGNX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MGPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MGY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MHK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MHLA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MIDD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-27",
+    "ratio": 3
+   },
+   {
+    "date": "2026-07-07",
+    "ratio": 1.243
+   }
+  ]
+ },
+ "MIR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MIRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MITK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MKC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-12-01",
+    "ratio": 2
+   }
+  ]
+ },
+ "MKSI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MKTX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MLAB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MLCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MLI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-03-31",
+    "ratio": 2
+   },
+   {
+    "date": "2023-10-23",
+    "ratio": 2
+   },
+   {
+    "date": "2026-07-01",
+    "ratio": 2
+   }
+  ]
+ },
+ "MLKN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MLM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MMYT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MNDY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MNRO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MNST": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-10",
+    "ratio": 3
+   },
+   {
+    "date": "2023-03-28",
+    "ratio": 2
+   },
+   {
+    "date": "2026-08-11",
+    "ratio": 2
+   }
+  ]
+ },
+ "MOD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MOH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MOMO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MOS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MOV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MPAA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MPC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-11",
+    "ratio": 2
+   }
+  ]
+ },
+ "MPT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MPWR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-07-01",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "MRCY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MRK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-06-03",
+    "ratio": 1.048
+   }
+  ]
+ },
+ "MRKR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-02-25",
+    "ratio": 0.01
+   },
+   {
+    "date": "2016-09-16",
+    "ratio": 0.08333333333333333
+   },
+   {
+    "date": "2023-01-27",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "MRNA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MRVI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MRVL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MSFT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MSGS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-04-20",
+    "ratio": 1.402
+   }
+  ]
+ },
+ "MSI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MSM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MSTR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-08-08",
+    "ratio": 10
+   }
+  ]
+ },
+ "MT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-05-22",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "MTAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTCH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-07-01",
+    "ratio": 3.502
+   }
+  ]
+ },
+ "MTDR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-01-03",
+    "ratio": 2
+   }
+  ]
+ },
+ "MTN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTRN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTSI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MTW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-03-04",
+    "ratio": 4.41584
+   },
+   {
+    "date": "2017-11-20",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "MTZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MUR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-03",
+    "ratio": 1.158
+   }
+  ]
+ },
+ "MX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MYE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MYGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "MYPS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-10-01",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "MYRG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NAMS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NAT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-23",
+    "ratio": 1.014
+   },
+   {
+    "date": "2017-08-10",
+    "ratio": 1.008
+   }
+  ]
+ },
+ "NAVI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NBIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NBR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-04-23",
+    "ratio": 0.02
+   }
+  ]
+ },
+ "NCLH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NCMI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-08-04",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "NDAQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-08-29",
+    "ratio": 3
+   }
+  ]
+ },
+ "NDLS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-02-18",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "NE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NEE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-27",
+    "ratio": 4
+   }
+  ]
+ },
+ "NEM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NEO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NEOG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-31",
+    "ratio": 1.5
+   },
+   {
+    "date": "2018-01-02",
+    "ratio": 1.333
+   },
+   {
+    "date": "2021-06-07",
+    "ratio": 2
+   }
+  ]
+ },
+ "NESR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NET": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NEU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NFLX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-15",
+    "ratio": 7
+   },
+   {
+    "date": "2025-11-17",
+    "ratio": 10
+   }
+  ]
+ },
+ "NG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NGL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NGS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NGVC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NICE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NIO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NKE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-12-24",
+    "ratio": 2
+   }
+  ]
+ },
+ "NKTR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-06-09",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "NLY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-09-26",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "NMIH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NOAH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NOG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-09-21",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "NOK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NOV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-02",
+    "ratio": 1.109
+   }
+  ]
+ },
+ "NOW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-12-18",
+    "ratio": 5
+   }
+  ]
+ },
+ "NPKI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NPO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NPWR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NRG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NSIT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NSP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-12-19",
+    "ratio": 2
+   }
+  ]
+ },
+ "NSSC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-01-05",
+    "ratio": 2
+   }
+  ]
+ },
+ "NTAP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTES": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-02",
+    "ratio": 5
+   }
+  ]
+ },
+ "NTLA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTNX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTPIF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTRA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NTRS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NUE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NUS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NUVB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVCR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVDA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-07-20",
+    "ratio": 4
+   },
+   {
+    "date": "2024-06-10",
+    "ratio": 10
+   }
+  ]
+ },
+ "NVEC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-09",
+    "ratio": 5
+   },
+   {
+    "date": "2023-09-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "NVR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-04-09",
+    "ratio": 1.116
+   }
+  ]
+ },
+ "NVST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NVT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NWL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NWPX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NWS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NWSA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NXH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NXPI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NXST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "NYT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OBE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-06-10",
+    "ratio": 0.14285714285714285
+   }
+  ]
+ },
+ "OC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ODD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ODFL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-03-25",
+    "ratio": 1.5
+   },
+   {
+    "date": "2024-03-28",
+    "ratio": 2
+   }
+  ]
+ },
+ "OEC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OESX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-08-22",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "OFIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OFLX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OII": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OIS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-02",
+    "ratio": 1.75
+   }
+  ]
+ },
+ "OKLO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OKTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OLED": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OLLI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OLN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-03-20",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "OMC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OMCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OMF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ON": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ONCY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-25",
+    "ratio": 0.10526315789473684
+   }
+  ]
+ },
+ "ONEW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ONIT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-08-14",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "ONON": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ONTO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OPEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OPK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OPLN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-06-28",
+    "ratio": 2.642
+   }
+  ]
+ },
+ "OPTU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ORCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ORI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ORIC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ORKA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-03-05",
+    "ratio": 0.16666666666666666
+   },
+   {
+    "date": "2015-09-04",
+    "ratio": 0.14285714285714285
+   },
+   {
+    "date": "2019-04-04",
+    "ratio": 0.05555555555555555
+   },
+   {
+    "date": "2024-09-03",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "ORLA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ORLY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-06-10",
+    "ratio": 15
+   }
+  ]
+ },
+ "ORN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OSCR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OSG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OSK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OSS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OSW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OTEX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-02-19",
+    "ratio": 2
+   },
+   {
+    "date": "2017-01-25",
+    "ratio": 2
+   }
+  ]
+ },
+ "OTIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "OUT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-01-17",
+    "ratio": 0.976
+   }
+  ]
+ },
+ "OVV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-01-27",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "OXY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-12-01",
+    "ratio": 1.042
+   },
+   {
+    "date": "2016-02-25",
+    "ratio": 1.0017028949213662
+   }
+  ]
+ },
+ "OZK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-24",
+    "ratio": 2
+   }
+  ]
+ },
+ "P": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PACB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PACK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAGS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PANW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-09-14",
+    "ratio": 3
+   },
+   {
+    "date": "2024-12-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "PARR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-29",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "PATH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PAYC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PBF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PBI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PBR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PBR-A": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PCCYF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PCFBY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PCG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PCTY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PCVX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PDD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PEB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PENG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-02-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "PENN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-11-04",
+    "ratio": 4.423
+   }
+  ]
+ },
+ "PEP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PEPG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PFE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-17",
+    "ratio": 1.054
+   }
+  ]
+ },
+ "PFG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PGEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PGNY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PGR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PGY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-03-08",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "PH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PHG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PHM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PHVS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PII": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PINS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PKOH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PKX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLBY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLCE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLPC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLTK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLUG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PLXS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PMT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PMVP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PNC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PNR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-05-01",
+    "ratio": 1.489
+   }
+  ]
+ },
+ "PNTG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PONO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PONY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "POOL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "POST": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-03-11",
+    "ratio": 1.528
+   }
+  ]
+ },
+ "POWL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-06",
+    "ratio": 3
+   }
+  ]
+ },
+ "POWW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PPG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-15",
+    "ratio": 2
+   }
+  ]
+ },
+ "PR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRAA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-08-02",
+    "ratio": 3
+   }
+  ]
+ },
+ "PRCH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-05-18",
+    "ratio": 1.29
+   },
+   {
+    "date": "2023-11-14",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "PRG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-12-01",
+    "ratio": 1.179
+   }
+  ]
+ },
+ "PRGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRKS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PROF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PRTS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-05-26",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "PRU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PSFE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-12-13",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "PSX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PTEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PTLO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PTON": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PUK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-09-20",
+    "ratio": 1.031
+   }
+  ]
+ },
+ "PUMP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PURR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PVH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PWR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PYPL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "PZZA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-30",
+    "ratio": 2
+   }
+  ]
+ },
+ "Q": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QCOM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QCRH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QDEL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QFIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QLYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QNST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QRHC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-11",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "QSR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QTRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QTWO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QUAD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QURE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QVCG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "QXO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-06",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "R": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RACE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RAIL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RBC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RBLX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RCKT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-01-05",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "RCL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RDDT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RDI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RDNT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RDY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-11-05",
+    "ratio": 5
+   }
+  ]
+ },
+ "REAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "REGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "REI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RELY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RERE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RES": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "REXR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "REZI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-08-04",
+    "ratio": 1.437
+   }
+  ]
+ },
+ "RF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RFL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-05-09",
+    "ratio": 1.014
+   }
+  ]
+ },
+ "RGLD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RGS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-11-29",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "RH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RHHBY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-02-27",
+    "ratio": 2
+   }
+  ]
+ },
+ "RHLD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RIG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RILY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-03",
+    "ratio": 0.05
+   },
+   {
+    "date": "2016-11-25",
+    "ratio": 1.01
+   }
+  ]
+ },
+ "RIOT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RIVN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RJF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-09-22",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "RKLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RKT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RLI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-16",
+    "ratio": 2
+   },
+   {
+    "date": "2025-01-16",
+    "ratio": 2
+   }
+  ]
+ },
+ "RMBS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RMNI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RMTO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-05-02",
+    "ratio": 2.5
+   }
+  ]
+ },
+ "RNG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROAD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROCK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROIV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROKU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ROL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-03-11",
+    "ratio": 1.5
+   },
+   {
+    "date": "2018-12-11",
+    "ratio": 1.5
+   },
+   {
+    "date": "2020-12-11",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "ROOT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-08-15",
+    "ratio": 0.05555555555555555
+   }
+  ]
+ },
+ "ROST": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-06-12",
+    "ratio": 2
+   }
+  ]
+ },
+ "RPD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RRC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RRGB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RSVR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RUN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RUSHA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-13",
+    "ratio": 1.5
+   },
+   {
+    "date": "2023-08-29",
+    "ratio": 1.5
+   },
+   {
+    "date": "2026-09-01",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "RUSHB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-10-13",
+    "ratio": 1.5
+   },
+   {
+    "date": "2023-08-29",
+    "ratio": 1.5
+   },
+   {
+    "date": "2026-09-01",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "RVLV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RWAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RWT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RYAAY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-10-28",
+    "ratio": 0.975
+   },
+   {
+    "date": "2024-09-30",
+    "ratio": 2.499
+   }
+  ]
+ },
+ "RYAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RYAN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "S": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SABR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SAH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SAIA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-06-14",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "SAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SAP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SARO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SBH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SBLK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-06-20",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "SBNY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SBS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-01-24",
+    "ratio": 2
+   },
+   {
+    "date": "2013-04-30",
+    "ratio": 3
+   },
+   {
+    "date": "2026-05-07",
+    "ratio": 5
+   }
+  ]
+ },
+ "SBSAQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SBUX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-04-09",
+    "ratio": 2
+   }
+  ]
+ },
+ "SCCO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-08-09",
+    "ratio": 1.005
+   },
+   {
+    "date": "2024-11-06",
+    "ratio": 1.006
+   },
+   {
+    "date": "2025-05-02",
+    "ratio": 1.009
+   },
+   {
+    "date": "2025-08-15",
+    "ratio": 1.01
+   },
+   {
+    "date": "2025-11-12",
+    "ratio": 1.008
+   },
+   {
+    "date": "2026-02-10",
+    "ratio": 1.008
+   },
+   {
+    "date": "2026-05-13",
+    "ratio": 1.01
+   },
+   {
+    "date": "2026-08-11",
+    "ratio": 1.012
+   }
+  ]
+ },
+ "SCHB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-03-11",
+    "ratio": 2
+   },
+   {
+    "date": "2024-10-11",
+    "ratio": 3
+   }
+  ]
+ },
+ "SCHD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-10-11",
+    "ratio": 3
+   }
+  ]
+ },
+ "SCHF": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-10-11",
+    "ratio": 2
+   }
+  ]
+ },
+ "SCHG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-03-11",
+    "ratio": 2
+   },
+   {
+    "date": "2024-10-11",
+    "ratio": 4
+   }
+  ]
+ },
+ "SCHW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SCSC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SDCCQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SDGR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SDHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SDRL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SEB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SEER": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SEI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SENS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-10-20",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "SES": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SFES": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SFIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SFUNY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-07",
+    "ratio": 5
+   },
+   {
+    "date": "2019-07-08",
+    "ratio": 0.2
+   },
+   {
+    "date": "2020-06-19",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "SG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SGHT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-11-24",
+    "ratio": 4
+   }
+  ]
+ },
+ "SGMOQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SGOV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SGRY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SGU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHAK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHAZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHEN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-01-05",
+    "ratio": 2
+   }
+  ]
+ },
+ "SHG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SHOE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-07-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "SHOO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-02",
+    "ratio": 1.5
+   },
+   {
+    "date": "2018-10-12",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "SHOP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-06-29",
+    "ratio": 10
+   }
+  ]
+ },
+ "SHW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-04-01",
+    "ratio": 3
+   }
+  ]
+ },
+ "SIBN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SICP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SIG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SII": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-05-28",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "SIL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-11-18",
+    "ratio": 0.3333333333333333
+   }
+  ]
+ },
+ "SIMO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SION": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SIRI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-10",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "SITE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SITM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SJT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SKIL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-10-02",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "SKM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-11-30",
+    "ratio": 0.607
+   }
+  ]
+ },
+ "SKT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SKY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SKYD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SLB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SLG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-01-21",
+    "ratio": 0.971
+   },
+   {
+    "date": "2022-01-24",
+    "ratio": 0.97
+   }
+  ]
+ },
+ "SLM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-05-01",
+    "ratio": 2.798
+   }
+  ]
+ },
+ "SLQT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMCI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-10-01",
+    "ratio": 10
+   }
+  ]
+ },
+ "SMFG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMHI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMMT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SMSI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-08-17",
+    "ratio": 0.25
+   },
+   {
+    "date": "2024-04-11",
+    "ratio": 0.125
+   },
+   {
+    "date": "2026-06-05",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "SMTC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNAP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNBRQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SND": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNDK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNOW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNPS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SNX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-12-01",
+    "ratio": 2
+   }
+  ]
+ },
+ "SNY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SOFI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SONO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SONY": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-10-09",
+    "ratio": 5
+   }
+  ]
+ },
+ "SPB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-07-16",
+    "ratio": 0.162
+   }
+  ]
+ },
+ "SPG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-05-29",
+    "ratio": 1.063
+   }
+  ]
+ },
+ "SPGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-07-01",
+    "ratio": 1.057
+   }
+  ]
+ },
+ "SPH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SPHR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-04-21",
+    "ratio": 2.165
+   }
+  ]
+ },
+ "SPOT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SPRY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SPSC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-08-23",
+    "ratio": 2
+   }
+  ]
+ },
+ "SPWH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SPY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SPYX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-01-12",
+    "ratio": 3
+   }
+  ]
+ },
+ "SQM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-04-27",
+    "ratio": 1.027
+   }
+  ]
+ },
+ "SQZB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SRAD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SRE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-08-22",
+    "ratio": 2
+   }
+  ]
+ },
+ "SRG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SRNE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-08-01",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "SRSCQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SRTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SSL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SSNC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-06-27",
+    "ratio": 2
+   }
+  ]
+ },
+ "SSYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STIM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STLA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-01-04",
+    "ratio": 1.52
+   }
+  ]
+ },
+ "STNE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STNG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-01-18",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "STRA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STRL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "STX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SVC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-07-07",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "SVCO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SVV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SWK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SWKS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SWVL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-01-26",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "SWX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SWZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SYF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SYY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "T": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-04-11",
+    "ratio": 1.324
+   }
+  ]
+ },
+ "TAC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TAL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-08-16",
+    "ratio": 6
+   }
+  ]
+ },
+ "TALO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TBBK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TBCH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-04-09",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "TBI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TCHP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TCMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TCOM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-12-02",
+    "ratio": 2
+   }
+  ]
+ },
+ "TD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-02-03",
+    "ratio": 2
+   }
+  ]
+ },
+ "TDAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDOC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDUP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TDW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-08-01",
+    "ratio": 0.031
+   }
+  ]
+ },
+ "TEAM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TECH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-11-30",
+    "ratio": 4
+   }
+  ]
+ },
+ "TECK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TEL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TEO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TER": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TEVA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TEX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TFIN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TGS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TGT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TGTX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "THC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "THG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "THO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "THRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "THRY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TIC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TILE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TISI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-12-22",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "TITN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TJX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-11-07",
+    "ratio": 2
+   }
+  ]
+ },
+ "TKR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-07-01",
+    "ratio": 1.397
+   }
+  ]
+ },
+ "TLN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TLOG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TLYS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TMC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TMCI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TME": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TMO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TMQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TNC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TNET": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TNK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2019-11-25",
+    "ratio": 0.125
+   }
+  ]
+ },
+ "TNL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2018-06-01",
+    "ratio": 2.215
+   }
+  ]
+ },
+ "TOL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TOST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TPB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TPC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TPG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TPHS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TPL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-03-27",
+    "ratio": 3
+   },
+   {
+    "date": "2025-12-23",
+    "ratio": 3
+   }
+  ]
+ },
+ "TPR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TQQQ": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-01-24",
+    "ratio": 2
+   },
+   {
+    "date": "2017-01-12",
+    "ratio": 2
+   },
+   {
+    "date": "2018-05-24",
+    "ratio": 3
+   },
+   {
+    "date": "2021-01-21",
+    "ratio": 2
+   },
+   {
+    "date": "2022-01-13",
+    "ratio": 2
+   },
+   {
+    "date": "2025-11-20",
+    "ratio": 2
+   }
+  ]
+ },
+ "TRAK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-08-29",
+    "ratio": 1.031
+   },
+   {
+    "date": "2017-10-02",
+    "ratio": 1.03
+   }
+  ]
+ },
+ "TREE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TREX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-05-08",
+    "ratio": 2
+   },
+   {
+    "date": "2018-06-19",
+    "ratio": 2
+   },
+   {
+    "date": "2020-09-15",
+    "ratio": 2
+   }
+  ]
+ },
+ "TRGP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRIP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRMB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-03-21",
+    "ratio": 2
+   }
+  ]
+ },
+ "TRMD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-20",
+    "ratio": 2
+   },
+   {
+    "date": "2018-11-01",
+    "ratio": 1.389
+   }
+  ]
+ },
+ "TROX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-07-01",
+    "ratio": 1.255
+   }
+  ]
+ },
+ "TRU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRUP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TRVG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-11-17",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "TRVI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSCO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-27",
+    "ratio": 2
+   },
+   {
+    "date": "2024-12-20",
+    "ratio": 5
+   }
+  ]
+ },
+ "TSEM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSHA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSLA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-08-31",
+    "ratio": 5
+   },
+   {
+    "date": "2022-08-25",
+    "ratio": 3
+   }
+  ]
+ },
+ "TSM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TSQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TTC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-09-19",
+    "ratio": 2
+   }
+  ]
+ },
+ "TTD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-06-17",
+    "ratio": 10
+   }
+  ]
+ },
+ "TTE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TTEK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-09-09",
+    "ratio": 5
+   }
+  ]
+ },
+ "TTGT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TTMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TTSH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TTT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-06-10",
+    "ratio": 0.25
+   },
+   {
+    "date": "2020-04-21",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "TV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TWFG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TWI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TWLO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TWST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TXMD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-05-09",
+    "ratio": 0.02
+   }
+  ]
+ },
+ "TXN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "U": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-06-13",
+    "ratio": 1.007098
+   }
+  ]
+ },
+ "UAA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-04-15",
+    "ratio": 2
+   },
+   {
+    "date": "2016-04-08",
+    "ratio": 2
+   }
+  ]
+ },
+ "UAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UBER": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UBSI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UCTT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UEIC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UFABQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UFI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UGI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-09-08",
+    "ratio": 1.5
+   }
+  ]
+ },
+ "UHAL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-11-10",
+    "ratio": 10
+   }
+  ]
+ },
+ "UHAL-B": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UHS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UIS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ULTA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UMBF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UMC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UNF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UNFI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UNH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UNP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-06-09",
+    "ratio": 2
+   }
+  ]
+ },
+ "UP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-06-08",
+    "ratio": 0.1
+   },
+   {
+    "date": "2026-04-27",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "UPBD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UPLD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-06-17",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "UPRO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-06-10",
+    "ratio": 2
+   },
+   {
+    "date": "2015-05-20",
+    "ratio": 2
+   },
+   {
+    "date": "2018-05-24",
+    "ratio": 3
+   },
+   {
+    "date": "2022-01-13",
+    "ratio": 2
+   }
+  ]
+ },
+ "UPS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UPST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UPWK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "URBN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "URI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "USB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "USNA": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-23",
+    "ratio": 2
+   }
+  ]
+ },
+ "USPH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UTHR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UTI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UVSP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "UVV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "V": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-03-19",
+    "ratio": 4
+   }
+  ]
+ },
+ "VAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VALE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VCEL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-10-16",
+    "ratio": 0.05
+   }
+  ]
+ },
+ "VECO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VELO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-06-13",
+    "ratio": 0.02857142857142857
+   },
+   {
+    "date": "2025-07-28",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "VEON": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-03-08",
+    "ratio": 0.04
+   }
+  ]
+ },
+ "VERX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VFC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-12-23",
+    "ratio": 4
+   },
+   {
+    "date": "2019-05-23",
+    "ratio": 1.062
+   }
+  ]
+ },
+ "VGT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-21",
+    "ratio": 8
+   }
+  ]
+ },
+ "VIAV": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-08-04",
+    "ratio": 1.758
+   }
+  ]
+ },
+ "VICI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VICR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VIPS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-11-04",
+    "ratio": 10
+   }
+  ]
+ },
+ "VISN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VIST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VITL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VIV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VKTX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VLO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-05-02",
+    "ratio": 1.094
+   }
+  ]
+ },
+ "VLRS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VMI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VNDA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VNO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-01-16",
+    "ratio": 1.1049723756906078
+   },
+   {
+    "date": "2017-07-18",
+    "ratio": 1.237
+   }
+  ]
+ },
+ "VNOM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VNT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-21",
+    "ratio": 4
+   }
+  ]
+ },
+ "VOD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-02-24",
+    "ratio": 0.981
+   }
+  ]
+ },
+ "VOYA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VPG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRAYQ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRDN": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-11-07",
+    "ratio": 0.06666666666666667
+   },
+   {
+    "date": "2020-11-13",
+    "ratio": 0.06666666666666667
+   }
+  ]
+ },
+ "VREX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRRM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VRTS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VSAT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VSH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VSTM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-06-01",
+    "ratio": 0.08333333333333333
+   }
+  ]
+ },
+ "VSTS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VSXY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VTEX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VTI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VTOL": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-06-12",
+    "ratio": 0.5
+   }
+  ]
+ },
+ "VTR": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-08-18",
+    "ratio": 0.8757
+   }
+  ]
+ },
+ "VTRS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VUG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2026-04-21",
+    "ratio": 6
+   }
+  ]
+ },
+ "VUZI": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-02-06",
+    "ratio": 0.013333333333333334
+   }
+  ]
+ },
+ "VV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VVX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "VYX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-10-17",
+    "ratio": 1.63
+   }
+  ]
+ },
+ "VZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "W": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WAB": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-06-12",
+    "ratio": 2
+   }
+  ]
+ },
+ "WAFD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WAL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WASH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WBD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WCC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WDAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WDC": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-02-24",
+    "ratio": 1.323
+   }
+  ]
+ },
+ "WDFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WEAV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WELL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WEN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WES": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WEST": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WEX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WFRD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WGO": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WGS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2023-05-04",
+    "ratio": 0.030303030303030304
+   }
+  ]
+ },
+ "WH": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WHD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WHR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WING": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WIT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-04-09",
+    "ratio": 1.121
+   },
+   {
+    "date": "2017-06-22",
+    "ratio": 2
+   },
+   {
+    "date": "2024-12-11",
+    "ratio": 2
+   }
+  ]
+ },
+ "WIX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WK": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WLK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2014-03-19",
+    "ratio": 2
+   }
+  ]
+ },
+ "WMB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WMG": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WMT": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-02-26",
+    "ratio": 3
+   }
+  ]
+ },
+ "WNC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WOLF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WPM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WPP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WRBY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WRLD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WSFS": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-05-19",
+    "ratio": 3
+   }
+  ]
+ },
+ "WSM": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-07-09",
+    "ratio": 2
+   }
+  ]
+ },
+ "WST": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2013-09-27",
+    "ratio": 2
+   }
+  ]
+ },
+ "WTFC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WTM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WTW": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2016-01-05",
+    "ratio": 0.3775
+   }
+  ]
+ },
+ "WU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WULF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WVE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WW": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WWD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "WYNN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XEFRX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XERS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XES": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-03-30",
+    "ratio": 0.1
+   }
+  ]
+ },
+ "XGN": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XJQCX": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XLE": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-12-05",
+    "ratio": 2
+   }
+  ]
+ },
+ "XLK": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2025-12-05",
+    "ratio": 2
+   }
+  ]
+ },
+ "XMTR": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XOM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XOP": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2020-03-30",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "XP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XPEL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XPEV": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XPO": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-08-02",
+    "ratio": 1.718
+   },
+   {
+    "date": "2022-11-01",
+    "ratio": 1.683
+   }
+  ]
+ },
+ "XRAY": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "XRX": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2017-01-03",
+    "ratio": 1.518
+   },
+   {
+    "date": "2017-06-15",
+    "ratio": 0.25
+   }
+  ]
+ },
+ "XYZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YELP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YETI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YEXT": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YOU": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YPF": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YRD": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "YSG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-03-18",
+    "ratio": 0.2
+   }
+  ]
+ },
+ "YUMC": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "Z": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZBH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2022-03-01",
+    "ratio": 1.03
+   }
+  ]
+ },
+ "ZBRA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZD": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2021-10-08",
+    "ratio": 1.15
+   }
+  ]
+ },
+ "ZDGE": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZETA": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZG": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2015-08-17",
+    "ratio": 3.207
+   }
+  ]
+ },
+ "ZH": {
+  "fetched": "2026-10-25",
+  "splits": [
+   {
+    "date": "2024-05-10",
+    "ratio": 0.16666666666666666
+   }
+  ]
+ },
+ "ZIM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZION": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZIP": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZLAB": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZM": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZNTL": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZTS": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZUMZ": {
+  "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ZVOI": {
+  "fetched": "2026-10-25",
+  "splits": []
+ }
+}
