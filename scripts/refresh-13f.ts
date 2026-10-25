@@ -19,6 +19,7 @@
  *   npm run refresh-13f
  */
 
+import { recordStatus } from "./status";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
 import {
@@ -914,7 +915,10 @@ function similarity(summaries: ManagerSummary[], latest: LatestHoldingsJson) {
   });
 }
 
+const startedAt = Date.now();
+
 async function main() {
+  const started = startedAt;
   const only = process.env.ONLY?.split(","); // e.g. ONLY=buffett,akre for a quick partial run
   const list = only ? MANAGERS.filter((m) => only.includes(m.id)) : MANAGERS;
   console.log(`Refreshing 13F holdings for ${list.length} managers\n`);
@@ -1028,6 +1032,7 @@ async function main() {
   }
   console.log(`Wrote ${summaries.length} managers to public/superinvestors.json + public/superinvestors/`);
   if (failed.length) console.log(`Failed: ${failed.join(", ")}`);
+  recordStatus("refresh-13f", started, !failed.length, `${summaries.length} managers${failed.length ? `, failed: ${failed.join(", ")}` : ""}`);
 }
 
 function today() {
@@ -1046,5 +1051,6 @@ function writeIfChanged(path: string, data: unknown) {
 
 main().catch((err) => {
   console.error("Error:", err.message);
+  recordStatus("refresh-13f", startedAt, false, err.message);
   process.exit(1);
 });

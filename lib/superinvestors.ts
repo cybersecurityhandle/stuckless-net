@@ -209,6 +209,41 @@ export function eventsShardUrl(issuerKey: string) {
   return `/superinvestors/events/${issuerKey[0]}.json`;
 }
 
+/* ── superinvestors/backtest.json, fivefactor.json ── */
+
+export interface BacktestManager {
+  start: string; // first holding date
+  points: [string, number][]; // [date, value of $1] at each rebalance + today
+  bench: [string, number][]; // benchmark value of $1 on the same dates
+  cagr: number | null;
+  benchCagr: number | null; // benchmark over the same dates
+  excess: number | null; // cagr − benchCagr
+  maxDrawdown: number; // at rebalance points (quarterly), so understated
+  coverage: number; // avg weight with price data, 0..1
+  periods: number;
+}
+
+export interface BacktestJson {
+  updated: string;
+  bench: string;
+  managers: Record<string, BacktestManager>;
+}
+
+export interface Factors {
+  sales: number;
+  shares: number; // effect on per-share value: −Δshares/(1+Δshares)
+  margin: number;
+  pe: number;
+  dividends: number;
+  total: number;
+}
+
+export interface FiveFactorJson {
+  updated: string;
+  window: number;
+  managers: Record<string, { coverage: number; factors: Factors; holdings: { ticker: string; weight: number; factors: Factors }[] }>;
+}
+
 /* ── Ownership (consensus, stock pages, insider tags) ── */
 
 export interface Owner {

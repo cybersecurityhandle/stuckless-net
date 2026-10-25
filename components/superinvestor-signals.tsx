@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { filingIndexUrl, stakeUrl, type RealtimeJson } from "@/lib/insiders";
 import {
   type LatestHoldingsJson,
   type LatestPosition,
@@ -57,6 +58,17 @@ export function SignalsView({
   onSelect: (id: string) => void;
 }) {
   const [scope, setScope] = useState<Scope>("all");
+  const [realtime, setRealtime] = useState<RealtimeJson | null>(null);
+  useEffect(() => {
+    fetch("/superinvestors/realtime.json")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((d: RealtimeJson | null) => setRealtime(d))
+      .catch(() => {});
+  }, []);
+  const byId = useMemo(() => new Map(index.managers.map((m) => [m.id, m])), [index]);
+  const inScope = (id: string) => scope === "all" || byId.get(id)?.favorite;
+  const trades = (realtime?.trades ?? []).filter((t) => inScope(t.managerId));
+  const stakes = (realtime?.stakes ?? []).filter((t) => inScope(t.managerId));
   const rows = useMemo<Row[]>(() => {
     const out: Row[] = [];
     for (const m of index.managers) {
@@ -106,6 +118,77 @@ export function SignalsView({
         </div>
         <ScopeToggle scope={scope} onChange={setScope} />
       </div>
+
+      {realtime && (
+        <section>
+          <h3 className={caption}>Real time — last 30 days</h3>
+          <p className="mt-1 mb-3 text-sm text-muted-foreground">
+            Faster than any 13F: managers holding 10%+ of a company file Form 4 trades within two
+            business days, and 5%+ stakes go on 13D/13G within days. {realtime.from} → {realtime.to}.
+          </p>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className={frame}>
+              <table className={table}>
+                <thead>
+                  <tr className="text-left">
+                    <th className={th}>Filed</th>
+                    <th className={th}>Manager</th>
+                    <th className={th}>Stock</th>
+                    <th className={`${th} text-right`}>Trade</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trades.slice(0, SHOWN).map((t) => (
+                    <tr key={`${t.accession}-${t.side}`} className={`border-b border-border/30 ${zebra}`}>
+                      <td className={`${td} whitespace-nowrap text-muted-foreground`}>
+                        <a href={filingIndexUrl(t.issuerCik, t.accession)} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                          {t.filed}
+                        </a>
+                      </td>
+                      <td className={`${td} text-muted-foreground`}>{byId.get(t.managerId) ? managerCell(byId.get(t.managerId)!) : t.owner}</td>
+                      <td className={`${td} max-w-[200px]`}><StockCell ticker={t.ticker} name={t.issuer} /></td>
+                      <td className={`${td} whitespace-nowrap text-right ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>
+                        {t.side === "buy" ? "Bought" : "Sold"} {fmtMoneyShort(t.value)} @ {fmtPrice(t.avgPrice)}
+                      </td>
+                    </tr>
+                  ))}
+                  {!trades.length && <EmptyRow cols={4} text="No Form 4 trades by these managers in the window." />}
+                </tbody>
+              </table>
+            </div>
+            <div className={frame}>
+              <table className={table}>
+                <thead>
+                  <tr className="text-left">
+                    <th className={th}>Filed</th>
+                    <th className={th}>Manager</th>
+                    <th className={th}>Company</th>
+                    <th className={`${th} text-right`}>Stake</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stakes.slice(0, SHOWN).map((x) => (
+                    <tr key={x.accession} className={`border-b border-border/30 ${zebra}`}>
+                      <td className={`${td} whitespace-nowrap text-muted-foreground`}>
+                        <a href={stakeUrl(x)} target="_blank" rel="noopener noreferrer" className="hover:underline">{x.filed}</a>
+                      </td>
+                      <td className={`${td} text-muted-foreground`}>{byId.get(x.managerId) ? managerCell(byId.get(x.managerId)!) : x.managerId}</td>
+                      <td className={`${td} max-w-[200px]`}><StockCell ticker={x.ticker} name={x.subject} /></td>
+                      <td className={`${td} whitespace-nowrap text-right`}>
+                        <span className={x.form.startsWith("13D") ? "text-yellow-400" : "text-muted-foreground"} title={x.form.startsWith("13D") ? "13D: active intent" : "13G: passive"}>
+                          {x.form}
+                        </span>
+                        {x.pct != null && <> · {x.pct.toFixed(1)}%</>}
+                      </td>
+                    </tr>
+                  ))}
+                  {!stakes.length && <EmptyRow cols={4} text="No 13D/13G filings by these managers in the window." />}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section>
         <h3 className={caption}>High-conviction buys</h3>
@@ -218,10 +301,16 @@ export function SignalsView({
   );
 }
 
-function EmptyRow({ cols }: { cols: number }) {
+function EmptyRow({ cols, text = "Nothing qualifies right now." }: { cols: number; text?: string }) {
   return (
     <tr>
-      <td colSpan={cols} className={`${td} text-muted-foreground`}>Nothing qualifies right now.</td>
+      <td colSpan={cols} className={`${td} text-muted-foreground`}>{text}</td>
     </tr>
   );
+}
+
+function fmtMoneyShort(n: number) {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  return `$${(n / 1e3).toFixed(0)}K`;
 }

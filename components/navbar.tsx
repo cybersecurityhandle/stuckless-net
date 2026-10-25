@@ -25,7 +25,7 @@ export function Navbar() {
             <Shield className="h-5 w-5 text-emerald-500" />
             <span className="hidden sm:inline">stuckless.net</span>
           </Link>
-          <div className="flex min-w-0 gap-4 overflow-x-auto whitespace-nowrap sm:gap-6">
+          <div className="flex min-w-0 items-center gap-4 overflow-x-auto whitespace-nowrap sm:gap-6">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -46,6 +46,13 @@ export function Navbar() {
                 )}
               </Link>
             ))}
+            <button
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              className="flex shrink-0 items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Search (⌘K)"
+            >
+              Search <kbd className="hidden font-sans sm:inline">⌘K</kbd>
+            </button>
           </div>
         </div>
       </div>

@@ -17,6 +17,7 @@ import { SignalsView } from "@/components/superinvestor-signals";
 import { CompareView } from "@/components/superinvestor-compare";
 import { SimilarityMapView } from "@/components/superinvestor-map";
 import { PortfolioTreemap } from "@/components/superinvestor-treemap";
+import { BacktestView, ManagerReturnsCard } from "@/components/superinvestor-backtest";
 import {
   buildIssuers,
   filingUrl,
@@ -975,7 +976,12 @@ function ManagerView({
             />
           )}
           {tab === "activity" && <ActivityTab history={history} />}
-          {tab === "history" && <HistoryTab history={history} />}
+          {tab === "history" && (
+            <>
+              <HistoryTab history={history} />
+              <ManagerReturnsCard id={summary.id} />
+            </>
+          )}
         </>
       )}
     </div>
@@ -985,7 +991,7 @@ function ManagerView({
 /* ── Page ──────────────────────────────────────── */
 
 // Non-manager views reachable by ?m=
-const VIEWS = ["filings", "consensus", "signals", "compare", "map", "all"];
+const VIEWS = ["filings", "consensus", "signals", "compare", "map", "backtest", "all"];
 
 export function Superinvestors() {
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
@@ -1069,6 +1075,7 @@ export function Superinvestors() {
             {navItem("signals", "Signals", "Conviction buys, accumulation streaks, below-cost")}
             {navItem("compare", "Compare", "Two portfolios side by side")}
             {navItem("map", "Map", "Managers placed by portfolio similarity")}
+            {navItem("backtest", "Backtest", "Would copying each manager's 13Fs have worked?")}
             {favorites.map((m) => navItem(m.id, m.name, `${m.firm} · ${fmtQuarter(m.period)}`))}
             {/* A manager opened from All managers gets a temporary tab */}
             {manager && !manager.favorite && navItem(manager.id, manager.name)}
@@ -1081,6 +1088,7 @@ export function Superinvestors() {
           {selected === "signals" && <SignalsView index={index} latest={latest} onSelect={select} />}
           {selected === "compare" && <CompareView index={index} latest={latest} onSelect={select} />}
           {selected === "map" && <SimilarityMapView index={index} onSelect={select} />}
+          {selected === "backtest" && <BacktestView index={index} onSelect={select} />}
           {manager && (
             <ManagerView key={manager.id} summary={manager} latest={latest} index={index} onSelect={select} />
           )}

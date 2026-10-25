@@ -22,6 +22,63 @@ export interface InsiderBuy {
   value: number; // USD
   sharesAfter: number | null; // holdings after the last purchase in the filing
   direct: boolean; // direct vs indirect (trust, family, fund) ownership
+  // Context (refresh-insiders, from current quotes)
+  now?: number | null; // current price
+  low52?: number | null;
+  high52?: number | null;
+  // This insider's earlier open-market buys (any company, up to ~6 years back)
+  track?: TrackRecord;
+}
+
+export interface TrackRecord {
+  n: number; // past buys with a price history
+  avg6: number | null; // average return 6 months after (split-adjusted closes)
+  avg12: number | null; // average return 12 months after
+  hit12: number | null; // share of buys up after 12 months
+}
+
+/* ── superinvestors/realtime.json ──────────────── */
+
+// Faster than 13Fs: the managers' own Form 4s (10%+ holders file within two
+// business days) and 13D/13G stakes (5%+, within days)
+export interface SuperTrade {
+  accession: string;
+  filed: string;
+  managerId: string;
+  owner: string;
+  issuerCik: number;
+  issuer: string;
+  ticker: string | null;
+  side: "buy" | "sell";
+  shares: number;
+  avgPrice: number;
+  value: number;
+  sharesAfter: number | null;
+  lastTrade: string;
+}
+
+export interface StakeFiling {
+  accession: string;
+  filed: string;
+  managerId: string;
+  form: string; // "13D", "13G/A", ...
+  subjectCik: number;
+  subject: string;
+  ticker: string | null;
+  pct: number | null; // percent of class, when parseable
+  filerCik: number;
+}
+
+export interface RealtimeJson {
+  updated: string;
+  from: string;
+  to: string;
+  trades: SuperTrade[];
+  stakes: StakeFiling[];
+}
+
+export function stakeUrl(s: StakeFiling) {
+  return filingIndexUrl(s.filerCik, s.accession);
 }
 
 export interface InsiderBuysJson {

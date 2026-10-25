@@ -18,6 +18,8 @@ import {
   buildRow,
   type WatchRow,
 } from "@/lib/watchlist-data";
+import { buildIssuers, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
+import type { InsiderBuysJson } from "@/lib/insiders";
 
 /* ── Types ─────────────────────────────────────── */
 
@@ -58,6 +60,80 @@ function verdict(premium: number | null): { label: string; className: string } {
   return { label: "Fair", className: "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30" };
 }
 
+/* ── Smart money (superinvestors + insiders) ──── */
+
+interface SmartMoney {
+  favorites: number;
+  total: number;
+  buying: number; // owners who bought/added last quarter
+  selling: number;
+  insiderBuys: number; // officer/director open-market buys, last 30 days
+}
+
+// Superinvestor ownership (any share class) and recent insider buying per
+// ticker, from the same static files the Superinvestors and Insider pages use
+function useSmartMoney(): Map<string, SmartMoney> {
+  const [map, setMap] = useState<Map<string, SmartMoney>>(new Map());
+  useEffect(() => {
+    Promise.all([
+      fetch("/superinvestors.json").then((r) => (r.ok ? r.json() : null)),
+      fetch("/superinvestors/latest.json").then((r) => (r.ok ? r.json() : null)),
+      fetch("/insider-buys.json").then((r) => (r.ok ? r.json() : null)),
+    ])
+      .then(([idx, lat, ins]: [SuperinvestorsJson | null, LatestHoldingsJson | null, InsiderBuysJson | null]) => {
+        const out = new Map<string, SmartMoney>();
+        if (idx && lat) {
+          const issuers = buildIssuers(lat, idx.managers);
+          for (const [cusip, sec] of Object.entries(lat.securities)) {
+            const owners = issuers.get(cusip.slice(0, 6))?.owners;
+            if (!sec.t || !owners || out.has(sec.t)) continue;
+            out.set(sec.t, {
+              favorites: owners.filter((o) => o.favorite).length,
+              total: owners.length,
+              buying: owners.filter((o) => o.c === "new" || o.c === "add").length,
+              selling: owners.filter((o) => o.c === "reduce").length,
+              insiderBuys: 0,
+            });
+          }
+        }
+        for (const b of ins?.buys ?? []) {
+          if (!b.ticker || !(b.isOfficer || b.isDirector)) continue;
+          const cur = out.get(b.ticker) ?? { favorites: 0, total: 0, buying: 0, selling: 0, insiderBuys: 0 };
+          cur.insiderBuys += 1;
+          out.set(b.ticker, cur);
+        }
+        setMap(out);
+      })
+      .catch(() => {});
+  }, []);
+  return map;
+}
+
+function SmartMoneyCell({ info, ticker }: { info?: SmartMoney; ticker: string }) {
+  if (!info || (!info.total && !info.insiderBuys)) return <span className="text-xs text-muted-foreground">—</span>;
+  return (
+    <span className="flex items-center gap-2 whitespace-nowrap text-xs">
+      {info.total > 0 && (
+        <a
+          href={`/finance?ticker=${encodeURIComponent(ticker)}`}
+          title={`${info.total} superinvestors hold it (${info.favorites} of your picks) · last quarter ${info.buying} buying, ${info.selling} reducing`}
+          className="hover:underline"
+        >
+          {info.favorites > 0 && <span className="text-emerald-400">★{info.favorites} · </span>}
+          {info.total}
+          {info.buying > info.selling && <span className="text-emerald-400"> ▲</span>}
+          {info.selling > info.buying && <span className="text-red-400"> ▼</span>}
+        </a>
+      )}
+      {info.insiderBuys > 0 && (
+        <a href="/insiders" title={`${info.insiderBuys} officer/director open-market buys in the last 30 days`} className="rounded border border-blue-500/30 bg-blue-500/15 px-1 text-blue-400">
+          {info.insiderBuys} insider
+        </a>
+      )}
+    </span>
+  );
+}
+
 /* ── Component ─────────────────────────────────── */
 
 export function Watchlist({
@@ -74,6 +150,7 @@ export function Watchlist({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const smart = useSmartMoney();
 
   // Load saved list (client only)
   useEffect(() => {
@@ -272,7 +349,7 @@ export function Watchlist({
       {/* Watchlist table */}
       <Card>
         <CardContent className="pt-6 overflow-x-auto">
-          <Table className="min-w-[900px]">
+          <Table className="min-w-[1040px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Ticker</TableHead>
@@ -286,13 +363,14 @@ export function Watchlist({
                 <TableHead className="text-right">Div Yield</TableHead>
                 <TableHead className="text-right">Implied 5y Return</TableHead>
                 <TableHead className="text-right">Quality</TableHead>
+                <TableHead title="Superinvestors holding it: ★ your picks · all tracked managers. Insider buys: last 30 days.">Smart Money</TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedRows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={13} className="text-center text-sm text-muted-foreground">
                     {tickers === null || !staticLoaded ? "Loading..." : "Watchlist is empty — search above to add tickers."}
                   </TableCell>
                 </TableRow>
@@ -302,7 +380,7 @@ export function Watchlist({
                   return (
                     <TableRow key={row.ticker}>
                       <TableCell className="font-semibold text-emerald-400">{row.ticker}</TableCell>
-                      <TableCell colSpan={11} className="text-sm text-muted-foreground animate-pulse">
+                      <TableCell colSpan={12} className="text-sm text-muted-foreground animate-pulse">
                         Fetching...
                       </TableCell>
                     </TableRow>
@@ -312,7 +390,7 @@ export function Watchlist({
                   return (
                     <TableRow key={row.ticker}>
                       <TableCell className="font-semibold text-emerald-400">{row.ticker}</TableCell>
-                      <TableCell colSpan={10} className="text-sm text-red-400">{row.error}</TableCell>
+                      <TableCell colSpan={11} className="text-sm text-red-400">{row.error}</TableCell>
                       <TableCell className="text-right">
                         <button
                           onClick={() => removeTicker(row.ticker)}
@@ -371,6 +449,9 @@ export function Watchlist({
                     </TableCell>
                     <TableCell className="text-right font-mono">
                       {row.qualityScore != null ? row.qualityScore.toFixed(0) : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <SmartMoneyCell info={smart.get(row.ticker)} ticker={row.ticker} />
                     </TableCell>
                     <TableCell className="text-right">
                       <button

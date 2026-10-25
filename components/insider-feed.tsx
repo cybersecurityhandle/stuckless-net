@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { filingIndexUrl, type InsiderBuy, type InsiderBuysJson } from "@/lib/insiders";
+import { filingIndexUrl, type InsiderBuy, type InsiderBuysJson, type TrackRecord } from "@/lib/insiders";
 import { buildIssuers, type LatestHoldingsJson, type Owner, type SuperinvestorsJson } from "@/lib/superinvestors";
 
 const MIN_VALUES = [
@@ -54,6 +54,30 @@ function HeldByTag({ owners }: { owners: Owner[] }) {
   );
 }
 
+// "Proven": enough earlier buys that worked a year later
+const PROVEN_MIN_N = 2;
+const PROVEN_MIN_AVG = 0.1;
+
+function isProven(b: InsiderBuy) {
+  return !!b.track && b.track.n >= PROVEN_MIN_N && (b.track.avg12 ?? -1) >= PROVEN_MIN_AVG;
+}
+
+function TrackCell({ track }: { track?: TrackRecord }) {
+  if (!track) return <span className="text-muted-foreground">—</span>;
+  if (!track.n) return <span className="text-muted-foreground">no earlier buys</span>;
+  if (track.avg12 == null) {
+    return <span className="text-muted-foreground">{track.n} buy{track.n > 1 ? "s" : ""}, too recent</span>;
+  }
+  return (
+    <span title={`6 months later: ${track.avg6 != null ? `${(track.avg6 * 100).toFixed(0)}%` : "n/a"}`}>
+      {track.n} · <span className={track.avg12 >= 0 ? "text-emerald-400" : "text-red-400"}>
+        {track.avg12 >= 0 ? "+" : ""}{(track.avg12 * 100).toFixed(0)}%
+      </span>
+      {track.hit12 != null && <span className="text-muted-foreground"> · {Math.round(track.hit12 * 100)}% up</span>}
+    </span>
+  );
+}
+
 /* ── Component ─────────────────────────────────── */
 
 export function InsiderFeed() {
@@ -63,6 +87,7 @@ export function InsiderFeed() {
   const [minValue, setMinValue] = useState(100_000);
   const [insidersOnly, setInsidersOnly] = useState(true);
   const [clustersOnly, setClustersOnly] = useState(false);
+  const [provenOnly, setProvenOnly] = useState(false);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -105,12 +130,13 @@ export function InsiderFeed() {
       if (b.value < minValue) return false;
       if (insidersOnly && !b.isOfficer && !b.isDirector) return false;
       if (clustersOnly && (clusters.get(b.ticker!)?.size ?? 0) < 2) return false;
+      if (provenOnly && !isProven(b)) return false;
       if (q && !b.ticker?.includes(q) && !b.issuer.toUpperCase().includes(q) && !b.owner.toUpperCase().includes(q)) {
         return false;
       }
       return true;
     });
-  }, [data, minValue, insidersOnly, clustersOnly, query, clusters]);
+  }, [data, minValue, insidersOnly, clustersOnly, provenOnly, query, clusters]);
 
   const totalValue = rows.reduce((s, b) => s + b.value, 0);
   const clusterCount = new Set(rows.filter((b) => (clusters.get(b.ticker!)?.size ?? 0) >= 2).map((b) => b.ticker)).size;
@@ -166,6 +192,10 @@ export function InsiderFeed() {
                 <input type="checkbox" checked={clustersOnly} onChange={(e) => setClustersOnly(e.target.checked)} />
                 Cluster buys only
               </label>
+              <label className="flex h-9 items-center gap-2 text-sm" title={`${PROVEN_MIN_N}+ earlier buys averaging ${PROVEN_MIN_AVG * 100}%+ a year later`}>
+                <input type="checkbox" checked={provenOnly} onChange={(e) => setProvenOnly(e.target.checked)} />
+                Proven buyers only
+              </label>
             </CardContent>
           </Card>
 
@@ -175,7 +205,7 @@ export function InsiderFeed() {
 
           <Card>
             <CardContent className="overflow-x-auto pt-6">
-              <Table className="min-w-[900px]">
+              <Table className="min-w-[1100px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Filed</TableHead>
@@ -185,6 +215,8 @@ export function InsiderFeed() {
                     <TableHead className="text-right">Value</TableHead>
                     <TableHead className="text-right">Avg Price</TableHead>
                     <TableHead className="text-right">Stake +</TableHead>
+                    <TableHead className="text-right" title="Current price vs the insider's average purchase price">Since Buy</TableHead>
+                    <TableHead title="This insider's earlier open-market buys: count · average return 12 months later · share that rose">Track Record</TableHead>
                     <TableHead>Signals</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -193,6 +225,9 @@ export function InsiderFeed() {
                     const inc = stakeIncrease(b);
                     const cluster = clusters.get(b.ticker!)?.size ?? 0;
                     const holders = heldBy[b.ticker!];
+                    const since = b.now ? b.now / b.avgPrice - 1 : null;
+                    // Bought within 10% of the 52-week low
+                    const nearLow = b.low52 != null && b.avgPrice <= b.low52 * 1.1;
                     return (
                       <TableRow key={b.accession}>
                         <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
@@ -226,6 +261,12 @@ export function InsiderFeed() {
                         <TableCell className="text-right" title="Shares bought ÷ shares held before">
                           {inc == null ? <span className="text-muted-foreground">new</span> : `+${Math.round(inc * 100)}%`}
                         </TableCell>
+                        <TableCell className={`text-right ${since == null ? "" : since >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {since == null ? "—" : `${since >= 0 ? "+" : ""}${(since * 100).toFixed(1)}%`}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-xs">
+                          <TrackCell track={b.track} />
+                        </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {cluster >= 2 && (
@@ -234,6 +275,19 @@ export function InsiderFeed() {
                               </span>
                             )}
                             {holders && <HeldByTag owners={holders} />}
+                            {nearLow && (
+                              <span className="rounded border border-yellow-500/30 bg-yellow-500/10 px-1.5 py-0.5 text-xs text-yellow-400">
+                                Near 52w low
+                              </span>
+                            )}
+                            {b.track && b.track.n === 0 && (
+                              <span
+                                className="rounded border border-zinc-500/40 bg-zinc-500/10 px-1.5 py-0.5 text-xs text-zinc-300"
+                                title="No open-market purchases in this insider's filings for ~6 years"
+                              >
+                                First buy
+                              </span>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
