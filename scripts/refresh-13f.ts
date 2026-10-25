@@ -356,16 +356,27 @@ async function fetchQuotes(tickers: string[]): Promise<Record<string, Quote>> {
         regularMarketPrice?: number;
         fiftyTwoWeekLow?: number;
         fiftyTwoWeekHigh?: number;
+        epsTrailingTwelveMonths?: number;
+        trailingAnnualDividendRate?: number;
       }[];
       for (const r of rows) {
         if (!r.regularMarketPrice) continue;
-        out[r.symbol] = { price: r.regularMarketPrice, low52: r.fiftyTwoWeekLow ?? null, high52: r.fiftyTwoWeekHigh ?? null };
+        out[r.symbol] = {
+          price: r.regularMarketPrice,
+          low52: r.fiftyTwoWeekLow ?? null,
+          high52: r.fiftyTwoWeekHigh ?? null,
+          eps: r.epsTrailingTwelveMonths ?? null,
+          dps: r.trailingAnnualDividendRate ?? null,
+        };
       }
     } catch (err) {
       console.log(`  quotes batch ${i / 50 + 1} failed: ${(err as Error).message}`);
     }
     await sleep(500);
   }
+
+  // Note: quote EPS is already per traded share in the quote currency, even
+  // for ADRs whose statements are in CNY/TWD (PDD, TSM) — no FX needed
   return sortKeys(out);
 }
 
@@ -685,6 +696,7 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
     positions: longs.length,
     firstPeriod: h.quarters[h.quarters.length - 1].period,
     top: longs.slice(0, 3).map((p) => h.securities[p.k].t ?? h.securities[p.k].d),
+    ...styleStats(h),
     ...(prev ? { prevTotal: prev.total, buys, sells: moves.length - buys } : {}),
     ...(big?.impact
       ? {
@@ -700,16 +712,182 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
   };
 }
 
+interface PositionStats {
+  since: string; // quarter the current continuous holding began
+  sinceIdx: number; // index into quarters (newest = 0)
+  costTotal: number; // est. dollars paid for the shares now held
+  partial: boolean; // already held in the first quarter on file
+  streak: number;
+}
+
+/**
+ * Walk each position oldest → newest. Average-cost method at quarter-end
+ * implied prices: buys add shares × that quarter's price, reduces keep the
+ * per-share cost, splits (share change with no recorded activity) leave the
+ * dollar total alone. A sale to zero resets everything.
+ */
+function positionStats(h: ManagerHistoryJson): Map<string, PositionStats> {
+  const stats = new Map<string, PositionStats>();
+  const n = h.quarters.length;
+  for (let i = n - 1; i >= 0; i--) {
+    const q = h.quarters[i];
+    const held = new Set<string>();
+    for (const p of q.positions) {
+      held.add(p.k);
+      const price = p.s ? p.v / p.s : 0;
+      const st = stats.get(p.k);
+      if (!st || p.c === "new") {
+        stats.set(p.k, {
+          since: q.period,
+          sinceIdx: i,
+          costTotal: p.v,
+          partial: i === n - 1,
+          streak: p.c === "new" ? 1 : 0,
+        });
+        continue;
+      }
+      if (p.c === "add" && p.p) {
+        st.costTotal += (p.s - p.s / (1 + p.p)) * price;
+        st.streak += 1;
+      } else if (p.c === "reduce" && p.p != null && p.p < 1) {
+        st.costTotal *= 1 - p.p;
+        st.streak = 0;
+      } else {
+        st.streak = 0; // unchanged (or split — dollar cost unchanged)
+      }
+    }
+    for (const k of [...stats.keys()]) if (!held.has(k)) stats.delete(k); // sold out
+  }
+  return stats;
+}
+
 function buildLatest(h: ManagerHistoryJson): LatestPosition[] {
   const q = h.quarters[0];
-  return longPositions(h).map((p) => ({
-    k: p.k,
-    w: q.total ? Math.round((p.v / q.total) * 1e6) / 1e6 : 0,
-    s: p.s,
-    v: p.v,
-    ...(p.c ? { c: p.c } : {}),
-    ...(p.p != null ? { p: Math.round(p.p * 1e4) / 1e4 } : {}),
-  }));
+  const stats = positionStats(h);
+  return longPositions(h).map((p) => {
+    const st = stats.get(p.k);
+    return {
+      k: p.k,
+      w: q.total ? Math.round((p.v / q.total) * 1e6) / 1e6 : 0,
+      s: p.s,
+      v: p.v,
+      ...(p.c ? { c: p.c } : {}),
+      ...(p.p != null ? { p: Math.round(p.p * 1e4) / 1e4 } : {}),
+      ...(st && p.s ? { cost: Math.round((st.costTotal / p.s) * 1e4) / 1e4 } : {}),
+      ...(st?.partial ? { costPartial: true } : {}),
+      ...(st ? { since: st.since } : {}),
+      ...(st && st.streak >= 2 ? { streak: st.streak } : {}),
+    };
+  });
+}
+
+// Holding period, turnover and long-held share, from the same walk
+function styleStats(h: ManagerHistoryJson): Pick<ManagerSummary, "avgHold" | "holdCapped" | "turnover" | "longHeld"> {
+  const q = h.quarters[0];
+  if (!q.total) return {};
+  const stats = positionStats(h);
+  let avgHold = 0;
+  let longHeld = 0;
+  let holdCapped = false;
+  for (const p of longPositions(h)) {
+    const st = stats.get(p.k);
+    if (!st) continue;
+    const w = p.v / q.total;
+    const quarters = st.sinceIdx + 1;
+    avgHold += w * quarters;
+    if (quarters >= 20) longHeld += w;
+    if (st.partial) holdCapped = true;
+  }
+  const recent = h.quarters.slice(0, 4).map((qq, i) => {
+    const prev = h.quarters[i + 1];
+    if (!prev) return null;
+    const moves = [...qq.positions, ...qq.sold].filter((p) => p.c && !p.k.includes("|"));
+    return moves.reduce((sum, p) => sum + Math.abs(portfolioImpact(p, qq, prev)), 0) / 2;
+  }).filter((x): x is number => x != null);
+  return {
+    avgHold: Math.round(avgHold * 10) / 10,
+    ...(holdCapped ? { holdCapped } : {}),
+    ...(recent.length ? { turnover: Math.round((recent.reduce((a, b) => a + b, 0) / recent.length) * 1e4) / 1e4 } : {}),
+    longHeld: Math.round(longHeld * 1e4) / 1e4,
+  };
+}
+
+/* ── Cross-manager stats (after quotes) ────────────────────── */
+
+function lookThrough(positions: LatestPosition[], latest: LatestHoldingsJson): ManagerSummary["lookThrough"] {
+  let earnings = 0;
+  let dividends = 0;
+  let covered = 0;
+  let coveredValue = 0;
+  for (const p of positions) {
+    const t = latest.securities[p.k]?.t;
+    const q = t ? latest.quotes[t] : undefined;
+    if (!q) continue;
+    if (q.dps) dividends += p.s * q.dps;
+    // EPS outside ±(price) is almost always a units/currency artifact
+    if (q.eps == null || Math.abs(q.eps) > q.price) continue;
+    earnings += p.s * q.eps;
+    covered += p.w;
+    coveredValue += p.s * q.price;
+  }
+  if (!covered) return undefined;
+  return {
+    earnings: Math.round(earnings),
+    pe: earnings > 0 ? Math.round((coveredValue / earnings) * 10) / 10 : null,
+    dividends: Math.round(dividends),
+    coverage: Math.round(covered * 1e3) / 1e3,
+  };
+}
+
+/**
+ * Cosine similarity of issuer-level weights (share classes merged), top 3
+ * neighbours per manager, plus a 2-D layout by classical MDS on 1 − cosine.
+ */
+function similarity(summaries: ManagerSummary[], latest: LatestHoldingsJson) {
+  const vecs = summaries.map((m) => {
+    const v = new Map<string, number>();
+    for (const p of latest.holdings[m.id] ?? []) v.set(p.k.slice(0, 6), (v.get(p.k.slice(0, 6)) ?? 0) + p.w);
+    return v;
+  });
+  const norm = vecs.map((v) => Math.sqrt([...v.values()].reduce((s, x) => s + x * x, 0)) || 1);
+  const n = vecs.length;
+  const sim: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++) {
+    for (let j = i; j < n; j++) {
+      let dot = 0;
+      const [a, b] = vecs[i].size < vecs[j].size ? [vecs[i], vecs[j]] : [vecs[j], vecs[i]];
+      for (const [k, x] of a) dot += x * (b.get(k) ?? 0);
+      sim[i][j] = sim[j][i] = dot / (norm[i] * norm[j]);
+    }
+  }
+  summaries.forEach((m, i) => {
+    m.similar = summaries
+      .map((o, j) => ({ id: o.id, score: Math.round(sim[i][j] * 1000) / 1000 }))
+      .filter((x, j) => j !== i && x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+  });
+  // Classical MDS: double-centre squared distances, top-2 eigenvectors by
+  // power iteration with deflation
+  const D2 = sim.map((row) => row.map((x) => (1 - x) ** 2));
+  const rowMean = D2.map((r) => r.reduce((a, b) => a + b, 0) / n);
+  const all = rowMean.reduce((a, b) => a + b, 0) / n;
+  const B = D2.map((r, i) => r.map((x, j) => -0.5 * (x - rowMean[i] - rowMean[j] + all)));
+  const coords: number[][] = [];
+  for (let d = 0; d < 2; d++) {
+    let v = Array.from({ length: n }, (_, i) => Math.sin(i + 1 + d));
+    let lambda = 0;
+    for (let it = 0; it < 300; it++) {
+      const w = B.map((r) => r.reduce((s, x, j) => s + x * v[j], 0));
+      lambda = Math.sqrt(w.reduce((s, x) => s + x * x, 0)) || 1;
+      v = w.map((x) => x / lambda);
+    }
+    coords.push(v.map((x) => x * Math.sqrt(lambda)));
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) B[i][j] -= lambda * v[i] * v[j];
+  }
+  summaries.forEach((m, i) => {
+    m.xy = [Math.round(coords[0][i] * 1e4) / 1e4, Math.round(coords[1][i] * 1e4) / 1e4];
+  });
 }
 
 async function main() {
@@ -798,6 +976,11 @@ async function main() {
 
   const tickers = [...new Set(Object.values(latest.securities).map((s) => s.t).filter((t): t is string => !!t))];
   latest.quotes = await fetchQuotes(tickers);
+  for (const m of summaries) {
+    const lt = lookThrough(latest.holdings[m.id] ?? [], latest);
+    if (lt) m.lookThrough = lt;
+  }
+  similarity(summaries, latest);
   latest.securities = sortKeys(latest.securities);
   console.log(`\nQuotes: ${Object.keys(latest.quotes).length} of ${tickers.length} tickers`);
 

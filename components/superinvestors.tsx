@@ -13,6 +13,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { SignalsView } from "@/components/superinvestor-signals";
+import { CompareView } from "@/components/superinvestor-compare";
+import { SimilarityMapView } from "@/components/superinvestor-map";
+import { PortfolioTreemap } from "@/components/superinvestor-treemap";
 import {
   buildIssuers,
   filingUrl,
@@ -20,6 +24,7 @@ import {
   type ChangeType,
   type HistoryQuarter,
   type LatestHoldingsJson,
+  type LatestPosition,
   type ManagerHistoryJson,
   type ManagerSummary,
   type Quote,
@@ -62,12 +67,12 @@ export function fmtQuarter(period: string) {
   return `Q${Math.ceil(Number(m) / 3)} ${y}`;
 }
 
-function fmtQuarterShort(period: string) {
+export function fmtQuarterShort(period: string) {
   const [y, m] = period.split("-");
   return `Q${Math.ceil(Number(m) / 3)} '${y.slice(2)}`;
 }
 
-function fmtDate(iso: string) {
+export function fmtDate(iso: string) {
   return new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -123,13 +128,13 @@ export const frame = "overflow-x-auto rounded-md border border-border";
 export const table = "w-full text-sm tabular-nums";
 // A page-colored gap cell (border-hidden wins over the row border) splits
 // off the price block
-const gap = "w-4 border-hidden bg-background";
+export const gap = "w-4 border-hidden bg-background";
 // Small caps label above a table or column group
-const caption = "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground";
+export const caption = "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground";
 
-type Scope = "favorites" | "all";
+export type Scope = "favorites" | "all";
 
-function ScopeToggle({ scope, onChange }: { scope: Scope; onChange: (s: Scope) => void }) {
+export function ScopeToggle({ scope, onChange }: { scope: Scope; onChange: (s: Scope) => void }) {
   return (
     <div className="flex rounded-md border border-border p-0.5 text-sm">
       {(["favorites", "all"] as const).map((s) => (
@@ -158,7 +163,7 @@ function dueDate(period: string) {
   return d.toISOString().slice(0, 10);
 }
 
-function signedPct(n: number, digits = 1) {
+export function signedPct(n: number, digits = 1) {
   return `${n >= 0 ? "+" : ""}${fmtPct(n, digits)}`;
 }
 
@@ -381,7 +386,7 @@ function ConsensusView({
 }
 
 // "Warren Buffett" → "Buffett"; firm-only names ("Tweedy Browne") stay whole
-function shortName(name: string) {
+export function shortName(name: string) {
   const parts = name.split(" ");
   // Keep very short surnames whole ("Li Lu", not "Lu")
   return parts.length === 2 && parts[1].length > 2 && !/(Capital|Funds?|Partners|Group|Management|Trust|Browne)$/.test(name)
@@ -496,30 +501,49 @@ function HoldingsTab({
   q,
   prev,
   quotes,
+  positions,
 }: {
   history: ManagerHistoryJson;
   q: HistoryQuarter;
   prev?: HistoryQuarter;
   quotes: Record<string, Quote> | null; // only for the latest quarter
+  positions: Map<string, LatestPosition> | null; // est. cost etc., latest quarter only
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [view, setView] = useState<"table" | "map">("table");
   const sec = (k: string) => history.securities[k.split("|")[0]];
   const longs = q.positions.filter((p) => !p.k.includes("|"));
   const options = q.positions.filter((p) => p.k.includes("|"));
   const soldOut = q.sold.filter((p) => !p.k.includes("|"));
-  const cols = quotes ? 11 : 6;
+  const cols = quotes ? 13 : 6;
 
   return (
     <>
+      <div className="mb-3 flex justify-end">
+        <div className="flex rounded-md border border-border p-0.5 text-xs">
+          {(["table", "map"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`rounded px-2.5 py-1 ${view === v ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {v === "table" ? "Table" : "Map"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {view === "map" ? (
+        <PortfolioTreemap history={history} positions={longs} total={q.total} />
+      ) : (
       <div className="overflow-x-auto">
-        <table className={`${table} ${quotes ? "min-w-[1000px]" : "min-w-[640px]"}`}>
+        <table className={`${table} ${quotes ? "min-w-[1180px]" : "min-w-[640px]"}`}>
           <thead>
             <tr className="text-left">
               <th colSpan={6} className={`${caption} px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
               {quotes && (
                 <>
                   <th className={gap} />
-                  <th colSpan={4} className={`${caption} px-3 pb-1.5`}>Now</th>
+                  <th colSpan={6} className={`${caption} px-3 pb-1.5`}>Now</th>
                 </>
               )}
             </tr>
@@ -537,6 +561,8 @@ function HoldingsTab({
                   <th className={`${th} text-right`}>± Reported<br />Price</th>
                   <th className={`${th} text-right`}>52 Week<br />Low</th>
                   <th className={`${th} text-right`}>52 Week<br />High</th>
+                  <th className={`${th} text-right`} title="Estimated average cost from quarter-end prices of each buy since Q2 2013">Est.<br />Cost</th>
+                  <th className={`${th} text-right`}>± Est.<br />Cost</th>
                 </>
               )}
             </tr>
@@ -547,6 +573,8 @@ function HoldingsTab({
               const reported = p.s ? p.v / p.s : null;
               const quote = quotes && s.t ? quotes[s.t] : undefined;
               const vsReported = quote && reported ? quote.price / reported - 1 : null;
+              const lp = positions?.get(p.k);
+              const vsCost = quote && lp?.cost ? quote.price / lp.cost - 1 : null;
               const open = expanded === p.k;
               return (
                 <Fragment key={p.k}>
@@ -574,6 +602,15 @@ function HoldingsTab({
                         </td>
                         <td className={`${td} text-right`}>{fmtPrice(quote?.low52)}</td>
                         <td className={`${td} text-right`}>{fmtPrice(quote?.high52)}</td>
+                        <td
+                          className={`${td} text-right ${lp?.costPartial ? "text-muted-foreground" : ""}`}
+                          title={lp?.costPartial ? "Held before Q2 2013 — true cost is likely lower" : lp?.since ? `Held since ${fmtQuarter(lp.since)}` : undefined}
+                        >
+                          {lp?.costPartial && "≥"}{fmtPrice(lp?.cost)}
+                        </td>
+                        <td className={`${td} text-right ${vsCost == null ? "" : vsCost >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {vsCost == null ? "—" : `${vsCost >= 0 ? "+" : ""}${fmtPct(vsCost)}`}
+                        </td>
                       </>
                     )}
                   </tr>
@@ -588,6 +625,7 @@ function HoldingsTab({
           </tbody>
         </table>
       </div>
+      )}
 
       {soldOut.length > 0 && (
         <div className="mt-6">
@@ -612,7 +650,7 @@ function HoldingsTab({
 
       <p className="mt-4 px-2 text-xs text-muted-foreground">
         Click a row for its weight over time. Reported price = 13F value ÷ shares at quarter end.
-        {quotes && " Current prices as of the last data refresh."}
+        {quotes && " Current prices as of the last data refresh. Est. cost = average of quarter-end prices of each buy (≥ = held before Q2 2013, so the real cost is likely lower)."}
         {options.length > 0 && (
           <>
             {" "}Also reports {options.length} option position{options.length > 1 ? "s" : ""} (
@@ -747,6 +785,65 @@ function HistoryTab({ history }: { history: ManagerHistoryJson }) {
   );
 }
 
+/* ── Manager: style & look-through ─────────────── */
+
+// Latest-13F style numbers plus Buffett-style look-through earnings: the
+// manager's share of investees' trailing GAAP net income (losses count)
+function StyleStrip({
+  summary: m,
+  index,
+  onSelect,
+}: {
+  summary: ManagerSummary;
+  index: SuperinvestorsJson;
+  onSelect: (id: string) => void;
+}) {
+  const lt = m.lookThrough;
+  const items: [string, React.ReactNode, string?][] = [
+    ["Avg. holding period", m.avgHold != null ? `${m.holdCapped ? "≥ " : ""}${(m.avgHold / 4).toFixed(1)} yrs` : "—",
+      "Value-weighted time each current position has been held. ≥ when some predate Q2 2013."],
+    ["Held 5+ years", m.longHeld != null ? fmtPct(m.longHeld, 0) : "—", "Share of the portfolio in positions held 20+ quarters"],
+    ["Turnover / quarter", m.turnover != null ? fmtPct(m.turnover) : "—", "Average share of the portfolio traded per quarter, last 4 quarters"],
+    ["Look-through P/E", lt ? (lt.pe != null ? `${lt.pe.toFixed(1)}×` : "n/m (losses)") : "—",
+      "Portfolio value ÷ its share of holdings' trailing GAAP earnings"],
+    ["Look-through earnings", lt ? fmtMoney(lt.earnings) : "—", "Share of investees' trailing net income — retained earnings count, not just dividends"],
+    ["of which dividends", lt ? `${fmtMoney(lt.dividends)}${lt.earnings > 0 ? ` (${fmtPct(lt.dividends / lt.earnings, 0)})` : ""}` : "—",
+      "Dividends received; the rest is retained by investees on the manager's behalf"],
+  ];
+  const byId = new Map(index.managers.map((x) => [x.id, x]));
+  return (
+    <>
+      <dl className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border text-sm sm:grid-cols-3 lg:grid-cols-6">
+        {items.map(([name, value, hint]) => (
+          <div key={name} className="bg-background px-4 py-2.5" title={hint}>
+            <dt className="text-xs text-muted-foreground">{name}</dt>
+            <dd className="flex h-7 items-center font-semibold tabular-nums">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {(lt && lt.coverage < 0.95) || m.similar?.length ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {m.similar?.length ? (
+            <>
+              Most similar:{" "}
+              {m.similar.map((s, i) => (
+                <span key={s.id}>
+                  {i > 0 && ", "}
+                  <button onClick={() => onSelect(s.id)} className="hover:text-foreground hover:underline">
+                    {byId.get(s.id)?.name ?? s.id}
+                  </button>{" "}
+                  ({Math.round(s.score * 100)}%)
+                </span>
+              ))}
+            </>
+          ) : null}
+          {lt && lt.coverage < 0.95 && <> · look-through covers {fmtPct(lt.coverage, 0)} of the portfolio</>}
+        </p>
+      ) : null}
+    </>
+  );
+}
+
 /* ── Manager ───────────────────────────────────── */
 
 const TABS = [
@@ -755,7 +852,22 @@ const TABS = [
   { id: "history", label: "History" },
 ] as const;
 
-function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Record<string, Quote> }) {
+function ManagerView({
+  summary,
+  latest,
+  index,
+  onSelect,
+}: {
+  summary: ManagerSummary;
+  latest: LatestHoldingsJson;
+  index: SuperinvestorsJson;
+  onSelect: (id: string) => void;
+}) {
+  const quotes = latest.quotes;
+  const positions = useMemo(
+    () => new Map((latest.holdings[summary.id] ?? []).map((p) => [p.k, p])),
+    [latest, summary.id]
+  );
   const [history, setHistory] = useState<ManagerHistoryJson | null>(null);
   const [error, setError] = useState(false);
   const [qi, setQi] = useState(0);
@@ -834,6 +946,7 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
               </div>
             ))}
           </dl>
+          <StyleStrip summary={summary} index={index} onSelect={onSelect} />
 
           <div className="mt-6 mb-4 flex gap-5 border-b border-border">
             {TABS.map((t) => (
@@ -852,7 +965,14 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
           </div>
 
           {tab === "holdings" && (
-            <HoldingsTab key={q.period} history={history} q={q} prev={prev} quotes={qi === 0 ? quotes : null} />
+            <HoldingsTab
+              key={q.period}
+              history={history}
+              q={q}
+              prev={prev}
+              quotes={qi === 0 ? quotes : null}
+              positions={qi === 0 ? positions : null}
+            />
           )}
           {tab === "activity" && <ActivityTab history={history} />}
           {tab === "history" && <HistoryTab history={history} />}
@@ -863,6 +983,9 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
 }
 
 /* ── Page ──────────────────────────────────────── */
+
+// Non-manager views reachable by ?m=
+const VIEWS = ["filings", "consensus", "signals", "compare", "map", "all"];
 
 export function Superinvestors() {
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
@@ -880,7 +1003,7 @@ export function Superinvestors() {
         setLatest(lat);
         // Deep link: /superinvestors?m=<manager id | consensus | all> (e.g. from the stock snapshot)
         const m = new URLSearchParams(window.location.search).get("m");
-        if (m && (m === "consensus" || m === "all" || idx.managers.some((x) => x.id === m))) setSelected(m);
+        if (m && (VIEWS.includes(m) || idx.managers.some((x) => x.id === m))) setSelected(m);
       })
       .catch(() => setError(true));
   }, []);
@@ -943,6 +1066,9 @@ export function Superinvestors() {
               newest ? `${newCount} ${fmtQuarter(newest)} filings so far` : undefined
             )}
             {navItem("consensus", "Consensus", "Stocks held by 2+ managers")}
+            {navItem("signals", "Signals", "Conviction buys, accumulation streaks, below-cost")}
+            {navItem("compare", "Compare", "Two portfolios side by side")}
+            {navItem("map", "Map", "Managers placed by portfolio similarity")}
             {favorites.map((m) => navItem(m.id, m.name, `${m.firm} · ${fmtQuarter(m.period)}`))}
             {/* A manager opened from All managers gets a temporary tab */}
             {manager && !manager.favorite && navItem(manager.id, manager.name)}
@@ -952,7 +1078,12 @@ export function Superinvestors() {
           {selected === "filings" && <NewFilingsView index={index} onSelect={select} />}
           {selected === "consensus" && <ConsensusView index={index} latest={latest} onSelect={select} />}
           {selected === "all" && <AllManagersView index={index} onSelect={select} />}
-          {manager && <ManagerView key={manager.id} summary={manager} quotes={latest.quotes} />}
+          {selected === "signals" && <SignalsView index={index} latest={latest} onSelect={select} />}
+          {selected === "compare" && <CompareView index={index} latest={latest} onSelect={select} />}
+          {selected === "map" && <SimilarityMapView index={index} onSelect={select} />}
+          {manager && (
+            <ManagerView key={manager.id} summary={manager} latest={latest} index={index} onSelect={select} />
+          )}
         </>
       )}
     </div>

@@ -130,6 +130,8 @@ export interface Quote {
   price: number;
   low52: number | null;
   high52: number | null;
+  eps?: number | null; // trailing 12m GAAP EPS (attributable to common), quote currency
+  dps?: number | null; // trailing annual dividend per share
 }
 
 /* ── superinvestors.json (index) ───────────────── */
@@ -151,6 +153,21 @@ export interface ManagerSummary {
   buys?: number; // positions with a positive portfolio impact
   sells?: number; // every other changed position
   move?: { t: string | null; d: string; c: ChangeType; p?: number; impact: number }; // largest |impact|
+  // Style, from the full history
+  avgHold?: number; // value-weighted quarters each current position has been held
+  holdCapped?: boolean; // some positions predate the history, so avgHold is a floor
+  turnover?: number; // avg per-quarter |portfolio impact| / 2, last 4 quarters
+  longHeld?: number; // weight in positions held 5+ years (20+ quarters)
+  // Look-through (Buffett 1990): the manager's share of investees' trailing
+  // GAAP earnings, from current quotes
+  lookThrough?: {
+    earnings: number; // USD, share of trailing net income (losses included)
+    pe: number | null; // covered value / earnings
+    dividends: number; // share of trailing dividends
+    coverage: number; // weight of positions with usable EPS, 0..1
+  };
+  similar?: { id: string; score: number }[]; // most similar portfolios (cosine, issuer level)
+  xy?: [number, number]; // 2-D similarity map position (classical MDS)
 }
 
 export interface SuperinvestorsJson {
@@ -168,6 +185,10 @@ export interface LatestPosition {
   v: number; // value, USD (quarter end)
   c?: ChangeType; // vs prior quarter
   p?: number; // add/reduce size, fraction of prior shares
+  cost?: number; // est. average cost per share (quarter-end prices of buys)
+  costPartial?: boolean; // held before the history starts — cost is a floor estimate
+  since?: string; // quarter the current continuous holding began
+  streak?: number; // consecutive quarters ending now with a buy/add (2+)
 }
 
 export interface LatestHoldingsJson {
