@@ -15,6 +15,9 @@ export const WATCHLIST_TICKERS = [
   // Deep value / cyclical (P/E-vs-median verdict reads these backwards:
   // cyclicals look cheapest at peak earnings and richest at trough)
   "DAC",
+  // Holdcos (statutory P/E includes associate earnings and stake-sale gains;
+  // discount to NAV is the better gauge)
+  "PRX.AS",
   // Global quality & exchanges
   "UBER", "0388.HK", "ASX.AX", "BSE.NS", "3064.T", "BAP",
 ];
