@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 // Dark is the default; light is opt-in and remembered in localStorage.
-// The inline script in app/layout.tsx applies it before first paint.
-export function ThemeToggle() {
-  const [dark, setDark] = useState(true);
+// The inline script in app/layout.tsx applies it before first paint, so the
+// <html> class is the source of truth here.
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
 
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+const isDark = () => document.documentElement.classList.contains("dark");
+
+export function ThemeToggle() {
+  const dark = useSyncExternalStore(subscribe, isDark, () => true);
 
   function toggle() {
     const next = !dark;
@@ -20,7 +25,6 @@ export function ThemeToggle() {
     } catch {
       // private mode / blocked storage: theme still switches for this visit
     }
-    setDark(next);
   }
 
   return (
