@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.18.0"; // 1.18.0 = operating-earnings basis (net income less after-tax investment gains) where those gains are material
+const API_VERSION = "1.18.1"; // 1.18.1 = operating-basis threshold 10% (catches GOOGL SpaceX markups), alt managers excluded
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -409,10 +409,13 @@ const INVESTMENT_GAIN_CONCEPTS = [
   "DebtAndEquitySecuritiesGainLoss",
   "RealizedInvestmentGainsLosses",
 ];
-// Material = after-tax gains ≥ 20% of operating earnings in at least two of
+// Material = after-tax gains ≥ 10% of operating earnings in at least two of
 // the last ten years (two, so a one-off stake sale doesn't flip the basis)
-const OPERATING_BASIS_SHARE = 0.2;
+const OPERATING_BASIS_SHARE = 0.1;
 const OPERATING_BASIS_MIN_YEARS = 2;
+// Alternative asset managers: investment gains (carry, principal stakes) are
+// the business, not noise around it — stripping them leaves BX negative
+const OPERATING_BASIS_EXCLUDED = new Set(["BX", "KKR", "APO", "ARES", "CG", "TPG", "OWL", "BAM", "BN"]);
 
 function afterTaxGain(periodEnd: string, pretax: number) {
   return pretax * (periodEnd >= "2018-01-01" ? 0.79 : 0.65); // 21% / 35% federal rate
@@ -517,7 +520,8 @@ async function fetchEdgarData(ticker: string) {
       const gain = investmentGains[end];
       return gain != null && Math.abs(gain) >= OPERATING_BASIS_SHARE * Math.abs(netIncomes[end] - gain);
     }).length;
-  const operatingBasis = materialYears >= OPERATING_BASIS_MIN_YEARS;
+  const operatingBasis =
+    materialYears >= OPERATING_BASIS_MIN_YEARS && !OPERATING_BASIS_EXCLUDED.has(ticker.toUpperCase());
 
   // Per-share data: use earliest filing to avoid split-restated values from later 10-Ks.
   // Weighted average basic shares has highest priority — it is the correct EPS denominator.
