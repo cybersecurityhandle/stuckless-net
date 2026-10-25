@@ -126,9 +126,21 @@ export const CUSIP_OVERRIDES: Record<string, string | null> = {
   "530307305": "LBRDK", // Liberty Broadband Series C
   "G4474Y214": "JHG", // Janus Henderson — Jersey CUSIP, NYSE-listed
   "G3421J106": "FERG", // Ferguson plc, now Ferguson Enterprises
-  "02079K404": null, // Alphabet depositary preferred (1/20 sh), not GOOGL
-  "02079K602": null, // Alphabet depositary preferred, series B
+  // Class C / class B CUSIPs that name matching mapped to the class A ticker
+  "G61188127": "LBTYK", // Liberty Global class C
+  "G9001E128": "LILAK", // Liberty Latin America class C
+  "38259P706": "GOOG", // pre-2015 Google class C CUSIP, still filed by some
+  "08986R101": "BH", // Biglari Holdings class B (~$426, vs BH-A ~$2,100)
 };
+
+// Preferred shares filed with a "COM" class title, so the class-title check
+// in refresh-13f can't see them. Dataroma counts common stock only; so do we.
+export const PREFERRED_CUSIPS = new Set([
+  "02079K404", // Alphabet depositary preferred (1/20 share), series A
+  "02079K602", // Alphabet depositary preferred, series B
+  "42824C208", // HPE 7.625% Series C mandatory convertible preferred
+  "48251W500", // KKR 6.25% Series D mandatory convertible preferred
+]);
 
 export type ChangeType = "new" | "add" | "reduce" | "sold";
 
@@ -181,6 +193,14 @@ export interface LatestHoldingsJson {
   securities: Record<string, { t: string | null; d: string }>; // by CUSIP
   holdings: Record<string, LatestPosition[]>; // by manager id, weight desc
   quotes: Record<string, Quote>; // by ticker, as of `updated`
+  // Splits after a holder's quarter end, by ticker (only where the price moved)
+  splits?: Record<string, { date: string; ratio: number }[]>;
+}
+
+// Shares-per-old-share from splits after `period` (2 = a 2-for-1 since)
+export function splitFactorSince(latest: Pick<LatestHoldingsJson, "splits">, ticker: string | null, period: string) {
+  if (!ticker) return 1;
+  return (latest.splits?.[ticker] ?? []).filter((s) => s.date > period).reduce((f, s) => f * s.ratio, 1);
 }
 
 /* ── Ownership (consensus, stock pages, insider tags) ── */

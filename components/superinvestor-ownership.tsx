@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   issuerKey,
   issuerKeyForTicker,
+  splitFactorSince,
   type LatestHoldingsJson,
   type LatestPosition,
   type ManagerSummary,
@@ -118,7 +119,8 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
                 {rows.map(({ manager: m, pos, ticker: cls }) => {
                   const reported = pos.s ? pos.v / pos.s : null;
                   const quote = cls ? latest.quotes[cls]?.price : undefined;
-                  const vs = priceChange(quote, reported);
+                  // On today's share basis if the stock split since that quarter end
+                  const vs = priceChange(quote, reported && reported / splitFactorSince(latest, cls, m.period));
                   return (
                     <tr key={`${m.id}-${pos.k}`} className={`border-b border-border/30 ${zebra}`}>
                       <td className={td}>

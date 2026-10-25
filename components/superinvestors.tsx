@@ -18,6 +18,7 @@ import {
   filingUrl,
   issuerKey,
   portfolioImpact,
+  splitFactorSince,
   type ChangeType,
   type HistoryPosition,
   type HistoryQuarter,
@@ -514,11 +515,13 @@ function HoldingsTab({
   q,
   prev,
   quotes,
+  splits,
 }: {
   history: ManagerHistoryJson;
   q: HistoryQuarter;
   prev?: HistoryQuarter;
   quotes: Record<string, Quote> | null; // only for the latest quarter
+  splits: LatestHoldingsJson["splits"];
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const sec = (k: string) => history.securities[k.split("|")[0]];
@@ -542,7 +545,9 @@ function HoldingsTab({
     const s = sec(p.k);
     const reported = p.s ? p.v / p.s : null;
     const quote = quotes && s.t ? quotes[s.t] : undefined;
-    const vsReported = priceChange(quote?.price, reported);
+    // Compare on today's share basis if the stock split since quarter end
+    const split = splitFactorSince({ splits }, s.t, q.period);
+    const vsReported = priceChange(quote?.price, reported && reported / split);
     const open = expanded === p.k;
     return (
       <Fragment key={p.k}>
@@ -569,9 +574,16 @@ function HoldingsTab({
               <td className={`${td} text-right`}>{fmtPrice(quote?.price)}</td>
               <td
                 className={`${td} text-right ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
-                title={quote && reported && vsReported == null ? "Not comparable: split, spin-off or filing error since quarter end" : undefined}
+                title={
+                  quote && reported && vsReported == null
+                    ? "Not comparable: spin-off or filing error since quarter end"
+                    : split !== 1
+                      ? `Adjusted for a ${split}-for-1 split since quarter end`
+                      : undefined
+                }
               >
                 {vsReported == null ? "—" : `${vsReported >= 0 ? "+" : ""}${fmtPct(vsReported)}`}
+                {split !== 1 && vsReported != null && <span className="text-muted-foreground">*</span>}
               </td>
               <td className={`${td} text-right`}>{fmtPrice(quote?.low52)}</td>
               <td className={`${td} text-right`}>{fmtPrice(quote?.high52)}</td>
@@ -674,7 +686,7 @@ function HoldingsTab({
 
       <p className="mt-4 px-2 text-xs text-muted-foreground">
         Click a row for its weight over time. Reported price = 13F value ÷ shares at quarter end.
-        {quotes && " Current prices as of the last data refresh."}
+        {quotes && " Current prices as of the last data refresh; * = adjusted for a stock split since quarter end."}
         {options.length > 0 && (
           <>
             {" "}Also reports {options.length} option position{options.length > 1 ? "s" : ""} (
@@ -817,7 +829,15 @@ const TABS = [
   { id: "history", label: "History" },
 ] as const;
 
-function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Record<string, Quote> }) {
+function ManagerView({
+  summary,
+  quotes,
+  splits,
+}: {
+  summary: ManagerSummary;
+  quotes: Record<string, Quote>;
+  splits: LatestHoldingsJson["splits"];
+}) {
   const [history, setHistory] = useState<ManagerHistoryJson | null>(null);
   const [error, setError] = useState(false);
   const [qi, setQi] = useState(0);
@@ -921,7 +941,7 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
           </div>
 
           {tab === "holdings" && (
-            <HoldingsTab key={q.period} history={history} q={q} prev={prev} quotes={qi === 0 ? quotes : null} />
+            <HoldingsTab key={q.period} history={history} q={q} prev={prev} quotes={qi === 0 ? quotes : null} splits={splits} />
           )}
           {tab === "activity" && <ActivityTab history={history} />}
           {tab === "history" && <HistoryTab history={history} />}
@@ -1021,7 +1041,7 @@ export function Superinvestors() {
           {selected === "filings" && <NewFilingsView index={index} onSelect={select} />}
           {selected === "consensus" && <ConsensusView index={index} latest={latest} onSelect={select} />}
           {selected === "all" && <AllManagersView index={index} onSelect={select} />}
-          {manager && <ManagerView key={manager.id} summary={manager} quotes={latest.quotes} />}
+          {manager && <ManagerView key={manager.id} summary={manager} quotes={latest.quotes} splits={latest.splits} />}
         </>
       )}
     </div>
