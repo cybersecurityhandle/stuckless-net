@@ -35,6 +35,7 @@ import {
   type ManagerSummary,
   type Quote,
   type SuperinvestorsJson,
+  portfolioImpact,
   prettyIssuer,
 } from "../lib/superinvestors";
 
@@ -661,7 +662,17 @@ function longPositions(h: ManagerHistoryJson): HistoryPosition[] {
 
 function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
   const q = h.quarters[0];
+  const prev = h.quarters[1];
   const longs = longPositions(h);
+  // Same counting as the manager page's Activity tab
+  const moves = [...q.positions, ...q.sold]
+    .filter((p) => p.c && !p.k.includes("|"))
+    .map((p) => ({ p, impact: portfolioImpact(p, q, prev) }));
+  const buys = moves.filter((x) => x.impact > 0).length;
+  const big = moves.reduce<(typeof moves)[number] | null>(
+    (best, x) => (!best || Math.abs(x.impact) > Math.abs(best.impact) ? x : best),
+    null
+  );
   return {
     id: m.id,
     name: m.name,
@@ -674,6 +685,18 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
     positions: longs.length,
     firstPeriod: h.quarters[h.quarters.length - 1].period,
     top: longs.slice(0, 3).map((p) => h.securities[p.k].t ?? h.securities[p.k].d),
+    ...(prev ? { prevTotal: prev.total, buys, sells: moves.length - buys } : {}),
+    ...(big?.impact
+      ? {
+          move: {
+            t: h.securities[big.p.k].t,
+            d: h.securities[big.p.k].d,
+            c: big.p.c!,
+            ...(big.p.p != null ? { p: Math.round(big.p.p * 1e4) / 1e4 } : {}),
+            impact: Math.round(big.impact * 1e5) / 1e5,
+          },
+        }
+      : {}),
   };
 }
 

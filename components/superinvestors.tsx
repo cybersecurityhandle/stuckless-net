@@ -16,8 +16,8 @@ import {
 import {
   buildIssuers,
   filingUrl,
+  portfolioImpact,
   type ChangeType,
-  type HistoryPosition,
   type HistoryQuarter,
   type LatestHoldingsJson,
   type ManagerHistoryJson,
@@ -78,14 +78,16 @@ function fmtDate(iso: string) {
 
 /* ── Small pieces ──────────────────────────────── */
 
-// Dataroma wording: Buy / Add x% / Reduce x% / Sell
+// Dataroma wording: Buy / Add x% / Reduce x% / Sell. Growing a stub into a
+// real position reads as e.g. "Add 630555%" (Dodge & Cox, Visa), so cap it.
 export function ActivityText({ type, pct }: { type?: ChangeType; pct?: number }) {
   if (!type) return null;
   const up = type === "new" || type === "add";
+  const size = pct! < 0.0005 ? "<0.1%" : pct! > 9.99 ? ">999%" : fmtPct(pct!);
   const label =
     type === "new" ? "Buy"
     : type === "sold" ? "Sell"
-    : `${type === "add" ? "Add" : "Reduce"} ${pct! < 0.0005 ? "<0.1%" : fmtPct(pct!)}`;
+    : `${type === "add" ? "Add" : "Reduce"} ${size}`;
   return <span className={up ? "text-emerald-400" : "text-red-400"}>{label}</span>;
 }
 
@@ -111,14 +113,180 @@ export function StockCell({ ticker, name }: { ticker: string | null; name: strin
   );
 }
 
-export const th = "px-3 py-2.5 text-[13px] font-medium leading-tight text-muted-foreground";
+export const th =
+  "border-b border-border bg-card px-3 py-2 align-bottom text-[12.5px] font-semibold leading-tight text-foreground/80";
 export const td = "px-3 py-2";
 // Alternating row tint, Dataroma-style
-export const zebra = "odd:bg-muted/15 hover:bg-muted/30";
-// Dataroma-style panels: the whole table is tinted, and a page-colored gap
-// cell (border-hidden wins over the row border) splits off the price block
-export const panel = "bg-muted/20";
+export const zebra = "even:bg-muted/20 hover:bg-muted/40";
+// Tables sit in a thin rounded frame; the table itself is page-colored
+export const frame = "overflow-x-auto rounded-md border border-border";
+export const table = "w-full text-sm tabular-nums";
+// A page-colored gap cell (border-hidden wins over the row border) splits
+// off the price block
 const gap = "w-4 border-hidden bg-background";
+// Small caps label above a table or column group
+const caption = "text-[11px] font-semibold uppercase tracking-wide text-muted-foreground";
+
+type Scope = "favorites" | "all";
+
+function ScopeToggle({ scope, onChange }: { scope: Scope; onChange: (s: Scope) => void }) {
+  return (
+    <div className="flex rounded-md border border-border p-0.5 text-sm">
+      {(["favorites", "all"] as const).map((s) => (
+        <button
+          key={s}
+          onClick={() => onChange(s)}
+          className={`rounded px-3 py-1 transition-colors ${
+            scope === s ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {s === "favorites" ? "My picks" : "All managers"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* ── New filings ───────────────────────────────── */
+
+const FILINGS_SHOWN = 15;
+
+// 13F-HR deadline: 45 days after quarter end
+function dueDate(period: string) {
+  const d = new Date(`${period}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 45);
+  return d.toISOString().slice(0, 10);
+}
+
+function signedPct(n: number, digits = 1) {
+  return `${n >= 0 ? "+" : ""}${fmtPct(n, digits)}`;
+}
+
+function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSelect: (id: string) => void }) {
+  const [scope, setScope] = useState<Scope>("all");
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const managers = scope === "all" ? index.managers : index.managers.filter((m) => m.favorite);
+
+  // One table per quarter, newest quarter and newest filing first
+  const byPeriod = new Map<string, ManagerSummary[]>();
+  for (const m of managers) byPeriod.set(m.period, [...(byPeriod.get(m.period) ?? []), m]);
+  const groups = [...byPeriod.entries()]
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([period, rows]) => ({
+      period,
+      rows: rows.sort(
+        (a, b) => b.filed.localeCompare(a.filed) || Number(b.favorite) - Number(a.favorite) || a.name.localeCompare(b.name)
+      ),
+    }));
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold">New filings</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Latest 13F from {scope === "all" ? `all ${managers.length} managers` : `your ${managers.length} picks`}, newest first.
+          </p>
+        </div>
+        <ScopeToggle scope={scope} onChange={setScope} />
+      </div>
+
+      {groups.map(({ period, rows }, gi) => {
+        const due = dueDate(period);
+        const all = gi === 0 || open.has(period);
+        const filed = rows.map((m) => m.filed).sort();
+        return (
+          <section key={period} className="mt-6">
+            <h3 className="flex flex-wrap items-baseline gap-x-3 text-sm">
+              <span className="text-base font-semibold">{fmtQuarter(period)}</span>
+              <span className="text-muted-foreground">
+                {index.updated <= due
+                  ? `${rows.length} of ${managers.length} filed · due ${fmtDate(due)}`
+                  : `${rows.length} filed ${fmtDate(filed[0])} – ${fmtDate(filed[filed.length - 1])}`}
+              </span>
+            </h3>
+            <div className={`mt-2 ${frame}`}>
+              <table className={`${table} min-w-[960px]`}>
+                <thead>
+                  <tr className="text-left">
+                    <th className={th}>Filed</th>
+                    <th className={th}>Manager</th>
+                    <th className={`${th} text-right`}>Portfolio<br />Value</th>
+                    <th className={`${th} text-right`}>vs Prior<br />Quarter</th>
+                    <th className={`${th} text-right`}>Stocks</th>
+                    <th className={`${th} text-right`}>Buys</th>
+                    <th className={`${th} text-right`}>Sells</th>
+                    <th className={th}>Biggest Move</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(all ? rows : rows.slice(0, FILINGS_SHOWN)).map((m) => {
+                    const vsPrior = m.prevTotal ? m.totalValue / m.prevTotal - 1 : null;
+                    return (
+                      <tr
+                        key={m.id}
+                        onClick={() => onSelect(m.id)}
+                        className={`cursor-pointer border-b border-border/30 ${zebra} ${m.favorite && scope === "all" ? "!bg-emerald-500/10" : ""}`}
+                      >
+                        <td className={`${td} whitespace-nowrap text-muted-foreground`}>{fmtDate(m.filed)}</td>
+                        <td className={`${td} whitespace-nowrap`}>
+                          <span className="mr-1.5 inline-block w-3 text-emerald-400">{m.favorite ? "★" : ""}</span>
+                          <span className="font-medium text-emerald-400">{m.name}</span>
+                          {m.firm && <span className="text-muted-foreground"> - {m.firm}</span>}
+                        </td>
+                        <td className={`${td} text-right`}>{fmtMoney(m.totalValue)}</td>
+                        <td className={`${td} text-right ${vsPrior == null ? "text-muted-foreground" : vsPrior >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                          {vsPrior == null ? "—" : signedPct(vsPrior)}
+                        </td>
+                        <td className={`${td} text-right`}>{m.positions}</td>
+                        <td className={`${td} text-right text-emerald-400`}>{m.buys ?? "—"}</td>
+                        <td className={`${td} text-right text-red-400`}>{m.sells ?? "—"}</td>
+                        <td className={`${td} whitespace-nowrap`}>
+                          {m.move ? (
+                            <span className="flex items-baseline gap-1.5">
+                              <ActivityText type={m.move.c} pct={m.move.p} />
+                              {m.move.t ? (
+                                <Link
+                                  href={`/finance?ticker=${encodeURIComponent(m.move.t)}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="font-medium text-emerald-400 hover:underline"
+                                >
+                                  {m.move.t}
+                                </Link>
+                              ) : (
+                                <span>{m.move.d}</span>
+                              )}
+                              <span className="text-muted-foreground">({signedPct(m.move.impact)})</span>
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">No changes</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {!all && rows.length > FILINGS_SHOWN && (
+              <button
+                onClick={() => setOpen((s) => new Set(s).add(period))}
+                className="mt-2 text-sm text-emerald-400 hover:underline"
+              >
+                Show all {rows.length} {fmtQuarter(period)} filings
+              </button>
+            )}
+          </section>
+        );
+      })}
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        Buys and sells count every position that changed. Biggest move = the trade with the largest effect on
+        portfolio weight, at quarter-end prices.
+      </p>
+    </div>
+  );
+}
 
 /* ── Consensus ─────────────────────────────────── */
 
@@ -134,7 +302,7 @@ function ConsensusView({
   latest: LatestHoldingsJson;
   onSelect: (id: string) => void;
 }) {
-  const [scope, setScope] = useState<"favorites" | "all">("favorites");
+  const [scope, setScope] = useState<Scope>("favorites");
   const managers = scope === "all" ? index.managers : index.managers.filter((m) => m.favorite);
   const rows = useMemo(
     () =>
@@ -156,24 +324,12 @@ function ConsensusView({
             latest 13F{rows.length === CONSENSUS_LIMIT ? ` — top ${CONSENSUS_LIMIT}` : ""}.
           </p>
         </div>
-        <div className="flex rounded-md border border-border p-0.5 text-sm">
-          {(["favorites", "all"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setScope(s)}
-              className={`rounded px-3 py-1 transition-colors ${
-                scope === s ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {s === "favorites" ? "My picks" : "All managers"}
-            </button>
-          ))}
-        </div>
+        <ScopeToggle scope={scope} onChange={setScope} />
       </div>
-      <div className="mt-5 overflow-x-auto">
-        <table className={`w-full min-w-[760px] text-[15px] tabular-nums ${panel}`}>
+      <div className={`mt-5 ${frame}`}>
+        <table className={`${table} min-w-[760px]`}>
           <thead>
-            <tr className="border-b border-border text-left">
+            <tr className="text-left">
               <th className={th}>Stock</th>
               <th className={`${th} text-right`}>Owners</th>
               <th className={`${th} text-right`}>Avg %</th>
@@ -258,10 +414,10 @@ function AllManagersView({ index, onSelect }: { index: SuperinvestorsJson; onSel
           className="h-9 w-64 rounded-md border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground"
         />
       </div>
-      <div className="mt-5 overflow-x-auto">
-        <table className={`w-full min-w-[760px] text-[15px] tabular-nums ${panel}`}>
+      <div className={`mt-5 ${frame}`}>
+        <table className={`${table} min-w-[760px]`}>
           <thead>
-            <tr className="border-b border-border text-left">
+            <tr className="text-left">
               <th className={th}>Manager</th>
               <th className={`${th} text-right`}>Portfolio<br />Value</th>
               <th className={`${th} text-right`}>Stocks</th>
@@ -356,9 +512,18 @@ function HoldingsTab({
   return (
     <>
       <div className="overflow-x-auto">
-        <table className={`w-full text-[15px] tabular-nums ${panel} ${quotes ? "min-w-[1000px]" : "min-w-[640px]"}`}>
+        <table className={`${table} ${quotes ? "min-w-[1000px]" : "min-w-[640px]"}`}>
           <thead>
-            <tr className="border-b border-border text-left">
+            <tr className="text-left">
+              <th colSpan={6} className={`${caption} px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
+              {quotes && (
+                <>
+                  <th className={gap} />
+                  <th colSpan={4} className={`${caption} px-3 pb-1.5`}>Now</th>
+                </>
+              )}
+            </tr>
+            <tr className="text-left">
               <th className={th}>Stock</th>
               <th className={`${th} text-right`}>% of<br />Portfolio</th>
               <th className={th}>Recent<br />Activity</th>
@@ -387,10 +552,13 @@ function HoldingsTab({
                 <Fragment key={p.k}>
                   <tr
                     onClick={() => setExpanded(open ? null : p.k)}
-                    className={`cursor-pointer border-b border-border/30 ${zebra} ${open ? "bg-muted/30" : ""}`}
+                    className={`cursor-pointer border-b border-border/30 ${zebra} ${open ? "!bg-emerald-500/10" : ""}`}
                   >
-                    <td className={`${td} max-w-[280px]`} title={`${s.n} — ${s.cl}`}>
-                      <StockCell ticker={s.t} name={s.d} />
+                    <td className={`${td} max-w-[300px]`} title={`${s.n} — ${s.cl}`}>
+                      <span className="flex min-w-0 items-baseline gap-1.5">
+                        <span aria-hidden className="w-2.5 shrink-0 text-[10px] text-muted-foreground">{open ? "▾" : "▸"}</span>
+                        <StockCell ticker={s.t} name={s.d} />
+                      </span>
                     </td>
                     <td className={`${td} text-right font-medium`}>{fmtPct(q.total ? p.v / q.total : 0, 2)}</td>
                     <td className={`${td} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
@@ -410,8 +578,8 @@ function HoldingsTab({
                     )}
                   </tr>
                   {open && (
-                    <tr className="border-b border-border/40 bg-muted/10">
-                      <td colSpan={cols}><PositionHistory history={history} k={p.k} /></td>
+                    <tr className="border-b border-border/40 bg-emerald-500/5">
+                      <td colSpan={cols} className="pl-6"><PositionHistory history={history} k={p.k} /></td>
                     </tr>
                   )}
                 </Fragment>
@@ -423,10 +591,8 @@ function HoldingsTab({
 
       {soldOut.length > 0 && (
         <div className="mt-6">
-          <h3 className="px-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-            Sold out {prev && `since ${fmtQuarter(prev.period)}`}
-          </h3>
-          <table className="mt-1 w-full text-[15px] tabular-nums">
+          <h3 className={`${caption} px-3`}>Sold out {prev && `since ${fmtQuarter(prev.period)}`}</h3>
+          <table className={`mt-1 ${table}`}>
             <tbody>
               {soldOut.map((p) => {
                 const s = sec(p.k);
@@ -461,17 +627,6 @@ function HoldingsTab({
 
 /* ── Manager: activity ─────────────────────────── */
 
-// Change in portfolio weight caused by the trade, at this quarter's price
-// (Dataroma's "% change to portfolio")
-function portfolioImpact(p: HistoryPosition, q: HistoryQuarter, prev?: HistoryQuarter): number {
-  if (p.c === "sold") return prev?.total ? -p.v / prev.total : 0;
-  if (!q.total) return 0;
-  if (p.c === "new") return p.v / q.total;
-  if (p.c === "add" && p.p) return (p.v - p.v / (1 + p.p)) / q.total;
-  if (p.c === "reduce" && p.p != null && p.p < 1) return (p.v - p.v / (1 - p.p)) / q.total;
-  return 0;
-}
-
 const ACTIVITY_PAGE = 8;
 
 function ActivityTab({ history }: { history: ManagerHistoryJson }) {
@@ -499,7 +654,7 @@ function ActivityTab({ history }: { history: ManagerHistoryJson }) {
             {!moves.length ? (
               <p className="px-2 py-2 text-[13px] text-muted-foreground">No changes.</p>
             ) : (
-              <table className="w-full text-[15px] tabular-nums">
+              <table className={table}>
                 <tbody>
                   {moves.map(({ p, impact }) => {
                     const s = history.securities[p.k];
@@ -627,7 +782,8 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
             key="period"
             value={qi}
             onChange={(e) => setQi(Number(e.target.value))}
-            className="-ml-1 cursor-pointer rounded bg-transparent px-1 font-medium hover:bg-muted"
+            aria-label="Period"
+            className="-ml-1.5 h-7 cursor-pointer rounded-md border border-border bg-background px-1.5 font-semibold hover:bg-muted"
           >
             {history!.quarters.map((x, i) => (
               <option key={x.period} value={i} className="bg-card">
@@ -669,11 +825,12 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
 
       {history && q && (
         <>
-          <dl className="mt-3 grid grid-cols-2 gap-x-8 gap-y-1 text-sm sm:grid-cols-3 lg:grid-cols-6">
-            {facts.map(([label, value]) => (
-              <div key={label}>
-                <dt className="text-xs text-muted-foreground">{label}</dt>
-                <dd className="font-medium tabular-nums">{value}</dd>
+          {/* gap-px over a border-colored background draws the cell dividers */}
+          <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border text-sm sm:grid-cols-3 lg:grid-cols-6">
+            {facts.map(([name, value]) => (
+              <div key={name} className="bg-background px-4 py-2.5">
+                <dt className="text-xs text-muted-foreground">{name}</dt>
+                <dd className="flex h-7 items-center font-semibold tabular-nums">{value}</dd>
               </div>
             ))}
           </dl>
@@ -711,7 +868,7 @@ export function Superinvestors() {
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
   const [latest, setLatest] = useState<LatestHoldingsJson | null>(null);
   const [error, setError] = useState(false);
-  const [selected, setSelected] = useState<string>("consensus");
+  const [selected, setSelected] = useState<string>("filings");
 
   useEffect(() => {
     Promise.all([
@@ -721,23 +878,26 @@ export function Superinvestors() {
       .then(([idx, lat]: [SuperinvestorsJson, LatestHoldingsJson]) => {
         setIndex(idx);
         setLatest(lat);
-        // Deep link: /superinvestors?m=<manager id | all> (e.g. from the stock snapshot)
+        // Deep link: /superinvestors?m=<manager id | consensus | all> (e.g. from the stock snapshot)
         const m = new URLSearchParams(window.location.search).get("m");
-        if (m && (m === "all" || idx.managers.some((x) => x.id === m))) setSelected(m);
+        if (m && (m === "consensus" || m === "all" || idx.managers.some((x) => x.id === m))) setSelected(m);
       })
       .catch(() => setError(true));
   }, []);
 
   function select(id: string) {
     setSelected(id);
-    const url = id === "consensus" ? "/superinvestors" : `/superinvestors?m=${id}`;
+    const url = id === "filings" ? "/superinvestors" : `/superinvestors?m=${id}`;
     window.history.replaceState(null, "", url);
     window.scrollTo({ top: 0 });
   }
 
   const manager = index?.managers.find((m) => m.id === selected);
   const favorites = index?.managers.filter((m) => m.favorite) ?? [];
-  const navItem = (id: string, label: string, title?: string) => (
+  // Filings in the newest quarter, while that quarter is still coming in
+  const newest = index?.managers.reduce((p, m) => (m.period > p ? m.period : p), "");
+  const newCount = index?.managers.filter((m) => m.period === newest).length ?? 0;
+  const navItem = (id: string, label: React.ReactNode, title?: string) => (
     <button
       key={id}
       onClick={() => select(id)}
@@ -768,7 +928,20 @@ export function Superinvestors() {
 
       {index && latest && (
         <>
-          <nav className="mb-8 flex gap-x-6 overflow-x-auto overflow-y-hidden border-b border-border">
+          {/* Wraps rather than scrolls, so every tab stays visible */}
+          <nav className="mb-8 flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
+            {navItem(
+              "filings",
+              <>
+                New filings
+                {index.managers.length > newCount && (
+                  <span className="ml-1.5 rounded-full bg-emerald-600 px-1.5 py-px text-[11px] font-semibold text-white">
+                    {newCount}
+                  </span>
+                )}
+              </>,
+              newest ? `${newCount} ${fmtQuarter(newest)} filings so far` : undefined
+            )}
             {navItem("consensus", "Consensus", "Stocks held by 2+ managers")}
             {favorites.map((m) => navItem(m.id, m.name, `${m.firm} · ${fmtQuarter(m.period)}`))}
             {/* A manager opened from All managers gets a temporary tab */}
@@ -776,6 +949,7 @@ export function Superinvestors() {
             <span className="ml-auto" />
             {navItem("all", `All managers (${index.managers.length})`)}
           </nav>
+          {selected === "filings" && <NewFilingsView index={index} onSelect={select} />}
           {selected === "consensus" && <ConsensusView index={index} latest={latest} onSelect={select} />}
           {selected === "all" && <AllManagersView index={index} onSelect={select} />}
           {manager && <ManagerView key={manager.id} summary={manager} quotes={latest.quotes} />}

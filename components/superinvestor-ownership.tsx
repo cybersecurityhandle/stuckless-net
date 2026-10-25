@@ -15,7 +15,8 @@ import {
   fmtPct,
   fmtPrice,
   fmtQuarter,
-  panel,
+  frame,
+  table,
   td,
   th,
   zebra,
@@ -96,10 +97,10 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
             <span className="text-red-400">{count("reduce")} reducing</span>
           </p>
 
-          <div className="mt-4 overflow-x-auto">
-            <table className={`w-full min-w-[860px] text-[15px] tabular-nums ${panel}`}>
+          <div className={`mt-4 ${frame}`}>
+            <table className={`${table} min-w-[860px]`}>
               <thead>
-                <tr className="border-b border-border text-left">
+                <tr className="text-left">
                   <th className={th}>Manager</th>
                   {multiClass && <th className={th}>Class</th>}
                   <th className={`${th} text-right`}>% of<br />Portfolio</th>

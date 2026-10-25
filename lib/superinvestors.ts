@@ -146,6 +146,11 @@ export interface ManagerSummary {
   positions: number;
   firstPeriod: string; // earliest quarter in the history file
   top: string[]; // top 3 holdings by value (ticker, or name)
+  // vs the prior quarter; absent on a manager's first filing
+  prevTotal?: number;
+  buys?: number; // positions with a positive portfolio impact
+  sells?: number; // every other changed position
+  move?: { t: string | null; d: string; c: ChangeType; p?: number; impact: number }; // largest |impact|
 }
 
 export interface SuperinvestorsJson {
@@ -253,6 +258,17 @@ export interface HistoryQuarter {
   total: number; // long-equity value
   positions: HistoryPosition[]; // sorted by value desc
   sold: HistoryPosition[]; // prior-quarter figures
+}
+
+// Change in portfolio weight caused by the trade, at this quarter's price
+// (Dataroma's "% change to portfolio")
+export function portfolioImpact(p: HistoryPosition, q: HistoryQuarter, prev?: HistoryQuarter): number {
+  if (p.c === "sold") return prev?.total ? -p.v / prev.total : 0;
+  if (!q.total) return 0;
+  if (p.c === "new") return p.v / q.total;
+  if (p.c === "add" && p.p) return (p.v - p.v / (1 + p.p)) / q.total;
+  if (p.c === "reduce" && p.p != null && p.p < 1) return (p.v - p.v / (1 - p.p)) / q.total;
+  return 0;
 }
 
 export interface ManagerHistoryJson {
