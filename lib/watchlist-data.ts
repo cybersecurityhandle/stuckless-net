@@ -7,7 +7,7 @@ export const WATCHLIST_TICKERS = [
   // Payments
   "MA", "V",
   // Serial acquirers & proprietary-parts industrials
-  "ROP", "TDG", "HEI", "CSU.TO", "TOI.V", "LMN.V", "KPG.AX", "SGN.WA", "ACP.WA",
+  "ROP", "TDG", "HEI", "CSU.TO", "TOI.V", "LMN.V", "KPG.AX", "SGN.WA", "ACP.WA", "TEQ.ST",
   // Boring dominance
   "COST", "CPRT", "ORLY", "AZO", "CTAS", "WCN", "BRO",
   // More compounders
