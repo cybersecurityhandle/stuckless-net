@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.16.0"; // 1.16.0 = Prosus (PRX.AS): USD reporting FX, weighted-average shares
+const API_VERSION = "1.17.0"; // 1.17.0 = reporting FX for RACE, LMN.V, 0700.HK (and flushes 1.16.0 entries cached before diluted shares merged)
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -41,6 +41,9 @@ const REPORTING_FX: Record<string, string> = {
   IFS: "PEN", // Intercorp Financial — same
   "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
   ASML: "EUR", // ASML — NASDAQ shares are 1:1 ordinary, reports in EUR
+  RACE: "EUR", // Ferrari — NYSE shares are 1:1 ordinary, reports in EUR
+  "LMN.V": "USD", // Lumine — TSXV-listed in CAD, reports in USD
+  "0700.HK": "CNY", // Tencent — HKEX-listed in HKD, reports in RMB
   "PRX.AS": "USD", // Prosus — Euronext-listed in EUR, reports in USD
 };
 

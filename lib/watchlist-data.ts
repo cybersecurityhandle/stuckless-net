@@ -19,7 +19,7 @@ export const WATCHLIST_TICKERS = [
   // discount to NAV is the better gauge)
   "PRX.AS",
   // Global quality & exchanges
-  "UBER", "0388.HK", "ASX.AX", "BSE.NS", "3064.T", "BAP",
+  "UBER", "0388.HK", "0700.HK", "ASX.AX", "BSE.NS", "3064.T", "BAP",
 ];
 
 export interface YearData {
