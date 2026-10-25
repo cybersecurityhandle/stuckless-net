@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  issuerKey,
   issuerKeyForTicker,
   type LatestHoldingsJson,
   type LatestPosition,
@@ -16,6 +17,7 @@ import {
   fmtPrice,
   fmtQuarter,
   frame,
+  priceChange,
   table,
   td,
   th,
@@ -55,7 +57,7 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
     const out: Row[] = [];
     for (const m of index.managers) {
       for (const pos of latest.holdings[m.id] ?? []) {
-        if (pos.k.startsWith(key)) out.push({ manager: m, pos, ticker: latest.securities[pos.k]?.t ?? null });
+        if (issuerKey(pos.k, latest.securities[pos.k]) === key) out.push({ manager: m, pos, ticker: latest.securities[pos.k]?.t ?? null });
       }
     }
     return out.sort((a, b) => b.pos.w - a.pos.w);
@@ -91,7 +93,7 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
         <>
           <p className="mt-1 text-sm text-muted-foreground">
             Held by <span className="text-foreground">{owners.size}</span> of {index.managers.length} superinvestors
-            {favs.size > 0 && <> (<span className="text-emerald-400">{favs.size} of your picks</span>)</>}
+            {favs.size > 0 && <> (<span className="text-emerald-400">{favs.size} featured</span>)</>}
             {" · "}{fmtMoney(totalValue)} combined
             {" · "}last quarter: <span className="text-emerald-400">{count("new")} buying, {count("add")} adding</span>,{" "}
             <span className="text-red-400">{count("reduce")} reducing</span>
@@ -116,7 +118,7 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
                 {rows.map(({ manager: m, pos, ticker: cls }) => {
                   const reported = pos.s ? pos.v / pos.s : null;
                   const quote = cls ? latest.quotes[cls]?.price : undefined;
-                  const vs = quote && reported ? quote / reported - 1 : null;
+                  const vs = priceChange(quote, reported);
                   return (
                     <tr key={`${m.id}-${pos.k}`} className={`border-b border-border/30 ${zebra}`}>
                       <td className={td}>

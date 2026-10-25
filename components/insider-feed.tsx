@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { filingIndexUrl, type InsiderBuy, type InsiderBuysJson } from "@/lib/insiders";
-import { buildIssuers, type LatestHoldingsJson, type Owner, type SuperinvestorsJson } from "@/lib/superinvestors";
+import { buildIssuers, issuerKey, type LatestHoldingsJson, type Owner, type SuperinvestorsJson } from "@/lib/superinvestors";
 
 const MIN_VALUES = [
   { value: 10_000, label: "≥ $10K" },
@@ -79,7 +79,7 @@ export function InsiderFeed() {
         const issuers = buildIssuers(latest, index.managers);
         const map: Record<string, Owner[]> = {};
         for (const [cusip, sec] of Object.entries(latest.securities)) {
-          const owners = issuers.get(cusip.slice(0, 6))?.owners;
+          const owners = issuers.get(issuerKey(cusip, sec))?.owners;
           if (sec.t && owners) map[sec.t] = owners;
         }
         setHeldBy(map);

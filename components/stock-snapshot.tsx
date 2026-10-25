@@ -54,7 +54,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
 const OWNERS_SHOWN = 8;
 
 // Every tracked manager holding any share class of this ticker's issuer
-// (BRK-B finds BRK-A holders too); your picks first
+// (BRK-B finds BRK-A holders too); featured managers first
 function findOwners(index: SuperinvestorsJson | null, latest: LatestHoldingsJson | null, ticker: string): Owner[] {
   if (!index || !latest) return [];
   const key = issuerKeyForTicker(latest, ticker);
@@ -184,7 +184,7 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
               <p className="text-sm font-medium">Superinvestors</p>
               {index && owners.length > 0 && (
                 <p className="text-[10px] text-muted-foreground">
-                  {favCount} of your picks · {owners.length} of {index.managers.length}
+                  {favCount} featured · {owners.length} of {index.managers.length}
                 </p>
               )}
             </div>

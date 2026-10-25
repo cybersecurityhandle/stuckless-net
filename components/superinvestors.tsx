@@ -16,8 +16,10 @@ import {
 import {
   buildIssuers,
   filingUrl,
+  issuerKey,
   portfolioImpact,
   type ChangeType,
+  type HistoryPosition,
   type HistoryQuarter,
   type LatestHoldingsJson,
   type ManagerHistoryJson,
@@ -91,6 +93,22 @@ export function ActivityText({ type, pct }: { type?: ChangeType; pct?: number })
   return <span className={up ? "text-emerald-400" : "text-red-400"}>{label}</span>;
 }
 
+// 13F class titles → readable: "CAP STK CL A" → "Class A", "CL B NEW" → "Class B"
+function shareClass(cl: string) {
+  const m = cl.match(/\bCL(?:ASS)?\s*([A-Z])\b/i);
+  if (m) return `Class ${m[1].toUpperCase()}`;
+  return cl.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Current price vs the 13F's implied price. A 5× gap either way in one
+// quarter is a split, spin-off or filing error (Rochon's GLD files at
+// $6,458/share), not a price move — show nothing rather than +900%.
+export function priceChange(price: number | undefined, reported: number | null): number | null {
+  if (price == null || !reported) return null;
+  const ratio = price / reported;
+  return ratio > 5 || ratio < 0.2 ? null : ratio - 1;
+}
+
 export function StockCell({ ticker, name }: { ticker: string | null; name: string }) {
   return (
     <span className="flex min-w-0 items-baseline gap-1.5">
@@ -140,7 +158,7 @@ function ScopeToggle({ scope, onChange }: { scope: Scope; onChange: (s: Scope) =
             scope === s ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          {s === "favorites" ? "My picks" : "All managers"}
+          {s === "favorites" ? "Featured" : "All managers"}
         </button>
       ))}
     </div>
@@ -185,7 +203,7 @@ function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSele
         <div>
           <h2 className="text-xl font-semibold">New filings</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Latest 13F from {scope === "all" ? `all ${managers.length} managers` : `your ${managers.length} picks`}, newest first.
+            Latest 13F from {scope === "all" ? `all ${managers.length} managers` : `the ${managers.length} featured managers`}, newest first.
           </p>
         </div>
         <ScopeToggle scope={scope} onChange={setScope} />
@@ -320,7 +338,7 @@ function ConsensusView({
         <div>
           <h2 className="text-xl font-semibold">Consensus</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Stocks held by two or more of {scope === "all" ? `all ${managers.length} managers` : `your ${managers.length} picks`},
+            Stocks held by two or more of {scope === "all" ? `all ${managers.length} managers` : `the ${managers.length} featured managers`},
             latest 13F{rows.length === CONSENSUS_LIMIT ? ` — top ${CONSENSUS_LIMIT}` : ""}.
           </p>
         </div>
@@ -404,7 +422,7 @@ function AllManagersView({ index, onSelect }: { index: SuperinvestorsJson; onSel
         <div>
           <h2 className="text-xl font-semibold">All managers</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {index.managers.length} superinvestors · ★ = your picks
+            {index.managers.length} superinvestors · ★ = featured
           </p>
         </div>
         <input
@@ -509,6 +527,66 @@ function HoldingsTab({
   const soldOut = q.sold.filter((p) => !p.k.includes("|"));
   const cols = quotes ? 11 : 6;
 
+  // Share classes of one company (BRK-A + BRK-B, GOOGL + GOOG) are one
+  // position — total it, then list the classes
+  const byIssuer = new Map<string, HistoryPosition[]>();
+  for (const p of longs) {
+    const key = issuerKey(p.k, sec(p.k));
+    byIssuer.set(key, [...(byIssuer.get(key) ?? []), p]);
+  }
+  const issuers = [...byIssuer.entries()]
+    .map(([key, classes]) => ({ key, classes, value: classes.reduce((s, p) => s + p.v, 0) }))
+    .sort((a, b) => b.value - a.value);
+
+  function positionRow(p: HistoryPosition, isClass: boolean) {
+    const s = sec(p.k);
+    const reported = p.s ? p.v / p.s : null;
+    const quote = quotes && s.t ? quotes[s.t] : undefined;
+    const vsReported = priceChange(quote?.price, reported);
+    const open = expanded === p.k;
+    return (
+      <Fragment key={p.k}>
+        <tr
+          onClick={() => setExpanded(open ? null : p.k)}
+          className={`cursor-pointer border-b border-border/30 ${zebra} ${open ? "!bg-emerald-500/10" : ""}`}
+        >
+          <td className={`${td} max-w-[300px]`} title={`${s.n} — ${s.cl}`}>
+            <span className={`flex min-w-0 items-baseline gap-1.5 ${isClass ? "pl-4" : ""}`}>
+              <span aria-hidden className="w-2.5 shrink-0 text-[10px] text-muted-foreground">{open ? "▾" : "▸"}</span>
+              <StockCell ticker={s.t} name={isClass ? shareClass(s.cl) : s.d} />
+            </span>
+          </td>
+          <td className={`${td} text-right ${isClass ? "text-muted-foreground" : "font-medium"}`}>
+            {fmtPct(q.total ? p.v / q.total : 0, 2)}
+          </td>
+          <td className={`${td} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
+          <td className={`${td} text-right`}>{p.s.toLocaleString()}</td>
+          <td className={`${td} text-right`}>{fmtPrice(reported)}</td>
+          <td className={`${td} text-right ${isClass ? "text-muted-foreground" : ""}`}>{fmtMoney(p.v)}</td>
+          {quotes && (
+            <>
+              <td className={gap} />
+              <td className={`${td} text-right`}>{fmtPrice(quote?.price)}</td>
+              <td
+                className={`${td} text-right ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                title={quote && reported && vsReported == null ? "Not comparable: split, spin-off or filing error since quarter end" : undefined}
+              >
+                {vsReported == null ? "—" : `${vsReported >= 0 ? "+" : ""}${fmtPct(vsReported)}`}
+              </td>
+              <td className={`${td} text-right`}>{fmtPrice(quote?.low52)}</td>
+              <td className={`${td} text-right`}>{fmtPrice(quote?.high52)}</td>
+            </>
+          )}
+        </tr>
+        {open && (
+          <tr className="border-b border-border/40 bg-emerald-500/5">
+            <td colSpan={cols} className="pl-6"><PositionHistory history={history} k={p.k} /></td>
+          </tr>
+        )}
+      </Fragment>
+    );
+  }
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -542,49 +620,33 @@ function HoldingsTab({
             </tr>
           </thead>
           <tbody>
-            {longs.map((p) => {
-              const s = sec(p.k);
-              const reported = p.s ? p.v / p.s : null;
-              const quote = quotes && s.t ? quotes[s.t] : undefined;
-              const vsReported = quote && reported ? quote.price / reported - 1 : null;
-              const open = expanded === p.k;
-              return (
-                <Fragment key={p.k}>
-                  <tr
-                    onClick={() => setExpanded(open ? null : p.k)}
-                    className={`cursor-pointer border-b border-border/30 ${zebra} ${open ? "!bg-emerald-500/10" : ""}`}
-                  >
-                    <td className={`${td} max-w-[300px]`} title={`${s.n} — ${s.cl}`}>
-                      <span className="flex min-w-0 items-baseline gap-1.5">
-                        <span aria-hidden className="w-2.5 shrink-0 text-[10px] text-muted-foreground">{open ? "▾" : "▸"}</span>
-                        <StockCell ticker={s.t} name={s.d} />
+            {issuers.map(({ key, classes, value }) =>
+              classes.length === 1 ? (
+                positionRow(classes[0], false)
+              ) : (
+                <Fragment key={key}>
+                  <tr className="border-b border-border/30 bg-muted/25">
+                    <td className={td}>
+                      <span className="flex items-baseline gap-1.5">
+                        <span className="w-2.5 shrink-0" />
+                        <span className="font-medium">{sec(classes[0].k).d}</span>
+                        <span className="text-xs text-muted-foreground">{classes.length} share classes</span>
                       </span>
                     </td>
-                    <td className={`${td} text-right font-medium`}>{fmtPct(q.total ? p.v / q.total : 0, 2)}</td>
-                    <td className={`${td} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
-                    <td className={`${td} text-right`}>{p.s.toLocaleString()}</td>
-                    <td className={`${td} text-right`}>{fmtPrice(reported)}</td>
-                    <td className={`${td} text-right`}>{fmtMoney(p.v)}</td>
+                    <td className={`${td} text-right font-semibold`}>{fmtPct(q.total ? value / q.total : 0, 2)}</td>
+                    <td colSpan={3} />
+                    <td className={`${td} text-right font-medium`}>{fmtMoney(value)}</td>
                     {quotes && (
                       <>
                         <td className={gap} />
-                        <td className={`${td} text-right`}>{fmtPrice(quote?.price)}</td>
-                        <td className={`${td} text-right ${vsReported == null ? "" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                          {vsReported == null ? "—" : `${vsReported >= 0 ? "+" : ""}${fmtPct(vsReported)}`}
-                        </td>
-                        <td className={`${td} text-right`}>{fmtPrice(quote?.low52)}</td>
-                        <td className={`${td} text-right`}>{fmtPrice(quote?.high52)}</td>
+                        <td colSpan={4} />
                       </>
                     )}
                   </tr>
-                  {open && (
-                    <tr className="border-b border-border/40 bg-emerald-500/5">
-                      <td colSpan={cols} className="pl-6"><PositionHistory history={history} k={p.k} /></td>
-                    </tr>
-                  )}
+                  {classes.map((p) => positionRow(p, true))}
                 </Fragment>
-              );
-            })}
+              )
+            )}
           </tbody>
         </table>
       </div>
@@ -772,7 +834,14 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
   const q = history?.quarters[qi];
   const prev = history?.quarters[qi + 1];
   const longs = q?.positions.filter((p) => !p.k.includes("|")) ?? [];
-  const top10 = q?.total ? longs.slice(0, 10).reduce((s, p) => s + p.v, 0) / q.total : 0;
+  // Company level, share classes combined (Spier: BRK-A + BRK-B is one stock)
+  const byIssuer = new Map<string, number>();
+  for (const p of longs) {
+    const key = issuerKey(p.k, history?.securities[p.k]);
+    byIssuer.set(key, (byIssuer.get(key) ?? 0) + p.v);
+  }
+  const issuerValues = [...byIssuer.values()].sort((a, b) => b - a);
+  const top10 = q?.total ? issuerValues.slice(0, 10).reduce((s, v) => s + v, 0) / q.total : 0;
 
   const facts: [string, React.ReactNode][] = q
     ? [
@@ -794,7 +863,7 @@ function ManagerView({ summary, quotes }: { summary: ManagerSummary; quotes: Rec
         ],
         ["Portfolio date", fmtDate(q.period)],
         ["Filed", fmtDate(q.filed)],
-        ["No. of stocks", longs.length],
+        ["No. of stocks", byIssuer.size],
         ["Portfolio value", fmtMoney(q.total)],
         ["Top 10", fmtPct(top10)],
       ]

@@ -35,6 +35,7 @@ import {
   type ManagerSummary,
   type Quote,
   type SuperinvestorsJson,
+  issuerKey,
   portfolioImpact,
   prettyIssuer,
 } from "../lib/superinvestors";
@@ -236,20 +237,46 @@ async function loadFiling(f: Filing): Promise<CachedFiling> {
 
 /**
  * Holdings for one quarter: the original 13F-HR, then amendments in filing
- * order — RESTATEMENT replaces everything, NEW HOLDINGS appends (e.g.
- * positions released from confidential treatment).
+ * order — RESTATEMENT replaces everything, NEW HOLDINGS adds positions (e.g.
+ * released from confidential treatment). Some filers label corrections as
+ * NEW HOLDINGS (Check Capital Q2 2026 re-filed its whole table, then 16
+ * corrected securities), so an amendment's rows replace any existing rows
+ * for the same security rather than double-counting them.
  */
 async function quarterRows(filings: Filing[]): Promise<{ rows: RawRow[]; latest: Filing }> {
   const sorted = [...filings].sort((a, b) => a.filed.localeCompare(b.filed));
+  const key = (r: RawRow) => `${r.cusip}|${r.putCall ?? ""}`;
   let rows: RawRow[] = [];
   let latest = sorted[0];
   for (const f of sorted) {
     const { rows: filed, amendmentType } = await loadFiling(f);
     if (!filed) continue; // cover-page-only amendment
-    rows = f.form === "13F-HR" || amendmentType?.includes("RESTATEMENT") ? filed : [...rows, ...filed];
+    if (f.form === "13F-HR" || amendmentType?.includes("RESTATEMENT")) {
+      rows = filed;
+    } else {
+      const amended = new Set(filed.map(key));
+      rows = [...rows.filter((r) => !amended.has(key(r))), ...filed];
+    }
     latest = f;
   }
-  return { rows: fixUnits(rows, latest), latest };
+  return { rows: fixUnits(rows, latest).filter((r) => !isDebt(r)), latest };
+}
+
+/**
+ * Convertible bonds and notes are reported by principal amount, so their
+ * "share price" is ~$1 and they'd skew weights (Oaktree files ~90). The
+ * sshPrnamtType flag isn't in the filing cache, so go by class title
+ * ("CONVERTIBLE BOND", "NOTE 3.875%11/3", "NOTE12/0") plus a per-unit value
+ * near par — bond ETFs ("SHORT TRM BOND") trade per share well above $10.
+ * Convertible preferred ("7.25%CNV PFD") is equity and stays.
+ */
+function isDebt(r: RawRow) {
+  return (
+    /\bNOTE|\bBOND|\bDEBENTURE|\bDEBT\b/i.test(r.class) &&
+    !/\bPFD|\bPREF/i.test(r.class) &&
+    r.shares > 0 &&
+    r.value / r.shares < 10
+  );
 }
 
 /**
@@ -682,7 +709,7 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
     period: q.period,
     filed: q.filed,
     totalValue: q.total,
-    positions: longs.length,
+    positions: new Set(longs.map((p) => issuerKey(p.k, h.securities[p.k]))).size, // companies, share classes combined
     firstPeriod: h.quarters[h.quarters.length - 1].period,
     top: longs.slice(0, 3).map((p) => h.securities[p.k].t ?? h.securities[p.k].d),
     ...(prev ? { prevTotal: prev.total, buys, sells: moves.length - buys } : {}),
@@ -718,7 +745,7 @@ async function main() {
   console.log(`Refreshing 13F holdings for ${list.length} managers\n`);
   const cache = readJson<Record<string, string>>(TICKER_CACHE, {});
   const misses = readJson<Record<string, string>>(MISS_CACHE, {});
-  const tickerOf = (c: string) => CUSIP_OVERRIDES[c] ?? cache[c] ?? null;
+  const tickerOf = (c: string) => (c in CUSIP_OVERRIDES ? CUSIP_OVERRIDES[c] : (cache[c] ?? null));
   const summaries: ManagerSummary[] = [];
   const latest: LatestHoldingsJson = { updated: today(), securities: {}, holdings: {}, quotes: {} };
   const failed: string[] = [];
