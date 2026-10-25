@@ -198,6 +198,17 @@ export interface LatestHoldingsJson {
   quotes: Record<string, Quote>; // by ticker, as of `updated`
 }
 
+/* ── superinvestors/events/{first CUSIP char}.json ── */
+
+// Every material 13F move, by issuer (CUSIP first 6), for price-chart
+// markers: [period, manager id, change, add/reduce size, portfolio impact]
+export type MoveEvent = [string, string, ChangeType, number | null, number];
+export type EventsJson = Record<string, MoveEvent[]>;
+
+export function eventsShardUrl(issuerKey: string) {
+  return `/superinvestors/events/${issuerKey[0]}.json`;
+}
+
 /* ── Ownership (consensus, stock pages, insider tags) ── */
 
 export interface Owner {

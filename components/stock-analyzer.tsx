@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StockSnapshot } from "@/components/stock-snapshot";
 import { SuperinvestorOwnership } from "@/components/superinvestor-ownership";
+import { ValuationTools } from "@/components/valuation-tools";
+import { SuperinvestorMovesChart } from "@/components/superinvestor-moves-chart";
 import {
   BarChart,
   Bar,
@@ -27,6 +29,7 @@ interface YearData {
   revenue: number;
   netIncome: number;
   sharesOutstanding: number;
+  sharesDiluted?: number | null; // weighted diluted (EDGAR), fiscal years only
   eps: number;
   price: number;
   calendarPrice: number;
@@ -51,6 +54,7 @@ interface StockData {
   fcfAttributableShare?: number | null;
   netIncomeAttributableShare?: number | null;
   reportingFx?: { from: string; rate: number } | null;
+  currentPrice?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
 }
@@ -211,16 +215,31 @@ export function StockAnalyzer({
   const [startIdx, setStartIdx] = useState(0);
   const [endIdx, setEndIdx] = useState(0);
   const [calendarYear, setCalendarYear] = useState(false);
+  const [diluted, setDiluted] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Active data set based on fiscal/calendar toggle (need >= 2 years for analysis)
   const activeYears = useMemo(() => {
     if (!stockData) return [];
-    return calendarYear && (stockData.calendarYears?.length ?? 0) >= 2
-      ? stockData.calendarYears!
-      : stockData.years;
-  }, [stockData, calendarYear]);
+    if (calendarYear && (stockData.calendarYears?.length ?? 0) >= 2) return stockData.calendarYears!;
+    if (!diluted) return stockData.years;
+    // Diluted basis: same net income over the diluted share count — EPS,
+    // sales/share and P/E all move; years without a diluted count keep basic
+    return stockData.years.map((y) => {
+      if (!y.sharesDiluted) return y;
+      const eps = y.netIncome / y.sharesDiluted;
+      return {
+        ...y,
+        sharesOutstanding: y.sharesDiluted,
+        eps: Math.round(eps * 100) / 100,
+        salesPerShare: Math.round((y.revenue / y.sharesDiluted) * 100) / 100,
+        peMultiple: eps > 0 ? Math.round((y.price / eps) * 100) / 100 : 0,
+        calendarPeMultiple: eps > 0 && y.calendarPrice ? Math.round((y.calendarPrice / eps) * 100) / 100 : 0,
+      };
+    });
+  }, [stockData, calendarYear, diluted]);
+  const dilutedAvailable = (stockData?.years ?? []).filter((y) => y.sharesDiluted).length >= 2;
 
   // Whether calendar year data is actually available
   const calendarAvailable = (stockData?.calendarYears?.length ?? 0) >= 2;
@@ -406,6 +425,20 @@ export function StockAnalyzer({
                     <option value="calendar">Calendar Year</option>
                   </select>
                 </div>
+                {dilutedAvailable && !calendarYear && (
+                  <div>
+                    <label className="mb-1 block text-xs text-muted-foreground">Shares</label>
+                    <select
+                      value={diluted ? "diluted" : "basic"}
+                      onChange={(e) => setDiluted(e.target.value === "diluted")}
+                      title="Diluted counts options and convertibles — truer when convertible debt is outstanding (e.g. VRSN before 2019)"
+                      className="h-9 rounded-md border border-border bg-card px-3 text-sm"
+                    >
+                      <option value="basic">Basic</option>
+                      <option value="diluted">Diluted</option>
+                    </select>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -660,6 +693,15 @@ export function StockAnalyzer({
             })()}
           </CardContent>
         </Card>
+      )}
+
+      {stockData && activeYears.length >= 3 && (
+        <ValuationTools
+          key={`${stockData.ticker}-${calendarYear}-${diluted}`}
+          years={activeYears}
+          currentPrice={stockData.currentPrice ?? null}
+          ticker={stockData.ticker}
+        />
       )}
 
       {/* Negative earnings warning */}
@@ -1072,6 +1114,7 @@ export function StockAnalyzer({
         </Card>
       )}
 
+      {stockData && <SuperinvestorMovesChart key={`moves-${stockData.ticker}`} ticker={stockData.ticker} />}
       {stockData && <SuperinvestorOwnership key={`owners-${stockData.ticker}`} ticker={stockData.ticker} />}
     </div>
   );

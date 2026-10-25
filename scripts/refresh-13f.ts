@@ -33,6 +33,7 @@ import {
   type Manager,
   type ManagerHistoryJson,
   type ManagerSummary,
+  type EventsJson,
   type Quote,
   type SuperinvestorsJson,
   portfolioImpact,
@@ -761,6 +762,29 @@ function positionStats(h: ManagerHistoryJson): Map<string, PositionStats> {
   return stats;
 }
 
+// Moves big enough to mark on a price chart: anything a favorite does, or
+// 0.5%+ of the portfolio for everyone else (keeps the file ~1–2MB)
+const EVENT_MIN_IMPACT = 0.005;
+
+function collectEvents(m: Manager, h: ManagerHistoryJson, out: EventsJson) {
+  for (const [i, q] of h.quarters.entries()) {
+    const prev = h.quarters[i + 1];
+    if (!prev) continue;
+    for (const p of [...q.positions, ...q.sold]) {
+      if (!p.c || p.k.includes("|")) continue;
+      const impact = portfolioImpact(p, q, prev);
+      if (!m.favorite && Math.abs(impact) < EVENT_MIN_IMPACT) continue;
+      (out[p.k.slice(0, 6)] ??= []).push([
+        q.period,
+        m.id,
+        p.c,
+        p.p != null ? Math.round(p.p * 1e3) / 1e3 : null,
+        Math.round(impact * 1e5) / 1e5,
+      ]);
+    }
+  }
+}
+
 function buildLatest(h: ManagerHistoryJson): LatestPosition[] {
   const q = h.quarters[0];
   const stats = positionStats(h);
@@ -900,6 +924,7 @@ async function main() {
   const summaries: ManagerSummary[] = [];
   const latest: LatestHoldingsJson = { updated: today(), securities: {}, holdings: {}, quotes: {} };
   const failed: string[] = [];
+  const events: EventsJson = {};
   await loadSecCompanies(); // display names
 
   // Pass 1: load every manager's quarters (filings are cached on disk) and
@@ -937,6 +962,7 @@ async function main() {
       const summary = buildSummary(m, history);
       summaries.push(summary);
       latest.holdings[m.id] = buildLatest(history);
+      collectEvents(m, history, events);
       for (const p of latest.holdings[m.id]) {
         const s = history.securities[p.k];
         latest.securities[p.k] ??= { t: s.t, d: s.d };
@@ -987,6 +1013,19 @@ async function main() {
   const index: SuperinvestorsJson = { updated: today(), managers: summaries, failed };
   writeJson(indexPath, index);
   writeJson(latestPath, latest);
+  // Partial runs (ONLY=) would drop other managers' events — full runs only
+  if (!only) {
+    // Sharded by the CUSIP's first character (~60KB each) so a stock page
+    // loads one small file, not all 2MB
+    const shards: Record<string, EventsJson> = {};
+    for (const [key, list] of Object.entries(events)) {
+      list.sort((x, y) => x[0].localeCompare(y[0]));
+      (shards[key[0]] ??= {})[key] = list;
+    }
+    for (const [c, shard] of Object.entries(shards)) {
+      writeIfChanged(join(process.cwd(), "public", "superinvestors", "events", `${c}.json`), sortKeys(shard));
+    }
+  }
   console.log(`Wrote ${summaries.length} managers to public/superinvestors.json + public/superinvestors/`);
   if (failed.length) console.log(`Failed: ${failed.join(", ")}`);
 }

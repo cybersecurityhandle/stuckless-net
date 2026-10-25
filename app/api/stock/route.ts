@@ -3,7 +3,7 @@ import { getRedis } from "@/lib/analytics";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.14.0"; // 1.14.0 = split adjustment keyed to 10-K filing date (CPRT), IBKR net revenues, CPRT revenue tag, BRK class-dimension shares
+const API_VERSION = "1.15.0"; // 1.15.0 = diluted weighted shares per year (sharesDiluted) for the basic/diluted toggle; reporting FX for RACE, LMN.V, 0700.HK
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -41,6 +41,9 @@ const REPORTING_FX: Record<string, string> = {
   IFS: "PEN", // Intercorp Financial — same
   "TOI.V": "EUR", // Topicus.com — TSXV-listed in CAD, reports in EUR
   ASML: "EUR", // ASML — NASDAQ shares are 1:1 ordinary, reports in EUR
+  RACE: "EUR", // Ferrari — NYSE shares are 1:1 ordinary, reports in EUR
+  "LMN.V": "USD", // Lumine — TSXV-listed in CAD, reports in USD
+  "0700.HK": "CNY", // Tencent — HKEX-listed in HKD, reports in RMB
 };
 
 // Hard-coded tickers whose yearData is already in the listing currency, but
@@ -485,6 +488,20 @@ async function fetchEdgarData(ticker: string) {
   for (const [end, v] of Object.entries(EDGAR_SHARES_OVERRIDE[cik] ?? {})) shares[end] ??= v;
   repairShareScale(shares);
 
+  // Diluted weighted shares, for the analyzer's basic/diluted toggle — basic
+  // understates dilution while convertibles are outstanding (VRSN's basic
+  // count jumps 100M → 118M in 2018–19 as its debentures convert)
+  const dilutedFiled: Record<string, string> = {};
+  const diluted = extractEdgar(
+    allFacts,
+    ["WeightedAverageNumberOfDilutedSharesOutstanding"],
+    "shares",
+    ["us-gaap"],
+    true,
+    dilutedFiled
+  );
+  repairShareScale(diluted);
+
   // EPS: derive from netIncome/shares (not EDGAR's diluted EPS which uses higher diluted share count)
   // This ensures consistency between displayed EPS, share count, and margin
   const dps = extractEdgar(allFacts, DPS_CONCEPTS, "USD/shares", ["us-gaap"], true);
@@ -518,7 +535,7 @@ async function fetchEdgarData(ticker: string) {
 
   const yearData: Record<
     string,
-    { revenue?: number; netIncome?: number; shares?: number; sharesFiled?: string; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number; fcf?: number }
+    { revenue?: number; netIncome?: number; shares?: number; sharesFiled?: string; diluted?: number; dilutedFiled?: string; dps?: number; equity?: number; totalAssets?: number; longTermDebt?: number; fcf?: number }
   > = {};
 
   for (const date of allDates) {
@@ -528,6 +545,8 @@ async function fetchEdgarData(ticker: string) {
       netIncome: netIncomes[date],
       shares: shares[date] ?? sharesByYear[yr],
       sharesFiled: shares[date] != null ? sharesFiled[date] : undefined,
+      diluted: diluted[date],
+      dilutedFiled: dilutedFiled[date],
       dps: dps[date],
       equity: equity[date],
       totalAssets: totalAssets[date],
@@ -875,6 +894,10 @@ export async function GET(req: NextRequest) {
           revenue: data.revenue,
           netIncome,
           sharesOutstanding: data.shares * sf,
+          sharesDiluted:
+            data.diluted != null
+              ? data.diluted * splitFactorAfterDate(splits, data.dilutedFiled ? new Date(data.dilutedFiled) : endDate)
+              : undefined,
           eps: epsVal / sf,
           dps: dpsVal != null ? dpsVal / sf : undefined,
           equity: data.equity,
@@ -964,6 +987,7 @@ export async function GET(req: NextRequest) {
     if (classMult !== 1) {
       for (const d of Object.values(yearMap)) {
         d.sharesOutstanding *= classMult;
+        if (d.sharesDiluted != null) d.sharesDiluted *= classMult;
         d.eps /= classMult;
         d.dps /= classMult;
       }
@@ -987,6 +1011,7 @@ export async function GET(req: NextRequest) {
             const scale = Math.pow(10, k);
             for (const d of Object.values(yearMap)) {
               d.sharesOutstanding *= scale;
+              if (d.sharesDiluted != null) d.sharesDiluted *= scale;
               d.eps /= scale;
               d.dps /= scale;
             }
@@ -1030,6 +1055,7 @@ export async function GET(req: NextRequest) {
         revenue: d.revenue,
         netIncome: d.netIncome,
         sharesOutstanding: d.sharesOutstanding,
+        sharesDiluted: d.sharesDiluted ?? null,
         eps: Math.round(d.eps * 100) / 100,
         price: Math.round(price * 100) / 100,
         calendarPrice: Math.round((calendarPrice || 0) * 100) / 100,
