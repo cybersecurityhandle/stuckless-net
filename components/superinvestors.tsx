@@ -141,8 +141,10 @@ export function StockCell({ ticker, name }: { ticker: string | null; name: strin
 export const th =
   "border-b border-border bg-card px-3 py-2 align-bottom text-[12.5px] font-semibold leading-tight text-foreground/80";
 export const td = "px-3 py-2";
-// Alternating row tint, Dataroma-style
-export const zebra = "even:bg-muted/20 hover:bg-muted/40";
+// Alternating row tint, Dataroma-style. A 20% tint vanishes on white, so
+// light mode stripes with solid muted and hovers a shade darker.
+export const zebra =
+  "even:bg-muted hover:bg-zinc-800/50 dark:even:bg-muted/20 dark:hover:bg-muted/40";
 // Tables sit in a thin rounded frame; the table itself is page-colored
 export const frame = "overflow-x-auto rounded-md border border-border";
 export const table = "w-full text-sm tabular-nums";
