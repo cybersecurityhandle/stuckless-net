@@ -3,6 +3,8 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { StockSnapshot } from "@/components/stock-snapshot";
+import { SuperinvestorOwnership } from "@/components/superinvestor-ownership";
 import {
   BarChart,
   Bar,
@@ -69,6 +71,7 @@ interface FiveFactorResult {
   marginGrowth: number | null;
   peGrowth: number | null;
   epsGrowth: number | null;
+  netIncomeGrowth: number | null; // total earnings, before buybacks/dilution
   dpsGrowth: number | null;
   yieldGrowth: number | null;
   priceReturn: number;
@@ -80,6 +83,7 @@ interface FiveFactorResult {
   annMargin: number | null;
   annPe: number | null;
   annEps: number | null;
+  annNetIncome: number | null;
   annDps: number | null;
   annDividendYield: number;
   annPriceReturn: number;
@@ -153,6 +157,7 @@ function calcFiveFactors(start: YearData, end: YearData, cal = false): FiveFacto
   // These require positive starting values to be meaningful
   const marginGrowth = safeGrowth(start.netMargin, end.netMargin);
   const epsGrowth = safeGrowth(start.eps, end.eps);
+  const netIncomeGrowth = safeGrowth(start.netIncome, end.netIncome);
   const peGrowth = safeGrowth(sv.pe, ev.pe);
   const dpsGrowth = safeGrowth(start.dividendsPerShare, end.dividendsPerShare);
   const yieldGrowth = safeGrowth(sv.dy, ev.dy);
@@ -171,6 +176,7 @@ function calcFiveFactors(start: YearData, end: YearData, cal = false): FiveFacto
     marginGrowth,
     peGrowth,
     epsGrowth,
+    netIncomeGrowth,
     dpsGrowth,
     yieldGrowth,
     priceReturn,
@@ -181,6 +187,7 @@ function calcFiveFactors(start: YearData, end: YearData, cal = false): FiveFacto
     annMargin: marginGrowth != null ? annualize(marginGrowth, numYears) : null,
     annPe: peGrowth != null ? annualize(peGrowth, numYears) : null,
     annEps: epsGrowth != null ? annualize(epsGrowth, numYears) : null,
+    annNetIncome: netIncomeGrowth != null ? annualize(netIncomeGrowth, numYears) : null,
     annDps: dpsGrowth != null ? annualize(dpsGrowth, numYears) : null,
     annDividendYield: avgDivYield,
     annPriceReturn: annualize(priceReturn, numYears),
@@ -451,6 +458,8 @@ export function StockAnalyzer({
         </CardContent>
       </Card>
 
+      {stockData && <StockSnapshot key={`snapshot-${stockData.ticker}`} ticker={stockData.ticker} />}
+
       {/* Period Metrics */}
       {stockData && analysis && (() => {
         const startY = activeYears[startIdx];
@@ -550,6 +559,7 @@ export function StockAnalyzer({
                 <tr className="border-b border-border text-left text-muted-foreground">
                   <th className="pb-2 pr-3 font-medium">Period</th>
                   <th className="pb-2 pr-3 font-medium">EPS</th>
+                  <th className="pb-2 pr-3 font-medium" title="Total earnings — EPS without the share-count effect">Net Income</th>
                   <th className="pb-2 pr-3 font-medium">DPS</th>
                   <th className="pb-2 pr-3 font-medium">Sales/Share</th>
                   <th className="pb-2 pr-3 font-bold">Sales ($)</th>
@@ -569,6 +579,7 @@ export function StockAnalyzer({
                     {calendarYear ? `12/31/${y.year}` : y.endDate}
                   </td>
                   <td className="py-2 pr-3">{fmtNum(y.eps)}</td>
+                  <td className="py-2 pr-3">{fmtBig(y.netIncome, currency)}</td>
                   <td className="py-2 pr-3">{fmtNum(y.dividendsPerShare)}</td>
                   <td className="py-2 pr-3">{fmtNum(y.salesPerShare)}</td>
                   <td className="py-2 pr-3 font-medium">{fmtBig(y.revenue, currency)}</td>
@@ -587,6 +598,7 @@ export function StockAnalyzer({
                     {calendarYear ? `12/31/${y.year}` : y.endDate}
                   </td>
                   <td className="py-2 pr-3">{fmtNum(y.eps)}</td>
+                  <td className="py-2 pr-3">{fmtBig(y.netIncome, currency)}</td>
                   <td className="py-2 pr-3">{fmtNum(y.dividendsPerShare)}</td>
                   <td className="py-2 pr-3">{fmtNum(y.salesPerShare)}</td>
                   <td className="py-2 pr-3 font-medium">{fmtBig(y.revenue, currency)}</td>
@@ -602,6 +614,7 @@ export function StockAnalyzer({
                 <tr className="border-b border-border/50 bg-muted/30">
                   <td className="py-2 pr-3 font-medium text-muted-foreground">Growth %</td>
                   <td className="py-2 pr-3">{fmtPctOrNm(analysis.epsGrowth)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.netIncomeGrowth)}</td>
                   <td className="py-2 pr-3">{fmtPctOrNm(analysis.dpsGrowth)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.salesPerShareGrowth)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.dollarSalesGrowth)}</td>
@@ -616,6 +629,7 @@ export function StockAnalyzer({
                 <tr className="bg-muted/30">
                   <td className="py-2 pr-3 font-medium text-muted-foreground">Annual Avg</td>
                   <td className="py-2 pr-3">{fmtPctOrNm(analysis.annEps)}</td>
+                  <td className="py-2 pr-3">{fmtPctOrNm(analysis.annNetIncome)}</td>
                   <td className="py-2 pr-3">{fmtPctOrNm(analysis.annDps)}</td>
                   <td className="py-2 pr-3">{fmtPct(analysis.annSalesPerShare)}</td>
                   <td className="py-2 pr-3 font-bold">{fmtPct(analysis.annDollarSales)}</td>
@@ -628,6 +642,22 @@ export function StockAnalyzer({
                 </tr>
               </tbody>
             </table>
+            {analysis.annEps != null && analysis.annNetIncome != null && (() => {
+              // EPS growth ≈ net income growth − share-count growth; the gap
+              // is what buybacks added (or dilution took away) per year
+              const gap = analysis.annEps - analysis.annNetIncome;
+              return (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Earnings grew <span className="text-foreground">{fmtPct(analysis.annNetIncome)}</span>/yr in
+                  total; EPS grew <span className="text-foreground">{fmtPct(analysis.annEps)}</span>/yr.{" "}
+                  {Math.abs(gap) < 0.0005
+                    ? "Share count barely moved, so per-share and total earnings tracked each other."
+                    : gap > 0
+                      ? <>Buybacks added <span className="text-emerald-500">{fmtPct(gap)}</span>/yr to EPS on top of business growth.</>
+                      : <>Dilution cost <span className="text-red-400">{fmtPct(-gap)}</span>/yr — per-share earnings lagged the business.</>}
+                </p>
+              );
+            })()}
           </CardContent>
         </Card>
       )}
@@ -1041,6 +1071,8 @@ export function StockAnalyzer({
           </CardContent>
         </Card>
       )}
+
+      {stockData && <SuperinvestorOwnership key={`owners-${stockData.ticker}`} ticker={stockData.ticker} />}
     </div>
   );
 }

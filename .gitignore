@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 13F filing cache (refresh-13f)
+/data/13f-cache/

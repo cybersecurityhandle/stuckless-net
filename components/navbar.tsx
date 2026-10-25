@@ -12,6 +12,8 @@ export function Navbar() {
     { href: "/intel", label: "Threat Intel", short: "Intel" },
     { href: "/finance", label: "Finance" },
     { href: "/screener", label: "Screener" },
+    { href: "/superinvestors", label: "Superinvestors", short: "13F" },
+    { href: "/insiders", label: "Insider Buys", short: "Insiders" },
     { href: "/about", label: "About" },
   ];
 
