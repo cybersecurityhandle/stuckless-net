@@ -5,7 +5,7 @@ import lookThroughData from "@/data/lookthrough.json";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.20.0"; // 1.20.0 = look-through retained earnings for holdcos (BRK, MKL) from their 13Fs; one-time TCJA tax effect removed
+const API_VERSION = "1.21.0"; // 1.21.0 = reporting currency from Yahoo's financialCurrency, historical FX, ADR ratios, XOM predecessor CIK
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -32,12 +32,18 @@ const EDGAR_SHARES_OVERRIDE: Record<string, Record<string, number>> = {
   },
 };
 
+// Holding-company reorganizations re-register the ticker under a new CIK whose
+// companyfacts start empty, so history would vanish: merge in the predecessor's
+// facts. XOM: ExxonMobil Holdings Corp (2026) succeeded Exxon Mobil Corp.
+const PREDECESSOR_CIKS: Record<string, string[]> = {
+  "0002115436": ["0000034088"],
+};
+
 // Some foreign listings price in USD while Yahoo serves their financials in
 // the local reporting currency, inflating every per-share and money figure.
 // Map ticker → reporting currency; values are converted to the price currency
-// at the current FX rate (approximation: historical years use today's rate).
-// Only pure cases belong here (1:1 share listing, no ADR ratio) — e.g. TSM
-// (1 ADR = 5 shares) needs more than FX and is deliberately excluded.
+// at historical rates. Without an entry, Yahoo's financialCurrency decides
+// (NVO DKK, TSM TWD, TM JPY…) — entries are for where it's missing or wrong.
 const REPORTING_FX: Record<string, string> = {
   BAP: "PEN", // Credicorp — NYSE-listed, reports in Peruvian soles
   IFS: "PEN", // Intercorp Financial — same
@@ -54,6 +60,9 @@ const REPORTING_FX: Record<string, string> = {
 // year-end count reads 4,043M vs 2,750M weighted, and heavy buybacks make
 // year-end understate the period's share base anyway.
 const YAHOO_WEIGHTED_SHARES = new Set(["PRX.AS"]);
+
+// Shares per ADR (or ADRs per share) seen in practice, for ratio detection
+const ADR_RATIOS = [2, 3, 4, 5, 6, 8, 10, 20, 25, 50, 100];
 
 // Hard-coded tickers whose yearData is already in the listing currency, but
 // whose Yahoo-backfilled FCF arrives in the reporting currency. Only the
@@ -532,6 +541,18 @@ async function fetchEdgarData(ticker: string) {
 
   const factsJson = await res.json();
   const allFacts = factsJson.facts || {};
+  for (const pred of PREDECESSOR_CIKS[cik] ?? []) {
+    const r = await fetch(`https://data.sec.gov/api/xbrl/companyfacts/CIK${pred}.json`, { headers: SEC_HEADERS });
+    if (!r.ok) continue;
+    for (const [ns, concepts] of Object.entries(((await r.json()).facts || {}) as Record<string, any>)) {
+      allFacts[ns] ??= {};
+      for (const [name, c] of Object.entries(concepts as Record<string, any>)) {
+        const cur = allFacts[ns][name];
+        if (!cur) allFacts[ns][name] = c;
+        else for (const [u, arr] of Object.entries(c.units as Record<string, any[]>)) cur.units[u] = [...(cur.units[u] ?? []), ...arr];
+      }
+    }
+  }
 
   // ── Fiscal year data (from 10-K annual) ──
   const revenues = extractEdgar(allFacts, REVENUE_CONCEPTS);
@@ -904,7 +925,7 @@ export async function GET(req: NextRequest) {
     const [edgar, yfSummary, yfFundamentals, yfQuarterly, historical, chartData, dailyCloses, marketCloses] =
       await Promise.all([
         fetchEdgarData(ticker).catch(() => null),
-        yahooFinance.quoteSummary(ticker, { modules: ["price"] }).catch(() => null),
+        yahooFinance.quoteSummary(ticker, { modules: ["price", "financialData"] }).catch(() => null),
         yahooFinance
           .fundamentalsTimeSeries(ticker, {
             period1: new Date(new Date().getFullYear() - 6, 0, 1),
@@ -951,8 +972,38 @@ export async function GET(req: NextRequest) {
         return null;
       }
     };
-    const reportCur = REPORTING_FX[ticker.toUpperCase()];
+    // EDGAR 10-K values are always USD (units "USD"); hard-coded financials
+    // are in the listing currency already
+    const hasEdgarYears = Object.keys(edgar?.yearData ?? {}).length > 0;
+    const yahooFinCur: string | undefined = (yfSummary as any)?.financialData?.financialCurrency;
+    const reportCur =
+      REPORTING_FX[ticker.toUpperCase()] ??
+      (hasEdgarYears ? "USD" : getHardcodedEdgarData(ticker) ? undefined : yahooFinCur);
     const fxRate = await fetchFx(reportCur); // null → serve unconverted rather than fail
+    // Monthly closes of the pair, so each year converts at its own rate: P&L
+    // at the period's average, balance sheet at period end. Spot fills gaps.
+    const fxHistory: any[] = fxRate
+      ? await yahooFinance
+          .chart(`${reportCur}${listingCurrency}=X`, {
+            period1: startDate,
+            period2: new Date(),
+            interval: "1mo",
+            return: "array",
+          } as any)
+          .then((c: any) => (c?.quotes ?? []).filter((q: any) => q.close > 0))
+          .catch(() => [])
+      : [];
+    const fxAt = (end: string) => (fxHistory.length && getClosestPrice(fxHistory, new Date(end))) || fxRate!;
+    const fxAvg = (end: string, days: number) => {
+      const from = new Date(new Date(end).getTime() - (days - 1) * 86400000).toISOString().slice(0, 10);
+      const closes = fxHistory
+        .filter((q) => {
+          const d = (q.date instanceof Date ? q.date : new Date(q.date)).toISOString().slice(0, 10);
+          return d >= from && d <= end;
+        })
+        .map((q) => q.close);
+      return closes.length ? closes.reduce((a, b) => a + b, 0) / closes.length : fxAt(end);
+    };
     const backfillCur = BACKFILL_FX[ticker.toUpperCase()];
     const backfillFx = await fetchFx(backfillCur);
 
@@ -1100,14 +1151,16 @@ export async function GET(req: NextRequest) {
     // Convert reporting-currency financials to the listing currency
     if (fxRate) {
       for (const d of Object.values(yearMap)) {
-        d.revenue *= fxRate;
-        d.netIncome *= fxRate;
-        d.eps *= fxRate;
-        d.dps *= fxRate;
-        if (d.fcf != null) d.fcf *= fxRate;
-        if (d.equity != null) d.equity *= fxRate;
-        if (d.totalAssets != null) d.totalAssets *= fxRate;
-        if (d.longTermDebt != null) d.longTermDebt *= fxRate;
+        const avg = fxAvg(d.endDate, 365);
+        const end = fxAt(d.endDate);
+        d.revenue *= avg;
+        d.netIncome *= avg;
+        d.eps *= avg;
+        d.dps *= avg;
+        if (d.fcf != null) d.fcf *= avg;
+        if (d.equity != null) d.equity *= end;
+        if (d.totalAssets != null) d.totalAssets *= end;
+        if (d.longTermDebt != null) d.longTermDebt *= end;
       }
     }
 
@@ -1144,6 +1197,35 @@ export async function GET(req: NextRequest) {
               d.eps /= scale;
               d.dps /= scale;
             }
+          }
+        }
+      }
+    }
+
+    // ADR ratio: financials count ordinary shares, the price is per ADR (TSM
+    // 1 ADR = 5 shares, BABA 8, HDB 3, SNY ½). Yahoo's market cap ÷ price is
+    // the ADR-equivalent count; when the latest year's shares sit near a
+    // standard ratio of it, restate the series per ADR. Snapped to the ratios
+    // depositaries use, not any integer: Yahoo's count for TM implies 11, the
+    // ADR is 10. Only for USD-listed foreign filers (no 10-K years) —
+    // elsewhere a gap that size is real issuance or buybacks since year end.
+    let adrMult = 1;
+    if (listingCurrency === "USD" && !hasEdgarYears && classMult === 1) {
+      const mc = (yfSummary?.price as any)?.marketCap;
+      const px = (yfSummary?.price as any)?.regularMarketPrice;
+      const yrs = Object.keys(yearMap).map(Number);
+      const latest = yrs.length ? yearMap[Math.max(...yrs)] : null;
+      if (mc && px && latest?.sharesOutstanding > 0) {
+        const r = mc / px / latest.sharesOutstanding;
+        const n = r < 1 ? 1 / r : r;
+        const k = ADR_RATIOS.reduce((a, b) => (Math.abs(Math.log(n / b)) < Math.abs(Math.log(n / a)) ? b : a));
+        if (Math.abs(Math.log(n / k)) < Math.log(1.12)) {
+          adrMult = r < 1 ? 1 / k : k;
+          for (const d of Object.values(yearMap)) {
+            d.sharesOutstanding *= adrMult;
+            if (d.sharesDiluted != null) d.sharesDiluted *= adrMult;
+            d.eps /= adrMult;
+            d.dps /= adrMult;
           }
         }
       }
@@ -1245,10 +1327,10 @@ export async function GET(req: NextRequest) {
       // counting them would pass the 4-quarter check with only three quarters of data
       if (entry.totalRevenue == null || entry.netIncome == null) continue;
 
-      const fxQ = fxRate ?? 1;
+      const fxQ = fxRate ? fxAvg(endDate.toISOString().slice(0, 10), 91) : 1;
       const revenue = (entry.totalRevenue || 0) * fxQ;
       const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1) * fxQ;
-      const sharesQ = (entry.ordinarySharesNumber || 0) * classMult;
+      const sharesQ = (entry.ordinarySharesNumber || 0) * classMult * adrMult;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
       const divPaid = Math.abs(entry.commonStockDividendPaid || entry.cashDividendsPaid || 0) * fxQ;
 
@@ -1266,7 +1348,7 @@ export async function GET(req: NextRequest) {
       const cy = Number(cyStr);
       if (d.quarters !== 4 || !d.shares) continue;
       // Yahoo's quarters are GAAP; put them on the same operating basis
-      d.netIncome -= (edgarData?.calInvestmentGains[cy] ?? 0) * (fxRate ?? 1);
+      d.netIncome -= (edgarData?.calInvestmentGains[cy] ?? 0) * (fxRate ? fxAvg(`${cy}-12-31`, 365) : 1);
 
       const dps = d.shares > 0 ? d.divPaid / d.shares : 0;
       calYearMap[cy] = {
@@ -1355,12 +1437,15 @@ export async function GET(req: NextRequest) {
       name: companyName,
       currency,
       version: API_VERSION,
-      source: edgarData?.yearData ? "edgar+yahoo" : "yahoo",
+      source: Object.keys(edgarData?.yearData ?? {}).length ? "edgar+yahoo" : "yahoo",
       currentPrice: lastClose ? Math.round(lastClose * 100) / 100 : null,
       beta12w,
       fcfAttributableShare,
       netIncomeAttributableShare,
-      reportingFx: fxRate && reportCur ? { from: reportCur, rate: fxRate } : null,
+      // rate = today's; years convert at their own (fxHistory), when available
+      reportingFx: fxRate && reportCur ? { from: reportCur, rate: fxRate, historical: fxHistory.length > 0 } : null,
+      // ordinary shares per ADR, when detected (TSM 5); null for ordinary listings
+      adrRatio: adrMult !== 1 ? Math.round((1 / adrMult) * 100) / 100 : null,
       // "operating": netIncome/eps exclude after-tax investment gains, listed
       // per fiscal year (reporting currency) so the page can show GAAP too
       earningsBasis: edgarData?.operatingBasis ? "operating" : "gaap",

@@ -53,7 +53,8 @@ interface StockData {
   source: "edgar+yahoo" | "yahoo";
   fcfAttributableShare?: number | null;
   netIncomeAttributableShare?: number | null;
-  reportingFx?: { from: string; rate: number } | null;
+  reportingFx?: { from: string; rate: number; historical?: boolean } | null;
+  adrRatio?: number | null;
   earningsBasis?: "operating" | "gaap";
   investmentGains?: Record<string, number> | null; // after-tax, by fiscal year
   lookThrough?: Record<string, number> | null; // after-tax retained investee earnings added, by year
@@ -467,8 +468,18 @@ export function StockAnalyzer({
               {stockData.reportingFx && (
                 <p className="text-[10px] text-yellow-500/80">
                   Financials reported in {stockData.reportingFx.from}, converted to the listing
-                  currency at today&apos;s rate ({stockData.reportingFx.rate.toFixed(4)}) — historical
-                  years use the current rate, an approximation.
+                  currency{" "}
+                  {stockData.reportingFx.historical
+                    ? "at each year's average rate (balance sheet at year end)"
+                    : `at today's rate (${stockData.reportingFx.rate.toFixed(4)}) — historical years use the current rate, an approximation`}
+                  .
+                </p>
+              )}
+              {stockData.adrRatio != null && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Per-share figures are per ADR (1 ADR ={" "}
+                  {stockData.adrRatio < 1 ? `${stockData.adrRatio} share` : `${stockData.adrRatio} shares`}), inferred
+                  from market cap ÷ price.
                 </p>
               )}
               {stockData.earningsBasis === "operating" && (() => {
