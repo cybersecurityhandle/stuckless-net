@@ -23,6 +23,7 @@ import {
   buildIssuers,
   filingUrl,
   issuerKey,
+  MANAGERS,
   portfolioImpact,
   splitFactorSince,
   type ChangeType,
@@ -1018,7 +1019,7 @@ function ManagerView({
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground hover:text-foreground hover:underline"
           >
-            13F on EDGAR ↗
+            {MANAGERS.find((m) => m.id === summary.id)?.nport ? "N-PORT" : "13F"} on EDGAR ↗
           </a>
         )}
       </div>

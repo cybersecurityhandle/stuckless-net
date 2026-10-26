@@ -12,6 +12,10 @@ export interface Manager {
   name: string; // person, or the firm when Dataroma lists no person
   firm: string; // "" when name is already the firm
   ciks: number[]; // every CIK that has filed this portfolio's 13F-HR, current first
+  // Fund series whose N-PORT-P filings replace the 13F (current first) — they
+  // list every holding, non-US listings included, quarterly ~60 days after
+  // quarter end. `ciks` is then the trust that files them.
+  nport?: string[];
   favorite?: boolean; // "my picks" — pinned in the UI and the default consensus
 }
 
@@ -24,6 +28,10 @@ export interface Manager {
 // - Spier moved Aquamarine to Zurich (1953324) from Q3 2022.
 // - Ruane Cunniff, Appaloosa: reorganized into new LPs in 2018 / 2016.
 // - Pabrai files as Dalal Street (1549575); "PABRAI MOHNISH" stopped in 2011.
+// - Pabrai Wagons (WAGN) is an N-PORT series of Professionally Managed
+//   Portfolios (811030): the mutual fund S000081831 through Dec 2025, the ETF
+//   S000098509 after its Feb 2026 conversion. Its Turkish, Indian and other
+//   non-US holdings are missing from Dalal Street's 13F.
 // Not trackable: Ted Weschler (inside Berkshire's 13F); Todd Combs (left
 // Berkshire Dec 2025 for JPMorgan's balance-sheet investment group).
 export const MANAGERS: Manager[] = [
@@ -79,6 +87,14 @@ export const MANAGERS: Manager[] = [
   { id: "mairs-power-funds", name: "Mairs & Power Funds", firm: "", ciks: [1070134] },
   { id: "mason-hawkins", name: "Mason Hawkins", firm: "Southeastern Asset Management", ciks: [807985] },
   { id: "pabrai", name: "Mohnish Pabrai", firm: "Pabrai Investments", ciks: [1549575], favorite: true },
+  {
+    id: "pabrai-wagons",
+    name: "Pabrai Wagons ETF",
+    firm: "WAGN · Mohnish Pabrai",
+    ciks: [811030],
+    nport: ["S000098509", "S000081831"],
+    favorite: true,
+  },
   { id: "muhlenkamp", name: "Muhlenkamp", firm: "", ciks: [1133219] },
   { id: "nelson-peltz", name: "Nelson Peltz", firm: "Trian Fund Management", ciks: [1345471] },
   { id: "norbert-lou", name: "Norbert Lou", firm: "Punch Card Management", ciks: [1631664] },
@@ -131,6 +147,14 @@ export const CUSIP_OVERRIDES: Record<string, string | null> = {
   "G9001E128": "LILAK", // Liberty Latin America class C
   "38259P706": "GOOG", // pre-2015 Google class C CUSIP, still filed by some
   "08986R101": "BH", // Biglari Holdings class B (~$426, vs BH-A ~$2,100)
+  // Canadian home listings (N-PORT reports these in CAD; OpenFIGI's US
+  // match is the thin OTC line, e.g. CNSWF). Quotes are converted to USD.
+  "21037X100": "CSU.TO", // Constellation Software
+  "89072T102": "TOI.V", // Topicus.com
+  "55027C106": "LMN.V", // Lumine Group
+  "88770A100": "TINY.TO", // Tiny Ltd
+  // N-PORT ISINs whose local ticker isn't the exchange symbol
+  INE532F01054: "EDELWEISS.NS", // Edelweiss Financial Services (filed as EDEL)
 };
 
 // Preferred shares filed with a "COM" class title, so the class-title check
@@ -144,6 +168,7 @@ export const PREFERRED_CUSIPS = new Set([
 
 export type ChangeType = "new" | "add" | "reduce" | "sold";
 
+// USD, like position values — non-US listings are converted at today's rate
 export interface Quote {
   price: number;
   low52: number | null;
@@ -366,6 +391,10 @@ export interface HistoryQuarter {
   accession: string;
   cik: number;
   total: number; // long-equity value
+  // N-PORT funds: 1 + net subscriptions / prior net assets. An add is
+  // buying beyond prior shares × inflow, so subscriptions that buy more of
+  // everything aren't "adds" (reduces likewise net out redemptions)
+  flow?: number;
   positions: HistoryPosition[]; // sorted by value desc
   sold: HistoryPosition[]; // prior-quarter figures
 }

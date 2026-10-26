@@ -77,10 +77,16 @@ interface RawRow {
   value: number;
   shares: number;
   putCall?: "PUT" | "CALL";
+  ticker?: string; // N-PORT only: Yahoo symbol derived from the filed ticker
 }
 
 interface CachedFiling {
   amendmentType?: string;
+  // N-PORT only: report date (the series filing list has none), fund size,
+  // and the quarter's net subscriptions (sales + reinvestments − redemptions)
+  period?: string;
+  netAssets?: number;
+  netFlow?: number;
   rows: RawRow[] | null;
 }
 
@@ -88,6 +94,7 @@ interface Quarter {
   period: string;
   latest: Filing;
   positions: Map<string, RawRow>;
+  flow?: number; // funds: 1 + net flows / prior net assets (see change())
 }
 
 /* ── Helpers ───────────────────────────────────────────────── */
@@ -168,6 +175,86 @@ async function listFilings(cik: number): Promise<Filing[]> {
   return out;
 }
 
+/* ── N-PORT (fund series) ──────────────────────────────────── */
+
+// Yahoo exchange suffix by N-PORT currency, where one exchange dominates.
+// CAD is ambiguous (TSX .TO vs TSXV .V), so Canadian names go in
+// CUSIP_OVERRIDES; anything else unmapped logs as unresolved.
+const NPORT_SUFFIX: Record<string, string> = {
+  TRY: ".IS",
+  INR: ".NS",
+  HKD: ".HK",
+  PLN: ".WA",
+  JPY: ".T",
+  GBP: ".L",
+  KRW: ".KS",
+};
+
+function nportTicker(filed: string | undefined, cur: string, country: string): string | undefined {
+  if (!filed) return undefined;
+  if (cur === "USD") return filed.replace("/", "-"); // BRK/B → BRK-B
+  if (cur === "EUR" && country === "IT") return `${filed}.MI`;
+  const suffix = NPORT_SUFFIX[cur];
+  if (!suffix) return undefined;
+  return cur === "HKD" ? `${filed.padStart(4, "0")}${suffix}` : `${filed}${suffix}`;
+}
+
+/**
+ * A series' N-PORT-P filings. The trust files one per series per quarter;
+ * EDGAR's company browser accepts a series ID as the CIK and lists only that
+ * series. The report date is inside the filing, so each is parsed here
+ * (cached) rather than in loadFiling.
+ */
+async function listNportFilings(trustCik: number, seriesId: string): Promise<Filing[]> {
+  const url = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${seriesId}&type=NPORT-P&dateb=&owner=include&count=100&output=atom`;
+  const atom = await (await sec(url)).text();
+  const out: Filing[] = [];
+  for (const [, entry] of atom.matchAll(/<entry>([\s\S]*?)<\/entry>/g)) {
+    const form = tag(entry, "filing-type");
+    const accession = tag(entry, "accession-number");
+    const filed = tag(entry, "filing-date");
+    if (!form?.startsWith("NPORT-P") || !accession || !filed) continue;
+    const f: Filing = { cik: trustCik, form, filed, period: "", accession };
+    const cached = await loadFiling(f, seriesId);
+    if (!cached.period || cached.period < HISTORY_FROM) continue;
+    out.push({ ...f, period: cached.period });
+  }
+  return out;
+}
+
+/** Long common-stock holdings from an N-PORT-P, values already in USD */
+async function fetchNport(f: Filing, seriesId: string): Promise<CachedFiling> {
+  const xml = await (await sec(`${filingBaseUrl(f)}/primary_doc.xml`)).text();
+  if (tag(xml, "seriesId") !== seriesId) throw new Error(`${f.accession} is not series ${seriesId}`);
+  const rows: RawRow[] = [];
+  for (const m of xml.matchAll(/<invstOrSec>([\s\S]*?)<\/invstOrSec>/g)) {
+    const t = m[1];
+    // Common equity only (no cash sweep, bonds, preferreds or derivatives),
+    // like the 13F side
+    if (tag(t, "assetCat") !== "EC" || tag(t, "payoffProfile") !== "Long" || tag(t, "units") !== "NS") continue;
+    const cusip = (tag(t, "cusip") ?? "").toUpperCase();
+    const isin = t.match(/<isin value="([^"]+)"/)?.[1];
+    // Non-US listings have no CUSIP ("N/A", "000000000") — key them by ISIN
+    const key = /^[0-9A-Z]{8}\d$/.test(cusip) && cusip !== "000000000" ? cusip : isin;
+    if (!key) continue;
+    const cur = t.match(/curCd="([A-Z]{3})"/)?.[1] ?? tag(t, "curCd") ?? "USD";
+    rows.push({
+      issuer: decode(tag(t, "title") || tag(t, "name") || ""),
+      class: "COM",
+      cusip: key,
+      value: Number(tag(t, "valUSD") ?? 0),
+      shares: Number(tag(t, "balance") ?? 0),
+      ticker: nportTicker(t.match(/<ticker value="([^"]+)"/)?.[1], cur, tag(t, "invCountry") ?? ""),
+    });
+  }
+  let netFlow = 0;
+  for (const [, attrs] of xml.matchAll(/<mon[123]Flow([^>]*)\/?>/g)) {
+    const num = (a: string) => Number(attrs.match(new RegExp(`${a}="([^"]*)"`))?.[1] ?? 0);
+    netFlow += num("sales") + num("reinvestment") - num("redemption");
+  }
+  return { period: tag(xml, "repPdDate"), netAssets: Number(tag(xml, "netAssets") ?? 0), netFlow, rows };
+}
+
 async function fetchInfoTable(f: Filing): Promise<RawRow[] | null> {
   const base = filingBaseUrl(f);
   const index = await (await sec(`${base}/index.json`)).json();
@@ -217,8 +304,14 @@ function filingBaseUrl(f: Filing) {
   return `https://www.sec.gov/Archives/edgar/data/${f.cik}/${f.accession.replace(/-/g, "")}`;
 }
 
-async function loadFiling(f: Filing): Promise<CachedFiling> {
+async function loadFiling(f: Filing, seriesId?: string): Promise<CachedFiling> {
   const path = join(FILING_CACHE, `${f.accession}.json`);
+  if (seriesId) {
+    if (existsSync(path)) return readJson<CachedFiling>(path, { rows: null });
+    const parsed = await fetchNport(f, seriesId);
+    writeJson(path, parsed);
+    return parsed;
+  }
   if (existsSync(path)) {
     // Filings cached before CDATA stripping was added
     const cached = readJson<CachedFiling>(path, { rows: null });
@@ -257,7 +350,8 @@ async function quarterRows(filings: Filing[]): Promise<{ rows: RawRow[]; latest:
     const { rows: filed, amendmentType } = await loadFiling(f);
     if (!filed) continue; // cover-page-only amendment
     const total = (rs: RawRow[]) => rs.reduce((s, r) => s + r.value, 0);
-    if (f.form === "13F-HR" || amendmentType?.includes("RESTATEMENT") || total(filed) >= 0.9 * total(rows)) {
+    // N-PORT amendments are complete re-filings
+    if (f.form === "13F-HR" || f.form.startsWith("NPORT") || amendmentType?.includes("RESTATEMENT") || total(filed) >= 0.9 * total(rows)) {
       rows = filed;
     } else {
       const amended = new Set(filed.map(key));
@@ -414,15 +508,19 @@ async function fetchQuotes(tickers: string[]): Promise<Record<string, Quote>> {
         fiftyTwoWeekHigh?: number;
         epsTrailingTwelveMonths?: number;
         trailingAnnualDividendRate?: number;
+        currency?: string;
       }[];
       for (const r of rows) {
         if (!r.regularMarketPrice) continue;
+        const fx = await usdRate(yf, r.currency);
+        if (fx == null) continue; // no rate — omit rather than mix currencies
+        const usd = (x: number | undefined) => (x != null ? x * fx : null);
         out[r.symbol] = {
-          price: r.regularMarketPrice,
-          low52: r.fiftyTwoWeekLow ?? null,
-          high52: r.fiftyTwoWeekHigh ?? null,
-          eps: r.epsTrailingTwelveMonths ?? null,
-          dps: r.trailingAnnualDividendRate ?? null,
+          price: r.regularMarketPrice * fx,
+          low52: usd(r.fiftyTwoWeekLow),
+          high52: usd(r.fiftyTwoWeekHigh),
+          eps: usd(r.epsTrailingTwelveMonths),
+          dps: usd(r.trailingAnnualDividendRate),
         };
       }
     } catch (err) {
@@ -432,8 +530,30 @@ async function fetchQuotes(tickers: string[]): Promise<Record<string, Quote>> {
   }
 
   // Note: quote EPS is already per traded share in the quote currency, even
-  // for ADRs whose statements are in CNY/TWD (PDD, TSM) — no FX needed
+  // for ADRs whose statements are in CNY/TWD (PDD, TSM) — only the quote
+  // currency needs converting
   return sortKeys(out);
+}
+
+// Holdings are valued in USD (13F and N-PORT alike), so non-US quotes
+// (TAVHL.IS in TRY, CSU.TO in CAD) are converted at today's rate. Minor
+// units (GBp, ZAc, ILA) are hundredths of the major currency.
+const fxRates = new Map<string, number | null>([["USD", 1]]);
+async function usdRate(yf: { quote: (t: string[], o?: object) => Promise<Record<string, unknown>[]> }, currency = "USD") {
+  const minor: Record<string, string> = { GBp: "GBP", GBX: "GBP", ZAc: "ZAR", ILA: "ILS" };
+  const major = minor[currency] ?? currency.toUpperCase();
+  const scale = minor[currency] ? 0.01 : 1;
+  if (!fxRates.has(major)) {
+    try {
+      const [q] = (await yf.quote([`${major}USD=X`], { return: "array" })) as { regularMarketPrice?: number }[];
+      fxRates.set(major, q?.regularMarketPrice ?? null);
+    } catch {
+      fxRates.set(major, null);
+    }
+    if (fxRates.get(major) == null) console.log(`  no ${major}→USD rate; dropping ${major} quotes`);
+  }
+  const rate = fxRates.get(major);
+  return rate != null ? rate * scale : null;
 }
 
 function saveSplitCache() {
@@ -477,11 +597,23 @@ async function change(
   prev: RawRow | undefined,
   ticker: string | null,
   from: string,
-  to: string
+  to: string,
+  flow?: number
 ): Promise<Pick<HistoryPosition, "c" | "p">> {
   if (!prev) return { c: "new" };
   if (cur.shares === prev.shares) return {};
   const prevShares = prev.shares * (await splitFactor(cur, prev, ticker, from, to));
+  if (flow != null) {
+    // A fund buys more of everything with subscriptions (and sells with
+    // redemptions), so an add is buying beyond the inflow and a reduce is
+    // selling beyond the outflow. Holding steady while new money funds
+    // other names is neither. ±5%: flows are never invested exactly pro rata.
+    const up = prevShares * Math.max(flow, 1) * 1.05;
+    const down = prevShares * Math.min(flow, 1) * 0.95;
+    if (cur.shares > up) return { c: "add", p: cur.shares / (up / 1.05) - 1 };
+    if (cur.shares < down) return { c: "reduce", p: 1 - cur.shares / (down / 0.95) };
+    return {};
+  }
   // Fractional-share rounding after a split
   if (Math.abs(cur.shares - prevShares) / prevShares < 0.0005) return {};
   return cur.shares > prevShares
@@ -547,7 +679,9 @@ async function loadSecCompanies() {
 function displayName(ticker: string | null, issuer: string): string {
   if (ticker && NAME_FIXES[ticker]) return NAME_FIXES[ticker];
   const title = ticker ? secTitles[ticker] : undefined;
-  return title ? cleanCompanyTitle(title) : prettyIssuer(issuer);
+  if (title) return cleanCompanyTitle(title);
+  // N-PORT names are already mixed case ("TAV Havalimanlari Holding AS")
+  return /[a-z]/.test(issuer) ? cleanCompanyTitle(issuer) : prettyIssuer(issuer);
 }
 
 /**
@@ -645,7 +779,8 @@ async function resolveTickers(
 
 async function loadQuarters(m: Manager): Promise<Quarter[]> {
   const filings: Filing[] = [];
-  for (const cik of m.ciks) filings.push(...(await listFilings(cik)));
+  if (m.nport) for (const series of m.nport) filings.push(...(await listNportFilings(m.ciks[0], series)));
+  else for (const cik of m.ciks) filings.push(...(await listFilings(cik)));
   const periods = [...new Set(filings.map((f) => f.period))].sort().reverse();
   const quarters: Quarter[] = [];
   for (const period of periods) {
@@ -653,7 +788,16 @@ async function loadQuarters(m: Manager): Promise<Quarter[]> {
     // Skip placeholder reports (Makaira Q1 2026: one all-zero row)
     if (rows.some((r) => r.value > 0)) quarters.push({ period, latest, positions: aggregate(rows) });
   }
-  if (!quarters.length) throw new Error("no 13F-HR filings");
+  if (!quarters.length) throw new Error(m.nport ? "no N-PORT-P filings" : "no 13F-HR filings");
+  if (m.nport) {
+    // Subscriptions buy more of everything — size each quarter's flows
+    // against the prior quarter's fund (filings are cached by now)
+    const fund = await Promise.all(quarters.map((q) => loadFiling(q.latest)));
+    for (let i = 0; i < quarters.length - 1; i++) {
+      const prevAssets = fund[i + 1].netAssets;
+      if (prevAssets && fund[i].netFlow != null) quarters[i].flow = 1 + fund[i].netFlow! / prevAssets;
+    }
+  }
   fixUnitsAcrossQuarters(quarters);
   return quarters;
 }
@@ -720,7 +864,7 @@ async function buildHistory(
           carried.add(was);
         }
       }
-      const c = prev ? await change(r, before, t, prevQ.period, q.period) : {};
+      const c = prev ? await change(r, before, t, prevQ.period, q.period, q.flow) : {};
       positions.push({ ...compact(r), ...c });
     }
     const sold = prev
@@ -734,6 +878,7 @@ async function buildHistory(
       accession: q.latest.accession,
       cik: q.latest.cik,
       total: Math.round(longTotal(q.positions)),
+      ...(q.flow != null ? { flow: Math.round(q.flow * 1e4) / 1e4 } : {}),
       positions: positions.sort(byValue),
       sold: sold.sort(byValue),
     });
@@ -794,6 +939,7 @@ interface PositionStats {
   costTotal: number; // est. dollars paid for the shares now held
   partial: boolean; // already held in the first quarter on file
   streak: number;
+  shares: number; // as of the last quarter walked
 }
 
 /**
@@ -819,9 +965,20 @@ function positionStats(h: ManagerHistoryJson): Map<string, PositionStats> {
           costTotal: p.v,
           partial: i === n - 1,
           streak: p.c === "new" ? 1 : 0,
+          shares: p.s,
         });
         continue;
       }
+      // Funds: cost follows actual share changes, since flow-driven buys
+      // aren't flagged as adds (see change())
+      if (q.flow != null) {
+        if (p.s > st.shares) st.costTotal += (p.s - st.shares) * price;
+        else if (st.shares) st.costTotal *= p.s / st.shares;
+        st.shares = p.s;
+        st.streak = p.c === "add" ? st.streak + 1 : 0;
+        continue;
+      }
+      st.shares = p.s;
       if (p.c === "add" && p.p) {
         st.costTotal += (p.s - p.s / (1 + p.p)) * price;
         st.streak += 1;
@@ -1002,7 +1159,12 @@ async function main() {
   console.log(`Refreshing 13F holdings for ${list.length} managers\n`);
   const cache = readJson<Record<string, string>>(TICKER_CACHE, {});
   const misses = readJson<Record<string, string>>(MISS_CACHE, {});
-  const tickerOf = (c: string) => (c in CUSIP_OVERRIDES ? CUSIP_OVERRIDES[c] : (cache[c] ?? null));
+  // N-PORT's own ticker for ISIN-keyed and non-USD holdings. Kept out of
+  // OpenFIGI/name matching, which only know US listings (name matching would
+  // map Coca-Cola Icecek to KO).
+  const hints = new Map<string, string | null>();
+  const tickerOf = (c: string) =>
+    c in CUSIP_OVERRIDES ? CUSIP_OVERRIDES[c] : hints.has(c) ? hints.get(c)! : (cache[c] ?? null);
   const summaries: ManagerSummary[] = [];
   const latest: LatestHoldingsJson = { updated: today(), securities: {}, holdings: {}, quotes: {} };
   const failed: string[] = [];
@@ -1021,6 +1183,11 @@ async function main() {
       loaded.set(m.id, quarters);
       for (const q of quarters) {
         for (const r of q.positions.values()) {
+          // ISIN-keyed (no CUSIP) or a non-US listing (TAVHL.IS)
+          if (m.nport && (r.cusip.length === 12 || r.ticker?.includes("."))) {
+            hints.set(r.cusip, r.ticker ?? null);
+            continue;
+          }
           const names = spellings.get(r.cusip) ?? [];
           if (!names.includes(r.issuer)) names.push(r.issuer);
           spellings.set(r.cusip, names);
