@@ -58,6 +58,7 @@ interface StockData {
   earningsBasis?: "operating" | "gaap";
   investmentGains?: Record<string, number> | null; // after-tax, by fiscal year
   lookThrough?: Record<string, number> | null; // after-tax retained investee earnings added, by year
+  discontinued?: { label: string; years: Record<string, number> } | null; // removed from net income
   tcja?: Record<string, number>; // one-time 2017 tax-reform effect removed (positive = charge added back)
   currentPrice?: number | null;
   years: YearData[];
@@ -507,6 +508,25 @@ export function StockAnalyzer({
                     .map(([y, v]) => `FY${y} ${v > 0 ? "charge" : "benefit"} ${fmtBig(Math.abs(v), stockData.currency)}`)
                     .join(", ")}
                   .
+                </p>
+              )}
+              {stockData.discontinued && Object.keys(stockData.discontinued.years).length > 0 && (
+                <p className="text-[10px] text-yellow-500/80">
+                  Earnings exclude discontinued operations ({stockData.discontinued.label}), including
+                  the one-time loss on the spin-off, so every year shows the business that remains:{" "}
+                  {Object.entries(stockData.discontinued.years)
+                    .map(([y, v]) => `FY${y} ${v < 0 ? "loss" : "profit"} ${fmtBig(Math.abs(v), stockData.currency)}`)
+                    .join(", ")}
+                  .
+                  {(() => {
+                    const asReported = stockData.years
+                      .filter((y) => stockData.discontinued!.years[y.year] == null)
+                      .map((y) => `FY${y.year}`);
+                    return asReported.length
+                      ? ` ${asReported.join(", ")} as originally reported (no restated figure), so still including it.`
+                      : "";
+                  })()}{" "}
+                  Key Stats P/E (ttm) stays GAAP.
                 </p>
               )}
               {stockData.netIncomeAttributableShare != null && (

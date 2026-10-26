@@ -5,7 +5,7 @@ import lookThroughData from "@/data/lookthrough.json";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.21.0"; // 1.21.0 = reporting currency from Yahoo's financialCurrency, historical FX, ADR ratios, XOM predecessor CIK
+const API_VERSION = "1.22.0"; // 1.22.0 = SONY discontinued operations (Sony Financial spin-off) stripped
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -89,6 +89,15 @@ const BETA_TRADING_DAYS = 60;
 //            FCF: FY25 A$9.1M / A$28.8M ≈ 0.32.
 //   ACP.WA — consolidated FCF scaled by attributable/consolidated net profit:
 //            37% (2022), 40% (2023), 50% (2024), ~55% (2025); 0.45 midpoint.
+// Yahoo-sourced tickers whose discontinued operations come out of net income,
+// value = what was discontinued (shown on the page). SONY: Sony Financial
+// Group, spun off Oct 2025 — FY2025's ¥1.36T discontinued loss is mostly the
+// non-cash loss on distribution, one-time like TCJA. Earlier years lose that
+// unit's profit too, so the series is the business that remains.
+const STRIP_DISCONTINUED: Record<string, string> = {
+  SONY: "Sony Financial Group, spun off Oct 2025",
+};
+
 const ATTRIBUTABLE_SHARE: Record<string, { fcf: number; netIncome?: number }> = {
   "KPG.AX": { fcf: 0.32 },
   "ACP.WA": { fcf: 0.45 },
@@ -1071,6 +1080,8 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Fill gaps with Yahoo Finance fundamentalsTimeSeries (only for years EDGAR doesn't cover)
+    const stripDiscontinued = STRIP_DISCONTINUED[ticker.toUpperCase()];
+    const discontinued: Record<number, number> = {}; // reporting currency, by fiscal year
     for (const entry of yfFundamentals as any[]) {
       const endDate = entry.date instanceof Date ? entry.date : new Date(entry.date);
       const year = endDate.getMonth() < 5 ? endDate.getFullYear() - 1 : endDate.getFullYear();
@@ -1097,7 +1108,9 @@ export async function GET(req: NextRequest) {
       }
 
       const revenue = entry.totalRevenue;
-      const netIncome = entry.netIncome;
+      const disc = stripDiscontinued ? entry.netIncomeDiscontinuousOperations ?? 0 : 0;
+      if (disc) discontinued[year] = disc;
+      const netIncome = entry.netIncome - disc;
       const sharesOut =
         (YAHOO_WEIGHTED_SHARES.has(ticker.toUpperCase()) && entry.basicAverageShares > 0
           ? entry.basicAverageShares
@@ -1329,7 +1342,8 @@ export async function GET(req: NextRequest) {
 
       const fxQ = fxRate ? fxAvg(endDate.toISOString().slice(0, 10), 91) : 1;
       const revenue = (entry.totalRevenue || 0) * fxQ;
-      const netIncome = (entry.netIncome || 0) * (attrShare?.netIncome ?? 1) * fxQ;
+      const discQ = stripDiscontinued ? entry.netIncomeDiscontinuousOperations ?? 0 : 0;
+      const netIncome = ((entry.netIncome || 0) - discQ) * (attrShare?.netIncome ?? 1) * fxQ;
       const sharesQ = (entry.ordinarySharesNumber || 0) * classMult * adrMult;
       const epsQ = sharesQ > 0 ? netIncome / sharesQ : 0; // Basic EPS, consistent with share count
       const divPaid = Math.abs(entry.commonStockDividendPaid || entry.cashDividendsPaid || 0) * fxQ;
@@ -1463,6 +1477,17 @@ export async function GET(req: NextRequest) {
           .map((y) => [y.year, edgarData?.tcja[y.endDate]] as const)
           .filter(([, v]) => v != null)
       ),
+      // Discontinued operations removed from net income, by fiscal year (listing currency)
+      discontinued: stripDiscontinued
+        ? {
+            label: stripDiscontinued,
+            years: Object.fromEntries(
+              years
+                .filter((y) => discontinued[y.year] != null)
+                .map((y) => [y.year, discontinued[y.year] * (fxRate ? fxAvg(y.endDate, 365) : 1)])
+            ),
+          }
+        : null,
       // After-tax retained earnings of investees added to holdco net income, by year
       lookThrough: Object.keys(lookThrough).length ? lookThrough : null,
       years,
