@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Superinvestors } from "@/components/superinvestors";
 
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function SuperinvestorsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <Superinvestors />
+      {/* useSearchParams needs a Suspense boundary on a statically rendered page */}
+      <Suspense>
+        <Superinvestors />
+      </Suspense>
     </div>
   );
 }

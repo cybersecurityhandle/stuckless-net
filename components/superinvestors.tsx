@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Area,
   AreaChart,
@@ -1087,7 +1088,13 @@ export function Superinvestors() {
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
   const [latest, setLatest] = useState<LatestHoldingsJson | null>(null);
   const [error, setError] = useState(false);
-  const [selected, setSelected] = useState<string>("filings");
+  // The URL is the only source of truth for the open view: a copy in state
+  // drifts from it when the router restores a cached page (e.g. Backtest
+  // showing under ?m=map after switching pages). Deep links such as
+  // /superinvestors?m=<manager id | consensus | all> come from the stock snapshot.
+  const m = useSearchParams().get("m");
+  const selected =
+    m && (VIEWS.includes(m) || index?.managers.some((x) => x.id === m)) ? m : "filings";
 
   useEffect(() => {
     Promise.all([
@@ -1097,15 +1104,12 @@ export function Superinvestors() {
       .then(([idx, lat]: [SuperinvestorsJson, LatestHoldingsJson]) => {
         setIndex(idx);
         setLatest(lat);
-        // Deep link: /superinvestors?m=<manager id | consensus | all> (e.g. from the stock snapshot)
-        const m = new URLSearchParams(window.location.search).get("m");
-        if (m && (VIEWS.includes(m) || idx.managers.some((x) => x.id === m))) setSelected(m);
       })
       .catch(() => setError(true));
   }, []);
 
   function select(id: string) {
-    setSelected(id);
+    // replaceState is synced into useSearchParams by the Next router
     const url = id === "filings" ? "/superinvestors" : `/superinvestors?m=${id}`;
     window.history.replaceState(null, "", url);
     window.scrollTo({ top: 0 });
