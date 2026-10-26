@@ -85,6 +85,8 @@ export const MANAGERS: Manager[] = [
   { id: "lilu", name: "Li Lu", firm: "Himalaya Capital Management", ciks: [1709323], favorite: true },
   { id: "lindsell-train", name: "Lindsell Train", firm: "", ciks: [1484150] },
   { id: "mairs-power-funds", name: "Mairs & Power Funds", firm: "", ciks: [1070134] },
+  // Not on Dataroma; 13F-HR since Q4 2002
+  { id: "mark-boyar", name: "Mark Boyar", firm: "Boyar Asset Management", ciks: [1218254] },
   { id: "mason-hawkins", name: "Mason Hawkins", firm: "Southeastern Asset Management", ciks: [807985] },
   { id: "pabrai", name: "Mohnish Pabrai", firm: "Pabrai Investments", ciks: [1549575], favorite: true },
   {
