@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRedis } from "@/lib/analytics";
+import { getRedis } from "@/lib/redis";
 import { LOOK_THROUGH_HOLDCOS, type LookThroughJson } from "@/lib/lookthrough";
 import lookThroughData from "@/data/lookthrough.json";
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { CommandPalette } from "@/components/command-palette";
@@ -42,6 +43,9 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1">{children}</main>
         <CommandPalette />
+        {process.env.NEXT_PUBLIC_ANALYTICS_SRC && (
+          <Script src={process.env.NEXT_PUBLIC_ANALYTICS_SRC} strategy="afterInteractive" />
+        )}
       </body>
     </html>
   );
