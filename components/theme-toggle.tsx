@@ -1,11 +1,14 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
+import { themeScope } from "@/lib/theme";
 
-// Dark is the default; light is opt-in and remembered in localStorage.
-// The inline script in app/layout.tsx applies it before first paint, so the
-// <html> class is the source of truth here.
+// Each section remembers its own theme (lib/theme.ts): Superinvestors
+// defaults to light, everything else to dark. The inline script in
+// app/layout.tsx applies it before first paint, so the <html> class is the
+// source of truth here.
 function subscribe(onChange: () => void) {
   const observer = new MutationObserver(onChange);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
@@ -16,12 +19,13 @@ const isDark = () => document.documentElement.classList.contains("dark");
 
 export function ThemeToggle() {
   const dark = useSyncExternalStore(subscribe, isDark, () => true);
+  const { key } = themeScope(usePathname());
 
   function toggle() {
     const next = !dark;
     document.documentElement.classList.toggle("dark", next);
     try {
-      localStorage.setItem("theme", next ? "dark" : "light");
+      localStorage.setItem(key, next ? "dark" : "light");
     } catch {
       // private mode / blocked storage: theme still switches for this visit
     }

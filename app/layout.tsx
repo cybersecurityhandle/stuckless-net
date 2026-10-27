@@ -4,6 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { CommandPalette } from "@/components/command-palette";
+import { ThemeRouteSync } from "@/components/theme-route-sync";
+import { THEME_SCRIPT } from "@/lib/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,17 +34,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Apply a saved light theme before first paint (dark is the default) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("theme")==="light")document.documentElement.classList.remove("dark")}catch(e){}`,
-          }}
-        />
+        {/* Apply the section's theme before first paint: light-first on
+            Superinvestors, dark elsewhere, each remembered separately */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
         <CommandPalette />
+        <ThemeRouteSync />
         {process.env.NEXT_PUBLIC_ANALYTICS_SRC && (
           <Script src={process.env.NEXT_PUBLIC_ANALYTICS_SRC} strategy="afterInteractive" />
         )}
