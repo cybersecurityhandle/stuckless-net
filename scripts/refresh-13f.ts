@@ -892,6 +892,23 @@ function longPositions(h: ManagerHistoryJson): HistoryPosition[] {
   return h.quarters[0].positions.filter((p) => !p.k.includes("|"));
 }
 
+// Largest companies with share classes combined (BRK-A + BRK-B, GOOG +
+// GOOGL), each labelled by its larger class
+function topIssuers(longs: HistoryPosition[], h: ManagerHistoryJson, n = 3): string[] {
+  const byIssuer = new Map<string, { v: number; label: string; classV: number }>();
+  for (const p of longs) {
+    const sec = h.securities[p.k];
+    const key = issuerKey(p.k, sec);
+    const cur = byIssuer.get(key);
+    if (!cur) byIssuer.set(key, { v: p.v, label: sec.t ?? sec.d, classV: p.v });
+    else {
+      cur.v += p.v;
+      if (p.v > cur.classV) Object.assign(cur, { label: sec.t ?? sec.d, classV: p.v });
+    }
+  }
+  return [...byIssuer.values()].sort((a, b) => b.v - a.v).slice(0, n).map((x) => x.label);
+}
+
 function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
   const q = h.quarters[0];
   const prev = h.quarters[1];
@@ -916,7 +933,7 @@ function buildSummary(m: Manager, h: ManagerHistoryJson): ManagerSummary {
     totalValue: q.total,
     positions: new Set(longs.map((p) => issuerKey(p.k, h.securities[p.k]))).size, // companies, share classes combined
     firstPeriod: h.quarters[h.quarters.length - 1].period,
-    top: longs.slice(0, 3).map((p) => h.securities[p.k].t ?? h.securities[p.k].d),
+    top: topIssuers(longs, h),
     ...styleStats(h),
     ...(prev ? { prevTotal: prev.total, buys, sells: moves.length - buys } : {}),
     ...(big?.impact
