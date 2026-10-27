@@ -1,47 +1,63 @@
 "use client";
 
-import { useMemo } from "react";
-import {
-  CartesianGrid,
-  LabelList,
-  ResponsiveContainer,
-  Scatter,
-  ScatterChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, Minus, Plus, RotateCcw, Search, X } from "lucide-react";
 import type { SuperinvestorsJson } from "@/lib/superinvestors";
 import { fmtMoney, shortName } from "@/components/superinvestors";
 
 // Managers placed by portfolio similarity (classical MDS on 1 − cosine of
 // issuer weights, computed in refresh-13f). Near = owns similar things in
 // similar sizes. Axes have no units — only distances mean anything.
+// Custom SVG rather than Recharts: zoom with constant-size labels, collision-
+// free label placement, and similarity links that light up on hover.
 
-const FAV = "#10b981";
+const FAV = "var(--color-emerald-500)";
+const OTHER = "var(--color-zinc-500)";
 // Managers whose closest match overlaps less than this sit at roughly equal
 // distance from everyone; MDS piles them together, which reads as "similar".
 // Drawn hollow so the clump isn't misread.
 const UNIQUE_BELOW = 0.15;
-const OTHER = "var(--color-zinc-500)";
-const TOOLTIP_STYLE = {
-  backgroundColor: "var(--color-zinc-900)",
-  border: "1px solid var(--color-zinc-800)",
-  borderRadius: "8px",
-  fontSize: "12px",
-};
+// Links below this overlap are noise
+const LINK_MIN = 0.15;
+const PAD = 40;
+const MIN_K = 1;
+const MAX_K = 12;
+const LABEL_PX = 11;
+// Non-favourite labels: the largest few always try, the rest once zoomed in
+const ALWAYS_LABEL_TOP = 10;
+const LABEL_ALL_FROM_K = 1.8;
 
-interface Point {
+interface Node {
   id: string;
   name: string;
+  label: string;
   firm: string;
   favorite: boolean;
-  x: number;
+  unique: boolean;
+  x: number; // data space
   y: number;
   value: number;
-  similar: string;
-  unique: boolean;
+  r: number; // screen px, constant across zoom
+  top: string[];
+  similar: { id: string; score: number }[];
+  rank: number; // by portfolio value, 0 = largest
 }
+
+interface Link {
+  a: string;
+  b: string;
+  score: number;
+}
+
+interface View {
+  k: number;
+  tx: number;
+  ty: number;
+}
+
+type Rect = [number, number, number, number]; // x0 y0 x1 y1
+
+const overlaps = (a: Rect, b: Rect) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
 
 export function SimilarityMapView({
   index,
@@ -50,100 +66,546 @@ export function SimilarityMapView({
   index: SuperinvestorsJson;
   onSelect: (id: string) => void;
 }) {
-  const byId = useMemo(() => new Map(index.managers.map((m) => [m.id, m])), [index]);
-  const points = useMemo<Point[]>(
-    () =>
-      index.managers
-        .filter((m) => m.xy)
-        .map((m) => ({
-          id: m.id,
-          name: m.name,
-          firm: m.firm,
-          favorite: m.favorite,
-          x: m.xy![0],
-          y: m.xy![1],
-          value: m.totalValue,
-          similar: (m.similar ?? []).map((s) => `${byId.get(s.id)?.name ?? s.id} (${Math.round(s.score * 100)}%)`).join(", "),
-          unique: (m.similar?.[0]?.score ?? 0) < UNIQUE_BELOW,
-        })),
-    [index, byId]
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [width, setWidth] = useState(0);
+  const height = Math.max(420, Math.min(640, width * 0.72));
+  const [view, setView] = useState<View>({ k: 1, tx: 0, ty: 0 });
+  const [hover, setHover] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [animate, setAnimate] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setWidth(Math.round(e.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setAnimate(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
+  const { nodes, byId, links } = useMemo(() => {
+    const ms = index.managers.filter((m) => m.xy);
+    const maxV = Math.max(...ms.map((m) => m.totalValue));
+    const ranked = [...ms].sort((a, b) => b.totalValue - a.totalValue).map((m) => m.id);
+    const nodes: Node[] = ms.map((m) => ({
+      id: m.id,
+      name: m.name,
+      label: shortName(m.name),
+      firm: m.firm,
+      favorite: m.favorite,
+      unique: (m.similar?.[0]?.score ?? 0) < UNIQUE_BELOW,
+      x: m.xy![0],
+      y: m.xy![1],
+      value: m.totalValue,
+      r: 3 + 13 * Math.sqrt(m.totalValue / maxV), // area ∝ portfolio value
+      top: m.top ?? [],
+      similar: m.similar ?? [],
+      rank: ranked.indexOf(m.id),
+    }));
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const pairs = new Map<string, Link>();
+    for (const n of nodes)
+      for (const s of n.similar) {
+        if (s.score < LINK_MIN || !byId.has(s.id)) continue;
+        const [a, b] = n.id < s.id ? [n.id, s.id] : [s.id, n.id];
+        const key = `${a}|${b}`;
+        if ((pairs.get(key)?.score ?? 0) < s.score) pairs.set(key, { a, b, score: s.score });
+      }
+    return { nodes, byId, links: [...pairs.values()].sort((a, b) => a.score - b.score) };
+  }, [index]);
+
+  // Data → base screen space, one scale for both axes so distances stay true
+  const base = useMemo(() => {
+    const xs = nodes.map((n) => n.x);
+    const ys = nodes.map((n) => n.y);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const s = Math.min((width - 2 * PAD) / (x1 - x0 || 1), (height - 2 * PAD) / (y1 - y0 || 1));
+    const ox = (width - s * (x1 - x0)) / 2;
+    const oy = (height - s * (y1 - y0)) / 2;
+    return { s, ox, oy, x0, y1 };
+  }, [nodes, width, height]);
+
+  const pos = useCallback(
+    (n: Node): [number, number] => [
+      (base.ox + (n.x - base.x0) * base.s) * view.k + view.tx,
+      (base.oy + (base.y1 - n.y) * base.s) * view.k + view.ty, // y up
+    ],
+    [base, view]
   );
-  const favs = points.filter((p) => p.favorite && !p.unique);
-  const others = points.filter((p) => !p.favorite && !p.unique);
-  const unique = points.filter((p) => p.unique);
+
+  const clampView = useCallback(
+    (v: View): View => {
+      const k = Math.min(MAX_K, Math.max(MIN_K, v.k));
+      // keep at least a third of the map on screen
+      const minX = width / 3 - width * k;
+      const minY = height / 3 - height * k;
+      return { k, tx: Math.min(width * 0.67, Math.max(minX, v.tx)), ty: Math.min(height * 0.67, Math.max(minY, v.ty)) };
+    },
+    [width, height]
+  );
+
+  // Eased transition for buttons, double-click and search; drag and wheel
+  // set the view directly. Interpolates in log-zoom so the motion feels even.
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+  const tween = useRef(0);
+  const animateTo = useCallback((target: View) => {
+    cancelAnimationFrame(tween.current);
+    const from = viewRef.current;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return setView(target);
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / 450);
+      const e = 1 - Math.pow(1 - t, 3);
+      const k = Math.exp(Math.log(from.k) + (Math.log(target.k) - Math.log(from.k)) * e);
+      // keep the target point's screen path straight: lerp the pre-zoom origin
+      const ox = (-from.tx / from.k) + ((-target.tx / target.k) - (-from.tx / from.k)) * e;
+      const oy = (-from.ty / from.k) + ((-target.ty / target.k) - (-from.ty / from.k)) * e;
+      setView({ k, tx: -ox * k, ty: -oy * k });
+      if (t < 1) tween.current = requestAnimationFrame(step);
+    };
+    tween.current = requestAnimationFrame(step);
+  }, []);
+  useEffect(() => () => cancelAnimationFrame(tween.current), []);
+
+  const zoomTarget = useCallback(
+    (v: View, factor: number, cx: number, cy: number) => {
+      const k = Math.min(MAX_K, Math.max(MIN_K, v.k * factor));
+      const f = k / v.k;
+      return clampView({ k, tx: cx - (cx - v.tx) * f, ty: cy - (cy - v.ty) * f });
+    },
+    [clampView]
+  );
+  const zoomAt = useCallback(
+    (factor: number, cx: number, cy: number) => setView((v) => zoomTarget(v, factor, cx, cy)),
+    [zoomTarget]
+  );
+  const zoomSmooth = useCallback(
+    (factor: number, cx: number, cy: number) => animateTo(zoomTarget(viewRef.current, factor, cx, cy)),
+    [animateTo, zoomTarget]
+  );
+
+  // Ctrl/⌘ + wheel (and trackpad pinch, which arrives as ctrl+wheel) zooms;
+  // a plain wheel keeps scrolling the page. Native listener: React's is passive.
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX - rect.left, e.clientY - rect.top);
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoomAt]);
+
+  const flyTo = useCallback(
+    (id: string, k = 3.5) => {
+      const n = byId.get(id);
+      if (!n) return;
+      const bx = base.ox + (n.x - base.x0) * base.s;
+      const by = base.oy + (base.y1 - n.y) * base.s;
+      animateTo(clampView({ k, tx: width / 2 - bx * k, ty: height / 2 - by * k }));
+      setPinned(id);
+    },
+    [byId, base, width, height, clampView, animateTo]
+  );
+
+  const focus = hover ?? pinned;
+  const focusNode = focus ? byId.get(focus) : undefined;
+  const neighbors = useMemo(() => {
+    const s = new Set<string>();
+    if (!focus) return s;
+    for (const l of links) {
+      if (l.a === focus) s.add(l.b);
+      if (l.b === focus) s.add(l.a);
+    }
+    return s;
+  }, [focus, links]);
+
+  // Greedy label placement in screen space: focus, its neighbours, favourites,
+  // then largest portfolios; a label that would collide is skipped (hover shows it)
+  const labels = useMemo(() => {
+    if (!width) return [];
+    const screen = new Map(nodes.map((n) => [n.id, pos(n)]));
+    const dots = nodes.map((n) => {
+      const [x, y] = screen.get(n.id)!;
+      return { id: n.id, rect: [x - n.r, y - n.r, x + n.r, y + n.r] as Rect };
+    });
+    const priority = (n: Node) =>
+      n.id === focus ? 0 : neighbors.has(n.id) ? 1 : n.favorite ? 2 : 3 + n.rank / 1000;
+    const candidates = nodes
+      .filter(
+        (n) =>
+          n.id === focus ||
+          neighbors.has(n.id) ||
+          (!focus || view.k >= LABEL_ALL_FROM_K
+            ? n.favorite || n.rank < ALWAYS_LABEL_TOP || view.k >= LABEL_ALL_FROM_K
+            : n.favorite)
+      )
+      .sort((a, b) => priority(a) - priority(b));
+    const out: { id: string; x: number; y: number; anchor: "start" | "middle" | "end"; text: string }[] = [];
+    const placed: Rect[] = [];
+    for (const n of candidates) {
+      const [x, y] = screen.get(n.id)!;
+      if (x < -50 || x > width + 50 || y < -20 || y > height + 20) continue;
+      const w = n.label.length * LABEL_PX * 0.58 + 4;
+      const h = LABEL_PX + 2;
+      const g = n.r + 3;
+      const slots: [number, number, "start" | "middle" | "end", Rect][] = [
+        [x, y - g - 2, "middle", [x - w / 2, y - g - h, x + w / 2, y - g]],
+        [x + g, y + 4, "start", [x + g, y - h / 2, x + g + w, y + h / 2]],
+        [x - g, y + 4, "end", [x - g - w, y - h / 2, x - g, y + h / 2]],
+        [x, y + g + h - 2, "middle", [x - w / 2, y + g, x + w / 2, y + g + h]],
+        [x + g * 0.7, y - g * 0.7 - 2, "start", [x + g * 0.7, y - g * 0.7 - h, x + g * 0.7 + w, y - g * 0.7]],
+        [x - g * 0.7, y - g * 0.7 - 2, "end", [x - g * 0.7 - w, y - g * 0.7 - h, x - g * 0.7, y - g * 0.7]],
+      ];
+      const slot =
+        slots.find(
+          ([, , , r]) => !placed.some((p) => overlaps(p, r)) && !dots.some((d) => d.id !== n.id && overlaps(d.rect, r))
+        ) ?? (n.id === focus ? slots[0] : undefined); // focus always gets a label
+      if (!slot) continue;
+      placed.push(slot[3]);
+      out.push({ id: n.id, x: slot[0], y: slot[1], anchor: slot[2], text: n.label });
+    }
+    return out;
+  }, [nodes, pos, focus, neighbors, view.k, width, height]);
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return nodes
+      .filter((n) => n.name.toLowerCase().includes(q) || n.firm.toLowerCase().includes(q))
+      .sort((a, b) => a.rank - b.rank)
+      .slice(0, 6);
+  }, [query, nodes]);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    drag.current = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (!d.moved && Math.hypot(dx, dy) < 4) return;
+    if (!d.moved) {
+      cancelAnimationFrame(tween.current);
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      setDragging(true);
+      setHover(null);
+    }
+    d.moved = true;
+    setView((v) => clampView({ k: v.k, tx: d.tx + dx, ty: d.ty + dy }));
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    drag.current = null;
+    setDragging(false);
+    if (d && !d.moved && e.target === svgRef.current) setPinned(null); // click on empty space
+  };
+
+  // The focused manager's own closest matches get bold links and badges; links
+  // from managers who list it (Gayner is many people's match) stay faint
+  const own = new Set(focusNode?.similar.map((s) => s.id));
+  const dim = (id: string) => focus != null && id !== focus && !neighbors.has(id);
+  const zoomed = view.k > 1.01 || view.tx !== 0 || view.ty !== 0;
 
   return (
     <div>
       <h2 className="text-xl font-semibold">Similarity map</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Each dot is a manager; nearby dots own similar stocks in similar sizes. The axes have no
-        units — only distance matters. Click a dot to open that manager.
+        Each dot is a manager, sized by portfolio; nearby dots own similar stocks in similar sizes,
+        and lines join each manager to their closest matches. The axes have no units — only distance
+        matters. Hover to trace a manager&apos;s neighbours, click to pin.
       </p>
 
-      <div className="mt-4 rounded-md border border-border p-2">
-        <ResponsiveContainer width="100%" height={560}>
-          <ScatterChart margin={{ top: 16, right: 24, bottom: 16, left: 16 }}>
-            <CartesianGrid stroke="var(--color-zinc-800)" strokeDasharray="3 3" />
-            <XAxis type="number" dataKey="x" hide domain={["dataMin - 0.05", "dataMax + 0.05"]} />
-            <YAxis type="number" dataKey="y" hide domain={["dataMin - 0.05", "dataMax + 0.05"]} />
-            <Tooltip
-              contentStyle={TOOLTIP_STYLE}
-              cursor={{ strokeDasharray: "3 3" }}
-              content={({ payload }) => {
-                const p = payload?.[0]?.payload as Point | undefined;
-                if (!p) return null;
-                return (
-                  <div style={TOOLTIP_STYLE} className="max-w-[280px] px-3 py-2">
-                    <div className="font-medium text-foreground">{p.name}</div>
-                    {p.firm && <div className="text-muted-foreground">{p.firm}</div>}
-                    <div className="mt-1 text-muted-foreground">{fmtMoney(p.value)}</div>
-                    {p.similar && <div className="mt-1 text-muted-foreground">Closest: {p.similar}</div>}
-                  </div>
-                );
-              }}
-            />
-            <Scatter
-              data={others}
-              fill={OTHER}
-              fillOpacity={0.7}
-              onClick={(d) => onSelect((d as unknown as Point).id)}
-              className="cursor-pointer"
-            />
-            <Scatter
-              data={unique}
-              fill="transparent"
-              stroke={OTHER}
-              strokeWidth={1.5}
-              onClick={(d) => onSelect((d as unknown as Point).id)}
-              className="cursor-pointer"
-            >
-              <LabelList
-                dataKey="name"
-                position="right"
-                formatter={(v) => {
-                  const p = unique.find((x) => x.name === v);
-                  return p?.favorite ? shortName(String(v)) : "";
-                }}
-                style={{ fill: "var(--color-zinc-400)", fontSize: 11 }}
-              />
-            </Scatter>
-            <Scatter data={favs} fill={FAV} onClick={(d) => onSelect((d as unknown as Point).id)} className="cursor-pointer">
-              <LabelList
-                dataKey="name"
-                position="top"
-                formatter={(v) => shortName(String(v))}
-                style={{ fill: "var(--color-zinc-200)", fontSize: 11 }}
-              />
-            </Scatter>
-          </ScatterChart>
-        </ResponsiveContainer>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && matches[0]) {
+                flyTo(matches[0].id);
+                setQuery("");
+              }
+              if (e.key === "Escape") setQuery("");
+            }}
+            placeholder="Find a manager…"
+            aria-label="Find a manager on the map"
+            className="h-8 w-56 rounded-md border border-border bg-background pl-8 pr-2 text-sm outline-none focus:border-zinc-500"
+          />
+          {matches.length > 0 && (
+            <div className="absolute left-0 top-9 z-20 w-72 overflow-hidden rounded-md border border-border bg-background shadow-lg">
+              {matches.map((n) => (
+                <button
+                  key={n.id}
+                  onClick={() => {
+                    flyTo(n.id);
+                    setQuery("");
+                  }}
+                  className="flex w-full items-baseline justify-between gap-2 px-3 py-1.5 text-left text-sm hover:bg-muted"
+                >
+                  <span className="truncate">{n.name}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{fmtMoney(n.value)}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          Drag to pan · Ctrl/⌘ + scroll to zoom
+        </span>
       </div>
-      <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Your picks (labelled)</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: OTHER }} />Other managers</span>
+
+      <div
+        ref={wrapRef}
+        className="relative mt-3 overflow-hidden rounded-md border border-border bg-[radial-gradient(circle_at_center,var(--color-zinc-900)_0%,transparent_75%)]"
+        style={{ height }}
+      >
+        {width > 0 && (
+          <svg
+            ref={svgRef}
+            width={width}
+            height={height}
+            className={`select-none ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+            style={{ touchAction: zoomed ? "none" : "pan-y" }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={() => setHover(null)}
+            onDoubleClick={(e) => {
+              const rect = svgRef.current!.getBoundingClientRect();
+              zoomSmooth(2, e.clientX - rect.left, e.clientY - rect.top);
+            }}
+            role="img"
+            aria-label="Map of superinvestors by portfolio similarity"
+          >
+            <defs>
+              <pattern id="simmap-dots" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="1" cy="1" r="0.8" fill="var(--color-zinc-800)" />
+              </pattern>
+              <filter id="simmap-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="4" />
+              </filter>
+            </defs>
+            <rect width={width} height={height} fill="url(#simmap-dots)" pointerEvents="none" />
+
+            {/* links */}
+            <g pointerEvents="none">
+              {links.map((l) => {
+                const a = byId.get(l.a)!;
+                const b = byId.get(l.b)!;
+                const [x1, y1] = pos(a);
+                const [x2, y2] = pos(b);
+                const lit = focus != null && (l.a === focus || l.b === focus);
+                const strong = lit && own.has(l.a === focus ? l.b : l.a);
+                const favLink = a.favorite && b.favorite;
+                return (
+                  <line
+                    key={`${l.a}|${l.b}`}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke={lit || favLink ? FAV : "var(--color-zinc-500)"}
+                    strokeWidth={strong ? 1 + l.score * 4 : 0.5 + l.score * 2}
+                    strokeOpacity={strong ? 0.9 : lit ? 0.3 : focus ? 0.04 : (favLink ? 0.3 : 0.04) + l.score * 0.35}
+                    strokeLinecap="round"
+                    className="transition-[stroke-opacity] duration-200"
+                  />
+                );
+              })}
+            </g>
+
+            {/* overlap % on the focused manager's links */}
+            {focusNode && (
+              <g pointerEvents="none">
+                {links
+                  .filter((l) => (l.a === focus && own.has(l.b)) || (l.b === focus && own.has(l.a)))
+                  .map((l) => {
+                    const [x1, y1] = pos(byId.get(l.a)!);
+                    const [x2, y2] = pos(byId.get(l.b)!);
+                    // too short to fit a badge without covering the dots (the card lists it)
+                    if (Math.hypot(x2 - x1, y2 - y1) < 2 * (byId.get(l.a)!.r + byId.get(l.b)!.r) + 34) return null;
+                    const mx = (x1 + x2) / 2;
+                    const my = (y1 + y2) / 2;
+                    const t = `${Math.round(l.score * 100)}%`;
+                    return (
+                      <g key={`${l.a}|${l.b}`}>
+                        <rect x={mx - 15} y={my - 8} width={30} height={16} rx={8} fill="var(--background)" stroke={FAV} strokeOpacity={0.6} />
+                        <text x={mx} y={my + 4} textAnchor="middle" fontSize={10} fontWeight={600} fill={FAV}>
+                          {t}
+                        </text>
+                      </g>
+                    );
+                  })}
+              </g>
+            )}
+
+            {/* dots, largest first so small ones stay clickable */}
+            <g>
+              {[...nodes]
+                .sort((a, b) => b.r - a.r)
+                .map((n) => {
+                  const [x, y] = pos(n);
+                  const isFocus = n.id === focus;
+                  const color = n.favorite ? FAV : OTHER;
+                  // entrance: ripple out from the centre
+                  const delay = Math.hypot(x - width / 2, y - height / 2) * 1.2;
+                  return (
+                    <g
+                      key={n.id}
+                      transform={`translate(${x},${y})`}
+                      onPointerEnter={() => !dragging && setHover(n.id)}
+                      onPointerLeave={() => setHover((h) => (h === n.id ? null : h))}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPinned((p) => (p === n.id ? null : n.id));
+                      }}
+                      className="cursor-pointer"
+                      style={{ opacity: dim(n.id) ? 0.18 : 1, transition: "opacity 200ms" }}
+                    >
+                      <g
+                        className="motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out"
+                        style={{ transform: animate ? "scale(1)" : "scale(0)", transitionDelay: `${delay}ms` }}
+                      >
+                        {n.favorite && !n.unique && (
+                          <circle r={n.r + 4} fill={FAV} opacity={isFocus ? 0.55 : 0.25} filter="url(#simmap-glow)" className="dark:block hidden" />
+                        )}
+                        {isFocus && <circle r={n.r + 5} fill="none" stroke={color} strokeWidth={1.5} strokeOpacity={0.8} />}
+                        <circle r={Math.max(n.r, 8)} fill="transparent" />
+                        <circle
+                          r={n.r}
+                          fill={n.unique ? "transparent" : color}
+                          fillOpacity={n.favorite ? 0.95 : 0.6}
+                          stroke={n.unique ? color : "var(--background)"}
+                          strokeWidth={n.unique ? 1.5 : 1}
+                        />
+                      </g>
+                    </g>
+                  );
+                })}
+            </g>
+
+            {/* labels */}
+            <g pointerEvents="none">
+              {labels.map((l) => {
+                const n = byId.get(l.id)!;
+                const strong = l.id === focus || n.favorite;
+                return (
+                  <text
+                    key={l.id}
+                    x={l.x}
+                    y={l.y}
+                    textAnchor={l.anchor}
+                    fontSize={LABEL_PX}
+                    fontWeight={l.id === focus ? 600 : 400}
+                    fill={strong ? "var(--color-zinc-100)" : "var(--color-zinc-400)"}
+                    stroke="var(--background)"
+                    strokeWidth={3}
+                    paintOrder="stroke"
+                    opacity={dim(l.id) ? 0.25 : 1}
+                  >
+                    {l.text}
+                  </text>
+                );
+              })}
+            </g>
+          </svg>
+        )}
+
+        {/* zoom controls */}
+        <div className="absolute right-2 top-2 flex flex-col overflow-hidden rounded-md border border-border bg-background/90 backdrop-blur">
+          <button aria-label="Zoom in" onClick={() => zoomSmooth(1.6, width / 2, height / 2)} className="p-1.5 hover:bg-muted">
+            <Plus className="h-4 w-4" />
+          </button>
+          <button aria-label="Zoom out" onClick={() => zoomSmooth(1 / 1.6, width / 2, height / 2)} className="border-t border-border p-1.5 hover:bg-muted">
+            <Minus className="h-4 w-4" />
+          </button>
+          {zoomed && (
+            <button aria-label="Reset view" onClick={() => animateTo({ k: 1, tx: 0, ty: 0 })} className="border-t border-border p-1.5 hover:bg-muted">
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* focus card */}
+        {focusNode && (
+          <div className="absolute bottom-2 left-2 w-[min(300px,calc(100%-1rem))] rounded-md border border-border bg-background/95 p-3 text-xs shadow-lg backdrop-blur">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-foreground">{focusNode.name}</div>
+                {focusNode.firm && <div className="truncate text-muted-foreground">{focusNode.firm}</div>}
+              </div>
+              {pinned === focusNode.id && (
+                <button aria-label="Unpin" onClick={() => setPinned(null)} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            <div className="mt-1.5 text-muted-foreground">
+              {fmtMoney(focusNode.value)}
+              {focusNode.top.length > 0 && <> · top: {focusNode.top.join(", ")}</>}
+            </div>
+            {focusNode.unique && (
+              <div className="mt-1.5 text-yellow-500/80">
+                Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone, so its position isn&apos;t meaningful.
+              </div>
+            )}
+            {focusNode.similar.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {focusNode.similar.map((s) => {
+                  const o = byId.get(s.id);
+                  if (!o) return null;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => flyTo(s.id, Math.max(view.k, 2))}
+                      className="rounded-full border border-border px-2 py-0.5 hover:border-zinc-500 hover:text-foreground"
+                    >
+                      {o.label} <span className="text-emerald-500">{Math.round(s.score * 100)}%</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <button
+              onClick={() => onSelect(focusNode.id)}
+              className="mt-2.5 inline-flex items-center gap-1 font-medium text-emerald-500 hover:underline"
+            >
+              Open portfolio <ArrowRight className="h-3 w-3" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Your picks</span>
+        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full opacity-60" style={{ background: OTHER }} />Other managers</span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
+          <span className="h-3 w-3 rounded-full bg-zinc-500" />
+          Size = portfolio value
+        </span>
+        <span className="flex items-center gap-1.5"><span className="h-px w-5 bg-zinc-500" />Overlap with closest matches (thicker = more)</span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full border-[1.5px]" style={{ borderColor: OTHER }} />
-          Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone, so their position isn&apos;t meaningful
+          Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone
         </span>
       </div>
     </div>
