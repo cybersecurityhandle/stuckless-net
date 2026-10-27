@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Minus, Plus, RotateCcw, Search, X } from "lucide-react";
+import { ArrowRight, Check, Download, Link2, Minus, Plus, RotateCcw, Search, Star, Tag, X } from "lucide-react";
 import type { SuperinvestorsJson } from "@/lib/superinvestors";
 import { fmtMoney, shortName } from "@/components/superinvestors";
 
@@ -31,6 +31,9 @@ const LABEL_PX = 11;
 // Non-favourite labels: the largest few always try, the rest once zoomed in
 const ALWAYS_LABEL_TOP = 10;
 const LABEL_ALL_FROM_K = 1.8;
+// Highlighted managers: ?picks=a,b in the URL (shareable), else this browser's
+// last choice, else the site's favourites
+const PICKS_KEY = "simmap-picks";
 
 interface Node {
   id: string;
@@ -62,6 +65,20 @@ interface View {
 
 type Rect = [number, number, number, number]; // x0 y0 x1 y1
 
+// Map labels drop corporate suffixes ("Polen Capital Management" → "Polen");
+// the card shows the full name
+const SUFFIX = /\s+(Investment Management|Asset Management|Capital Management|Capital Partners|Management|Capital|Investments?|Funds?|Partners|Advisors|Group|Associates|Trust|LP|LLC|Inc\.?)$/;
+function mapLabel(name: string) {
+  let s = name.replace(/^Bill & Melinda /, "");
+  while (SUFFIX.test(s)) s = s.replace(SUFFIX, "");
+  // a firm keeps its stripped name ("Kahn Brothers"); a person goes by surname,
+  // particles included ("Von Mueffling", "Van Den Berg")
+  if (s !== name) return s;
+  const parts = name.split(" ");
+  if (parts.length >= 3 && /^(Von|Van|De|Del|Da|Di|Le)$/.test(parts[1])) return parts.slice(1).join(" ");
+  return shortName(name);
+}
+
 const overlaps = (a: Rect, b: Rect) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
 
 export function SimilarityMapView({
@@ -74,13 +91,51 @@ export function SimilarityMapView({
   const wrapRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [width, setWidth] = useState(0);
-  const height = Math.max(420, Math.min(640, width * 0.72));
+  const [allNames, setAllNames] = useState(false);
+  // All names (e.g. for a screenshot): taller, so the dense cluster has room
+  const height = allNames ? Math.max(560, Math.min(900, width * 0.85)) : Math.max(420, Math.min(640, width * 0.72));
   const [view, setView] = useState<View>({ k: 1, tx: 0, ty: 0 });
   const [hover, setHover] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [animate, setAnimate] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const defaultPicks = useMemo(() => index.managers.filter((m) => m.favorite).map((m) => m.id), [index]);
+  const [picks, setPicks] = useState<Set<string>>(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get("picks");
+      if (q != null) return new Set(q.split(",").filter(Boolean));
+      const saved = localStorage.getItem(PICKS_KEY);
+      if (saved) return new Set(JSON.parse(saved) as string[]);
+    } catch {
+      // no storage (private mode) or bad JSON: fall through to the defaults
+    }
+    return new Set(index.managers.filter((m) => m.favorite).map((m) => m.id));
+  });
+  const [picksOpen, setPicksOpen] = useState(false);
+  const [picksQuery, setPicksQuery] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const isDefaultPicks = picks.size === defaultPicks.length && defaultPicks.every((id) => picks.has(id));
+  useEffect(() => {
+    try {
+      if (isDefaultPicks) localStorage.removeItem(PICKS_KEY);
+      else localStorage.setItem(PICKS_KEY, JSON.stringify([...picks]));
+    } catch {
+      // storage unavailable: the URL still carries the choice
+    }
+    const url = new URL(window.location.href);
+    if (isDefaultPicks) url.searchParams.delete("picks");
+    else url.searchParams.set("picks", [...picks].sort().join(","));
+    if (url.href !== window.location.href) window.history.replaceState(null, "", url);
+  }, [picks, isDefaultPicks]);
+  const togglePick = (id: string) =>
+    setPicks((p) => {
+      const next = new Set(p);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
   const drag = useRef<{ x: number; y: number; tx: number; ty: number; moved: boolean } | null>(null);
 
   useEffect(() => {
@@ -103,9 +158,9 @@ export function SimilarityMapView({
     const nodes: Node[] = ms.map((m) => ({
       id: m.id,
       name: m.name,
-      label: shortName(m.name),
+      label: mapLabel(m.name),
       firm: m.firm,
-      favorite: m.favorite,
+      favorite: picks.has(m.id),
       unique: (m.similar?.[0]?.score ?? 0) < UNIQUE_BELOW,
       x: m.xy![0],
       y: m.xy![1],
@@ -125,7 +180,7 @@ export function SimilarityMapView({
         if ((pairs.get(key)?.score ?? 0) < s.score) pairs.set(key, { a, b, score: s.score });
       }
     return { nodes, byId, links: [...pairs.values()].sort((a, b) => a.score - b.score) };
-  }, [index]);
+  }, [index, picks]);
 
   // Base screen positions (zoom 1). Idiosyncratic managers have no meaningful
   // MDS position — it piles them all on one spot — so they go on an outer ring,
@@ -166,7 +221,7 @@ export function SimilarityMapView({
           let dx = p[j][0] - p[i][0];
           let dy = p[j][1] - p[i][1];
           let d = Math.hypot(dx, dy);
-          const min = core[i].r + core[j].r + DOT_GAP;
+          const min = core[i].r + core[j].r + (allNames ? DOT_GAP * 2 : DOT_GAP);
           if (d >= min) continue;
           if (d < 1e-6) [dx, dy, d] = [Math.cos(i + j), Math.sin(i + j), 1]; // coincident: any direction
           const push = (min - d) / 2;
@@ -183,7 +238,7 @@ export function SimilarityMapView({
     }
     core.forEach((n, i) => out.set(n.id, [p[i][0], p[i][1]]));
     return out;
-  }, [nodes, width, ring]);
+  }, [nodes, width, ring, allNames]);
 
   const pos = useCallback(
     (n: Node): [number, number] => {
@@ -301,6 +356,7 @@ export function SimilarityMapView({
         (n) =>
           n.id === focus ||
           neighbors.has(n.id) ||
+          allNames ||
           (!focus || view.k >= LABEL_ALL_FROM_K
             ? n.favorite || n.unique || n.rank < ALWAYS_LABEL_TOP || view.k >= LABEL_ALL_FROM_K
             : n.favorite)
@@ -328,19 +384,26 @@ export function SimilarityMapView({
         [x - g - 10, y + 4, "end", [x - g - 10 - w, y - h / 2, x - g - 10, y + h / 2]],
         [x, y + g + h + 8, "middle", [x - w / 2, y + g + 10, x + w / 2, y + g + h + 10]],
       ];
+      const inside = ([, , , r]: (typeof slots)[number]) => r[0] >= 2 && r[2] <= width - 2 && r[1] >= 2 && r[3] <= height - 2;
       const slot =
-        slots.find(
+        slots.filter(inside).find(
           ([, , , r]) => !placed.some((p) => overlaps(p, r)) && !dots.some((d) => d.id !== n.id && overlaps(d.rect, r))
         ) ??
         // picks may sit over neighbouring dots rather than go unlabelled
-        (n.favorite ? slots.find(([, , , r]) => !placed.some((p) => overlaps(p, r))) : undefined) ??
+        (n.favorite || allNames ? slots.filter(inside).find(([, , , r]) => !placed.some((p) => overlaps(p, r))) : undefined) ??
+        // all names: the least-crowded slot rather than none
+        (allNames
+          ? (slots.some(inside) ? slots.filter(inside) : slots).reduce((best, sl) =>
+              placed.filter((p) => overlaps(p, sl[3])).length < placed.filter((p) => overlaps(p, best[3])).length ? sl : best
+            )
+          : undefined) ??
         (n.id === focus ? slots[0] : undefined); // focus always gets a label
       if (!slot) continue;
       placed.push(slot[3]);
       out.push({ id: n.id, x: slot[0], y: slot[1], anchor: slot[2], text: n.label });
     }
     return out;
-  }, [nodes, pos, focus, neighbors, view.k, width, height]);
+  }, [nodes, pos, focus, neighbors, view.k, width, height, allNames]);
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -380,6 +443,97 @@ export function SimilarityMapView({
   // The focused manager's own closest matches get bold links and badges; links
   // from managers who list it (Gayner is many people's match) stay faint
   const own = new Set(focusNode?.similar.map((s) => s.id));
+  const pickList = useMemo(() => {
+    const q = picksQuery.trim().toLowerCase();
+    return [...nodes]
+      .filter((n) => !q || n.name.toLowerCase().includes(q) || n.firm.toLowerCase().includes(q))
+      .sort((a, b) => Number(b.favorite) - Number(a.favorite) || a.name.localeCompare(b.name));
+  }, [nodes, picksQuery]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard blocked: the address bar has the same link
+    }
+  };
+
+  // PNG for sharing: the SVG with theme colours resolved (CSS variables and
+  // classes don't apply inside an <img>), framed with a title and source line
+  const downloadPng = async () => {
+    const svg = svgRef.current;
+    if (!svg || exporting) return;
+    setExporting(true);
+    try {
+      await renderPng(svg);
+    } finally {
+      setExporting(false);
+    }
+  };
+  const renderPng = async (svg: SVGSVGElement) => {
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    const src = svg.querySelectorAll("*");
+    const dst = clone.querySelectorAll("*");
+    src.forEach((el, i) => {
+      const d = dst[i];
+      const cs = getComputedStyle(el);
+      if (cs.display === "none") d.setAttribute("display", "none");
+      for (const a of ["fill", "stroke"])
+        if (el.getAttribute(a)?.includes("var(")) d.setAttribute(a, cs.getPropertyValue(a));
+      d.removeAttribute("class");
+    });
+    const rootCs = getComputedStyle(svg);
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("style", `font-family: ${rootCs.fontFamily}, Arial, sans-serif`);
+    const bg = getComputedStyle(document.body).backgroundColor;
+    const fg = getComputedStyle(document.body).color;
+    const muted = getComputedStyle(document.documentElement).getPropertyValue("--color-zinc-500").trim() || "#71717a";
+    const img = new Image();
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+    await img.decode();
+
+    const head = 64;
+    const foot = 36;
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = width * scale;
+    canvas.height = (height + head + foot) * scale;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(scale, scale);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height + head + foot);
+    const font = rootCs.fontFamily;
+    ctx.fillStyle = fg;
+    ctx.font = `600 20px ${font}`;
+    ctx.fillText("Superinvestor similarity map", 20, 32);
+    ctx.fillStyle = muted;
+    ctx.font = `12px ${font}`;
+    ctx.fillText(
+      `${nodes.length} managers by 13F portfolio overlap · nearby = similar holdings · size = portfolio value · outer ring = no close match`,
+      20,
+      52
+    );
+    ctx.drawImage(img, 0, head, width, height);
+    const period = index.managers.reduce((p, m) => (m.period > p ? m.period : p), "");
+    ctx.font = `12px ${font}`;
+    ctx.fillText(`13F holdings through ${period}`, 20, head + height + 24);
+    ctx.textAlign = "right";
+    ctx.fillStyle = fg;
+    ctx.font = `600 12px ${font}`;
+    ctx.fillText("stuckless.net/superinvestors", width - 20, head + height + 24);
+
+    // encoding a ~1800px PNG takes a few seconds
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+    if (!blob) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "superinvestor-similarity-map.png";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+
   const dim = (id: string) => focus != null && id !== focus && !neighbors.has(id);
   const zoomed = view.k > 1.01 || view.tx !== 0 || view.ty !== 0;
 
@@ -428,7 +582,59 @@ export function SimilarityMapView({
             </div>
           )}
         </div>
-        <span className="hidden text-xs text-muted-foreground sm:inline">
+        <div className="relative">
+          <button onClick={() => setPicksOpen((o) => !o)} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted" aria-expanded={picksOpen}>
+            <Star className="h-3.5 w-3.5 text-emerald-500" />
+            Highlight ({picks.size})
+          </button>
+          {picksOpen && (
+            <div className="absolute left-0 top-9 z-30 w-80 rounded-md border border-border bg-background shadow-lg">
+              <div className="flex items-center gap-2 border-b border-border p-2">
+                <input
+                  value={picksQuery}
+                  onChange={(e) => setPicksQuery(e.target.value)}
+                  placeholder="Filter managers…"
+                  aria-label="Filter managers to highlight"
+                  autoFocus
+                  className="h-7 min-w-0 flex-1 rounded border border-border bg-background px-2 text-sm outline-none focus:border-zinc-500"
+                />
+                <button aria-label="Close" onClick={() => setPicksOpen(false)} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="max-h-72 overflow-y-auto py-1">
+                {pickList.map((n) => (
+                  <label key={n.id} className="flex cursor-pointer items-center gap-2 px-3 py-1 text-sm hover:bg-muted">
+                    <input type="checkbox" checked={n.favorite} onChange={() => togglePick(n.id)} className="accent-emerald-500" />
+                    <span className="min-w-0 flex-1 truncate">{n.name}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{fmtMoney(n.value)}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex justify-between border-t border-border p-2 text-xs">
+                <button onClick={() => setPicks(new Set(defaultPicks))} disabled={isDefaultPicks} className="text-muted-foreground hover:text-foreground disabled:opacity-40">
+                  Reset to default
+                </button>
+                <button onClick={() => setPicks(new Set())} disabled={!picks.size} className="text-muted-foreground hover:text-foreground disabled:opacity-40">
+                  Clear all
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+        <button onClick={() => setAllNames((v) => !v)} aria-pressed={allNames} className={`inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted ${allNames ? "border-zinc-500 bg-muted" : ""}`}>
+          <Tag className="h-3.5 w-3.5" />
+          All names
+        </button>
+        <button onClick={downloadPng} disabled={exporting} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted disabled:opacity-60">
+          <Download className={`h-3.5 w-3.5 ${exporting ? "animate-pulse" : ""}`} />
+          {exporting ? "Saving…" : "PNG"}
+        </button>
+        <button onClick={copyLink} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted">
+          {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Link2 className="h-3.5 w-3.5" />}
+          {copied ? "Copied" : "Link"}
+        </button>
+        <span className="hidden text-xs text-muted-foreground lg:inline">
           Drag to pan · Ctrl/⌘ + scroll to zoom
         </span>
       </div>
@@ -674,18 +880,27 @@ export function SimilarityMapView({
                 })}
               </div>
             )}
-            <button
-              onClick={() => onSelect(focusNode.id)}
-              className="mt-2.5 inline-flex items-center gap-1 font-medium text-emerald-500 hover:underline"
-            >
-              Open portfolio <ArrowRight className="h-3 w-3" />
-            </button>
+            <div className="mt-2.5 flex items-center justify-between gap-2">
+              <button
+                onClick={() => onSelect(focusNode.id)}
+                className="inline-flex items-center gap-1 font-medium text-emerald-500 hover:underline"
+              >
+                Open portfolio <ArrowRight className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => togglePick(focusNode.id)}
+                className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+              >
+                <Star className={`h-3 w-3 ${focusNode.favorite ? "fill-emerald-500 text-emerald-500" : ""}`} />
+                {focusNode.favorite ? "Highlighted" : "Highlight"}
+              </button>
+            </div>
           </div>
         )}
       </div>
 
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Your picks</span>
+        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Highlighted</span>
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full opacity-60" style={{ background: OTHER }} />Other managers</span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
