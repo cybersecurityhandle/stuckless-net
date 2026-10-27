@@ -19,7 +19,12 @@ const OTHER = "var(--color-zinc-500)";
 const UNIQUE_BELOW = 0.15;
 // Links below this overlap are noise
 const LINK_MIN = 0.15;
-const PAD = 40;
+// Idiosyncratic managers sit on an outer ring this far inside the frame; the
+// similarity cloud is fitted inside it with RING_GAP to spare
+const RING_INSET = 26;
+const RING_GAP = 46;
+// Minimum gap between dot edges after de-overlapping the cloud
+const DOT_GAP = 8;
 const MIN_K = 1;
 const MAX_K = 12;
 const LABEL_PX = 11;
@@ -122,23 +127,70 @@ export function SimilarityMapView({
     return { nodes, byId, links: [...pairs.values()].sort((a, b) => a.score - b.score) };
   }, [index]);
 
-  // Data → base screen space, one scale for both axes so distances stay true
-  const base = useMemo(() => {
-    const xs = nodes.map((n) => n.x);
-    const ys = nodes.map((n) => n.y);
+  // Base screen positions (zoom 1). Idiosyncratic managers have no meaningful
+  // MDS position — it piles them all on one spot — so they go on an outer ring,
+  // largest first from the top. The rest keep their MDS layout (one scale for
+  // both axes so distances stay true), fitted inside the ring, then nudged
+  // apart where dots overlap (Pabrai and his ETF are almost identical).
+  const ring = useMemo(() => {
+    const cx = width / 2;
+    const cy = height / 2;
+    return { cx, cy, rx: width / 2 - RING_INSET, ry: height / 2 - RING_INSET };
+  }, [width, height]);
+  const layout = useMemo(() => {
+    const out = new Map<string, [number, number]>();
+    if (!width) return out;
+    const lone = nodes.filter((n) => n.unique).sort((a, b) => a.rank - b.rank);
+    lone.forEach((n, i) => {
+      // half-step offset leaves a gap at the bottom for the ring's caption
+      const t = -Math.PI / 2 + ((i + 0.5) / lone.length) * 2 * Math.PI;
+      out.set(n.id, [ring.cx + ring.rx * Math.cos(t), ring.cy + ring.ry * Math.sin(t)]);
+    });
+    const core = nodes.filter((n) => !n.unique);
+    if (!core.length) return out;
+    // fit the cloud's bounding box inside the ellipse's inscribed rectangle
+    const xs = core.map((n) => n.x);
+    const ys = core.map((n) => n.y);
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-    const s = Math.min((width - 2 * PAD) / (x1 - x0 || 1), (height - 2 * PAD) / (y1 - y0 || 1));
-    const ox = (width - s * (x1 - x0)) / 2;
-    const oy = (height - s * (y1 - y0)) / 2;
-    return { s, ox, oy, x0, y1 };
-  }, [nodes, width, height]);
+    const hw = (ring.rx - (lone.length ? RING_GAP : 0)) * (lone.length ? Math.SQRT1_2 * 1.25 : 1);
+    const hh = (ring.ry - (lone.length ? RING_GAP : 0)) * (lone.length ? Math.SQRT1_2 * 1.25 : 1);
+    const sc = Math.min((2 * hw) / (x1 - x0 || 1), (2 * hh) / (y1 - y0 || 1));
+    const anchor = core.map((n): [number, number] => [
+      ring.cx + (n.x - (x0 + x1) / 2) * sc,
+      ring.cy - (n.y - (y0 + y1) / 2) * sc, // y up
+    ]);
+    const p = anchor.map(([x, y]) => [x, y]);
+    for (let it = 0; it < 120; it++) {
+      for (let i = 0; i < core.length; i++)
+        for (let j = i + 1; j < core.length; j++) {
+          let dx = p[j][0] - p[i][0];
+          let dy = p[j][1] - p[i][1];
+          let d = Math.hypot(dx, dy);
+          const min = core[i].r + core[j].r + DOT_GAP;
+          if (d >= min) continue;
+          if (d < 1e-6) [dx, dy, d] = [Math.cos(i + j), Math.sin(i + j), 1]; // coincident: any direction
+          const push = (min - d) / 2;
+          p[i][0] -= (dx / d) * push;
+          p[i][1] -= (dy / d) * push;
+          p[j][0] += (dx / d) * push;
+          p[j][1] += (dy / d) * push;
+        }
+      if (it < 100)
+        for (let i = 0; i < core.length; i++) {
+          p[i][0] += (anchor[i][0] - p[i][0]) * 0.1;
+          p[i][1] += (anchor[i][1] - p[i][1]) * 0.1;
+        }
+    }
+    core.forEach((n, i) => out.set(n.id, [p[i][0], p[i][1]]));
+    return out;
+  }, [nodes, width, ring]);
 
   const pos = useCallback(
-    (n: Node): [number, number] => [
-      (base.ox + (n.x - base.x0) * base.s) * view.k + view.tx,
-      (base.oy + (base.y1 - n.y) * base.s) * view.k + view.ty, // y up
-    ],
-    [base, view]
+    (n: Node): [number, number] => {
+      const [x, y] = layout.get(n.id) ?? [ring.cx, ring.cy];
+      return [x * view.k + view.tx, y * view.k + view.ty];
+    },
+    [layout, ring, view]
   );
 
   const clampView = useCallback(
@@ -214,12 +266,11 @@ export function SimilarityMapView({
     (id: string, k = 3.5) => {
       const n = byId.get(id);
       if (!n) return;
-      const bx = base.ox + (n.x - base.x0) * base.s;
-      const by = base.oy + (base.y1 - n.y) * base.s;
+      const [bx, by] = layout.get(n.id) ?? [ring.cx, ring.cy];
       animateTo(clampView({ k, tx: width / 2 - bx * k, ty: height / 2 - by * k }));
       setPinned(id);
     },
-    [byId, base, width, height, clampView, animateTo]
+    [byId, layout, ring, width, height, clampView, animateTo]
   );
 
   const focus = hover ?? pinned;
@@ -251,7 +302,7 @@ export function SimilarityMapView({
           n.id === focus ||
           neighbors.has(n.id) ||
           (!focus || view.k >= LABEL_ALL_FROM_K
-            ? n.favorite || n.rank < ALWAYS_LABEL_TOP || view.k >= LABEL_ALL_FROM_K
+            ? n.favorite || n.unique || n.rank < ALWAYS_LABEL_TOP || view.k >= LABEL_ALL_FROM_K
             : n.favorite)
       )
       .sort((a, b) => priority(a) - priority(b));
@@ -270,11 +321,20 @@ export function SimilarityMapView({
         [x, y + g + h - 2, "middle", [x - w / 2, y + g, x + w / 2, y + g + h]],
         [x + g * 0.7, y - g * 0.7 - 2, "start", [x + g * 0.7, y - g * 0.7 - h, x + g * 0.7 + w, y - g * 0.7]],
         [x - g * 0.7, y - g * 0.7 - 2, "end", [x - g * 0.7 - w, y - g * 0.7 - h, x - g * 0.7, y - g * 0.7]],
+        [x + g * 0.7, y + g * 0.7 + h - 2, "start", [x + g * 0.7, y + g * 0.7, x + g * 0.7 + w, y + g * 0.7 + h]],
+        [x - g * 0.7, y + g * 0.7 + h - 2, "end", [x - g * 0.7 - w, y + g * 0.7, x - g * 0.7, y + g * 0.7 + h]],
+        // further out, for crowded spots
+        [x + g + 10, y + 4, "start", [x + g + 10, y - h / 2, x + g + 10 + w, y + h / 2]],
+        [x - g - 10, y + 4, "end", [x - g - 10 - w, y - h / 2, x - g - 10, y + h / 2]],
+        [x, y + g + h + 8, "middle", [x - w / 2, y + g + 10, x + w / 2, y + g + h + 10]],
       ];
       const slot =
         slots.find(
           ([, , , r]) => !placed.some((p) => overlaps(p, r)) && !dots.some((d) => d.id !== n.id && overlaps(d.rect, r))
-        ) ?? (n.id === focus ? slots[0] : undefined); // focus always gets a label
+        ) ??
+        // picks may sit over neighbouring dots rather than go unlabelled
+        (n.favorite ? slots.find(([, , , r]) => !placed.some((p) => overlaps(p, r))) : undefined) ??
+        (n.id === focus ? slots[0] : undefined); // focus always gets a label
       if (!slot) continue;
       placed.push(slot[3]);
       out.push({ id: n.id, x: slot[0], y: slot[1], anchor: slot[2], text: n.label });
@@ -329,7 +389,8 @@ export function SimilarityMapView({
       <p className="mt-1 text-sm text-muted-foreground">
         Each dot is a manager, sized by portfolio; nearby dots own similar stocks in similar sizes,
         and lines join each manager to their closest matches. The axes have no units — only distance
-        matters. Hover to trace a manager&apos;s neighbours, click to pin.
+        matters. Managers with no close match orbit on the outer ring. Hover to trace a
+        manager&apos;s neighbours, click to pin.
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -404,6 +465,35 @@ export function SimilarityMapView({
               </filter>
             </defs>
             <rect width={width} height={height} fill="url(#simmap-dots)" pointerEvents="none" />
+
+            {/* outer ring for managers without a close match */}
+            {nodes.some((n) => n.unique) && (
+              <g pointerEvents="none">
+                <ellipse
+                  cx={ring.cx * view.k + view.tx}
+                  cy={ring.cy * view.k + view.ty}
+                  rx={ring.rx * view.k}
+                  ry={ring.ry * view.k}
+                  fill="none"
+                  stroke="var(--color-zinc-500)"
+                  strokeOpacity={0.35}
+                  strokeDasharray="2 5"
+                />
+                <text
+                  x={ring.cx * view.k + view.tx}
+                  y={(ring.cy + ring.ry) * view.k + view.ty + 4}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill="var(--color-zinc-500)"
+                  stroke="var(--background)"
+                  strokeWidth={6}
+                  paintOrder="stroke"
+                  letterSpacing="0.06em"
+                >
+                  NO CLOSE MATCH · under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone
+                </text>
+              </g>
+            )}
 
             {/* links */}
             <g pointerEvents="none">
@@ -564,7 +654,7 @@ export function SimilarityMapView({
             </div>
             {focusNode.unique && (
               <div className="mt-1.5 text-yellow-500/80">
-                Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone, so its position isn&apos;t meaningful.
+                Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone, so it sits on the outer ring; its place there isn&apos;t meaningful.
               </div>
             )}
             {focusNode.similar.length > 0 && (
@@ -605,7 +695,7 @@ export function SimilarityMapView({
         <span className="flex items-center gap-1.5"><span className="h-px w-5 bg-zinc-500" />Overlap with closest matches (thicker = more)</span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full border-[1.5px]" style={{ borderColor: OTHER }} />
-          Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone
+          Outer ring: idiosyncratic, under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone
         </span>
       </div>
     </div>
