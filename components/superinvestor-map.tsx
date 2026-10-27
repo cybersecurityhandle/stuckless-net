@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Check, Download, Link2, Minus, Plus, RotateCcw, Search, Star, Tag, X } from "lucide-react";
-import type { SuperinvestorsJson } from "@/lib/superinvestors";
+import { ArrowRight, Check, Download, Link2, Minus, Palette, Plus, RotateCcw, Search, Star, Tag, X } from "lucide-react";
+import { buildIssuers, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
 import { fmtMoney, shortName } from "@/components/superinvestors";
 
 // Managers placed by portfolio similarity (classical MDS on 1 − cosine of
@@ -34,6 +34,78 @@ const LABEL_ALL_FROM_K = 1.8;
 // Highlighted managers: ?picks=a,b in the URL (shareable), else this browser's
 // last choice, else the site's favourites
 const PICKS_KEY = "simmap-picks";
+// Cluster colours: mid-tones that read on white and near-black; no emerald,
+// which means "highlighted" in the default view
+const CLUSTER_COLORS = ["#0ea5e9", "#8b5cf6", "#f59e0b", "#f43f5e", "#d946ef", "#f97316", "#6366f1", "#84cc16"];
+// Smaller groups stay grey: two or three managers aren't a school of thought
+const CLUSTER_MIN = 4;
+
+/**
+ * Louvain community detection (modularity, weighted) on the similarity links:
+ * move each node to the neighbouring community with the best gain until
+ * nothing moves, collapse communities into nodes, repeat. Deterministic —
+ * visits nodes in input order. Returns a community index per node.
+ */
+function louvain(n: number, edges: { a: number; b: number; w: number }[]): number[] {
+  let comm = Array.from({ length: n }, (_, i) => i); // original node → community
+  let size = n;
+  let es = edges;
+  for (let level = 0; level < 10; level++) {
+    const adj: Map<number, number>[] = Array.from({ length: size }, () => new Map());
+    let m2 = 0;
+    for (const { a, b, w } of es) {
+      adj[a].set(b, (adj[a].get(b) ?? 0) + w);
+      adj[b].set(a, (adj[b].get(a) ?? 0) + w);
+      m2 += 2 * w;
+    }
+    if (!m2) break;
+    const k = adj.map((m) => [...m.values()].reduce((x, y) => x + y, 0));
+    const c = Array.from({ length: size }, (_, i) => i);
+    const tot = [...k];
+    let moved = false;
+    for (let pass = 0; pass < 50; pass++) {
+      let any = false;
+      for (let i = 0; i < size; i++) {
+        const ci = c[i];
+        tot[ci] -= k[i];
+        const toComm = new Map<number, number>();
+        for (const [j, w] of adj[i]) if (j !== i) toComm.set(c[j], (toComm.get(c[j]) ?? 0) + w);
+        let best = ci;
+        let bestGain = (toComm.get(ci) ?? 0) - (tot[ci] * k[i]) / m2;
+        for (const [d, w] of toComm) {
+          const gain = w - (tot[d] * k[i]) / m2;
+          if (gain > bestGain + 1e-12) [best, bestGain] = [d, gain];
+        }
+        c[i] = best;
+        tot[best] += k[i];
+        if (best !== ci) any = moved = true;
+      }
+      if (!any) break;
+    }
+    if (!moved) break;
+    // collapse: renumber communities, then build the community graph
+    const ids = new Map<number, number>();
+    for (const x of c) if (!ids.has(x)) ids.set(x, ids.size);
+    comm = comm.map((x) => ids.get(c[x])!);
+    const agg = new Map<string, { a: number; b: number; w: number }>();
+    for (const { a, b, w } of es) {
+      const [x, y] = [ids.get(c[a])!, ids.get(c[b])!].sort((p, q) => p - q);
+      const key = `${x}|${y}`;
+      const cur = agg.get(key);
+      if (cur) cur.w += w;
+      else agg.set(key, { a: x, b: y, w });
+    }
+    es = [...agg.values()];
+    size = ids.size;
+  }
+  return comm;
+}
+
+interface Cluster {
+  color: string;
+  members: string[];
+  tickers: string[]; // what the group over-owns vs everyone, for its name
+}
 
 interface Node {
   id: string;
@@ -83,9 +155,11 @@ const overlaps = (a: Rect, b: Rect) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3]
 
 export function SimilarityMapView({
   index,
+  latest,
   onSelect,
 }: {
   index: SuperinvestorsJson;
+  latest?: LatestHoldingsJson | null;
   onSelect: (id: string) => void;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -116,6 +190,20 @@ export function SimilarityMapView({
   const [picksQuery, setPicksQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  // ?color=clusters, so a shared link opens coloured
+  const [clustersOn, setClustersOn] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get("color") === "clusters";
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (clustersOn) url.searchParams.set("color", "clusters");
+    else url.searchParams.delete("color");
+    if (url.href !== window.location.href) window.history.replaceState(null, "", url);
+  }, [clustersOn]);
 
   const isDefaultPicks = picks.size === defaultPicks.length && defaultPicks.every((id) => picks.has(id));
   useEffect(() => {
@@ -328,6 +416,53 @@ export function SimilarityMapView({
     [byId, layout, ring, width, height, clampView, animateTo]
   );
 
+  // Groups of managers from the similarity links (Louvain), each named by the
+  // stocks its members over-own relative to all managers. Idiosyncratic
+  // managers have no links and stay ungrouped.
+  const clusters = useMemo(() => {
+    const core = nodes.filter((n) => !n.unique);
+    const idx = new Map(core.map((n, i) => [n.id, i]));
+    const comm = louvain(
+      core.length,
+      links.filter((l) => idx.has(l.a) && idx.has(l.b)).map((l) => ({ a: idx.get(l.a)!, b: idx.get(l.b)!, w: l.score }))
+    );
+    const groups = new Map<number, string[]>();
+    core.forEach((n, i) => {
+      if (!groups.has(comm[i])) groups.set(comm[i], []);
+      groups.get(comm[i])!.push(n.id);
+    });
+    const issuers = latest ? [...buildIssuers(latest, index.managers).values()].filter((x) => x.ticker) : [];
+    const total = latest ? Object.keys(latest.holdings).length : 1;
+    const list: Cluster[] = [...groups.values()]
+      .filter((g) => g.length >= CLUSTER_MIN)
+      .sort((a, b) => b.length - a.length)
+      .slice(0, CLUSTER_COLORS.length)
+      .map((members, i) => {
+        const set = new Set(members);
+        const tickers = issuers
+          .map((iss) => {
+            let inW = 0;
+            let inN = 0;
+            let allW = 0;
+            for (const o of iss.owners) {
+              allW += o.w;
+              if (set.has(o.id)) [inW, inN] = [inW + o.w, inN + 1];
+            }
+            // over-ownership: group's average weight less everyone's
+            return { t: iss.ticker!.replace(/-[A-Z]$/, ""), lift: inW / members.length - allW / total, held: inN / members.length };
+          })
+          .filter((x) => x.held >= 0.3)
+          .sort((a, b) => b.lift - a.lift)
+          .slice(0, 3)
+          .map((x) => x.t);
+        return { color: CLUSTER_COLORS[i], members, tickers };
+      });
+    const of = new Map<string, Cluster>();
+    for (const c of list) for (const id of c.members) of.set(id, c);
+    return { list, of };
+  }, [nodes, links, latest, index]);
+  const clusterName = (c: Cluster) => (c.tickers.length ? c.tickers.join(" · ") : `Group of ${c.members.length}`);
+
   const focus = hover ?? pinned;
   const focusNode = focus ? byId.get(focus) : undefined;
   const neighbors = useMemo(() => {
@@ -494,7 +629,8 @@ export function SimilarityMapView({
     img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(clone));
     await img.decode();
 
-    const head = 64;
+    const legendH = clustersOn && clusters.list.length ? 24 : 0;
+    const head = 64 + legendH;
     const foot = 36;
     const scale = 2;
     const canvas = document.createElement("canvas");
@@ -515,9 +651,26 @@ export function SimilarityMapView({
       20,
       52
     );
+    if (legendH) {
+      let lx = 20;
+      ctx.font = `12px ${font}`;
+      for (const c of clusters.list) {
+        const text = `${clusterName(c)} (${c.members.length})`;
+        const w = ctx.measureText(text).width + 26;
+        if (lx + w > width - 20) break;
+        ctx.fillStyle = c.color;
+        ctx.beginPath();
+        ctx.arc(lx + 5, 76, 5, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = fg;
+        ctx.fillText(text, lx + 14, 80);
+        lx += w;
+      }
+    }
     ctx.drawImage(img, 0, head, width, height);
     const period = index.managers.reduce((p, m) => (m.period > p ? m.period : p), "");
     ctx.font = `12px ${font}`;
+    ctx.fillStyle = muted;
     ctx.fillText(`13F holdings through ${period}`, 20, head + height + 24);
     ctx.textAlign = "right";
     ctx.fillStyle = fg;
@@ -626,6 +779,10 @@ export function SimilarityMapView({
           <Tag className="h-3.5 w-3.5" />
           All names
         </button>
+        <button onClick={() => setClustersOn((v) => !v)} aria-pressed={clustersOn} className={`inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted ${clustersOn ? "border-zinc-500 bg-muted" : ""}`}>
+          <Palette className="h-3.5 w-3.5" />
+          Clusters
+        </button>
         <button onClick={downloadPng} disabled={exporting} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-2.5 text-sm hover:bg-muted disabled:opacity-60">
           <Download className={`h-3.5 w-3.5 ${exporting ? "animate-pulse" : ""}`} />
           {exporting ? "Saving…" : "PNG"}
@@ -710,7 +867,9 @@ export function SimilarityMapView({
                 const [x2, y2] = pos(b);
                 const lit = focus != null && (l.a === focus || l.b === focus);
                 const strong = lit && own.has(l.a === focus ? l.b : l.a);
-                const favLink = a.favorite && b.favorite;
+                const favLink = !clustersOn && a.favorite && b.favorite;
+                const ca = clustersOn ? clusters.of.get(l.a) : undefined;
+                const inGroup = ca != null && ca === clusters.of.get(l.b);
                 return (
                   <line
                     key={`${l.a}|${l.b}`}
@@ -718,9 +877,11 @@ export function SimilarityMapView({
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    stroke={lit || favLink ? FAV : "var(--color-zinc-500)"}
+                    stroke={lit ? (clustersOn ? "var(--foreground)" : FAV) : favLink ? FAV : inGroup ? ca.color : "var(--color-zinc-500)"}
                     strokeWidth={strong ? 1 + l.score * 4 : 0.5 + l.score * 2}
-                    strokeOpacity={strong ? 0.9 : lit ? 0.3 : focus ? 0.04 : (favLink ? 0.3 : 0.04) + l.score * 0.35}
+                    strokeOpacity={
+                      strong ? 0.9 : lit ? 0.3 : focus ? 0.04 : (favLink ? 0.3 : inGroup ? 0.12 : 0.04) + l.score * 0.35
+                    }
                     strokeLinecap="round"
                     className="transition-[stroke-opacity] duration-200"
                   />
@@ -760,7 +921,7 @@ export function SimilarityMapView({
                 .map((n) => {
                   const [x, y] = pos(n);
                   const isFocus = n.id === focus;
-                  const color = n.favorite ? FAV : OTHER;
+                  const color = clustersOn ? (clusters.of.get(n.id)?.color ?? OTHER) : n.favorite ? FAV : OTHER;
                   // entrance: ripple out from the centre
                   const delay = Math.hypot(x - width / 2, y - height / 2) * 1.2;
                   return (
@@ -780,15 +941,19 @@ export function SimilarityMapView({
                         className="motion-safe:transition-transform motion-safe:duration-500 motion-safe:ease-out"
                         style={{ transform: animate ? "scale(1)" : "scale(0)", transitionDelay: `${delay}ms` }}
                       >
-                        {n.favorite && !n.unique && (
+                        {!clustersOn && n.favorite && !n.unique && (
                           <circle r={n.r + 4} fill={FAV} opacity={isFocus ? 0.55 : 0.25} filter="url(#simmap-glow)" className="dark:block hidden" />
+                        )}
+                        {/* with colours meaning groups, highlighted managers get a ring instead */}
+                        {clustersOn && n.favorite && (
+                          <circle r={n.r + 3} fill="none" stroke="var(--foreground)" strokeWidth={1.5} strokeOpacity={0.85} />
                         )}
                         {isFocus && <circle r={n.r + 5} fill="none" stroke={color} strokeWidth={1.5} strokeOpacity={0.8} />}
                         <circle r={Math.max(n.r, 8)} fill="transparent" />
                         <circle
                           r={n.r}
                           fill={n.unique ? "transparent" : color}
-                          fillOpacity={n.favorite ? 0.95 : 0.6}
+                          fillOpacity={clustersOn ? (clusters.of.has(n.id) ? 0.85 : 0.45) : n.favorite ? 0.95 : 0.6}
                           stroke={n.unique ? color : "var(--background)"}
                           strokeWidth={n.unique ? 1.5 : 1}
                         />
@@ -858,6 +1023,12 @@ export function SimilarityMapView({
               {fmtMoney(focusNode.value)}
               {focusNode.top.length > 0 && <> · top: {focusNode.top.join(", ")}</>}
             </div>
+            {clustersOn && clusters.of.get(focusNode.id) && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-muted-foreground">
+                <span className="h-2 w-2 rounded-full" style={{ background: clusters.of.get(focusNode.id)!.color }} />
+                Group: {clusterName(clusters.of.get(focusNode.id)!)}
+              </div>
+            )}
             {focusNode.unique && (
               <div className="mt-1.5 text-yellow-500/80">
                 Idiosyncratic — under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone, so it sits on the outer ring; its place there isn&apos;t meaningful.
@@ -899,8 +1070,27 @@ export function SimilarityMapView({
         )}
       </div>
 
+      {clustersOn && (
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {clusters.list.map((c) => (
+            <span key={c.color} className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: c.color }} />
+              <span className="text-foreground">{clusterName(c)}</span>
+              <span className="text-muted-foreground">({c.members.length})</span>
+            </span>
+          ))}
+          <span className="text-muted-foreground">Groups are named by the stocks their members over-own.</span>
+        </div>
+      )}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Highlighted</span>
+        {clustersOn ? (
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full border-[1.5px] border-foreground" />
+            Highlighted
+          </span>
+        ) : (
+          <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full" style={{ background: FAV }} />Highlighted</span>
+        )}
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full opacity-60" style={{ background: OTHER }} />Other managers</span>
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />

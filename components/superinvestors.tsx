@@ -1182,7 +1182,7 @@ export function Superinvestors() {
           {selected === "all" && <AllManagersView index={index} onSelect={select} />}
           {selected === "signals" && <SignalsView index={index} latest={latest} onSelect={select} />}
           {selected === "compare" && <CompareView index={index} latest={latest} onSelect={select} />}
-          {selected === "map" && <SimilarityMapView index={index} onSelect={select} />}
+          {selected === "map" && <SimilarityMapView index={index} latest={latest} onSelect={select} />}
           {selected === "backtest" && <BacktestView index={index} onSelect={select} />}
           {manager && (
             <ManagerView key={manager.id} summary={manager} latest={latest} index={index} onSelect={select} />
