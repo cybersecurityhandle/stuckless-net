@@ -349,10 +349,10 @@ export function Watchlist({
       {/* Watchlist table */}
       <Card>
         <CardContent className="pt-6 overflow-x-auto">
-          <Table className="min-w-[1040px]">
+          <Table className="min-w-[940px] [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:leading-tight">
             <TableHeader>
               <TableRow>
-                <TableHead>Ticker</TableHead>
+                <TableHead className="sticky left-0 z-10 bg-card">Ticker</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead className="text-right">Price</TableHead>
                 <TableHead className="text-right">P/E Now</TableHead>
@@ -379,7 +379,7 @@ export function Watchlist({
                 if (row.loading) {
                   return (
                     <TableRow key={row.ticker}>
-                      <TableCell className="font-semibold text-emerald-400">{row.ticker}</TableCell>
+                      <TableCell className="sticky left-0 z-10 bg-card font-semibold text-emerald-400">{row.ticker}</TableCell>
                       <TableCell colSpan={12} className="text-sm text-muted-foreground animate-pulse">
                         Fetching...
                       </TableCell>
@@ -389,7 +389,7 @@ export function Watchlist({
                 if (row.error) {
                   return (
                     <TableRow key={row.ticker}>
-                      <TableCell className="font-semibold text-emerald-400">{row.ticker}</TableCell>
+                      <TableCell className="sticky left-0 z-10 bg-card font-semibold text-emerald-400">{row.ticker}</TableCell>
                       <TableCell colSpan={11} className="text-sm text-red-400">{row.error}</TableCell>
                       <TableCell className="text-right">
                         <button
@@ -406,7 +406,7 @@ export function Watchlist({
                 const v = verdict(row.premium);
                 return (
                   <TableRow key={row.ticker}>
-                    <TableCell>
+                    <TableCell className="sticky left-0 z-10 bg-card">
                       <button
                         onClick={() => onOpenAnalyzer?.(row.ticker)}
                         className="font-semibold text-emerald-400 hover:text-emerald-300 hover:underline"
@@ -418,7 +418,7 @@ export function Watchlist({
                         <sup className="ml-1 text-[9px] text-yellow-500/80" title="Operating earnings: EPS excludes after-tax investment gains and losses">op</sup>
                       )}
                     </TableCell>
-                    <TableCell className="max-w-[200px] truncate text-muted-foreground">{row.name}</TableCell>
+                    <TableCell className="max-w-[150px] truncate text-muted-foreground" title={row.name}>{row.name}</TableCell>
                     <TableCell className="text-right font-mono">
                       {row.currentPrice != null ? `$${row.currentPrice.toFixed(2)}` : "—"}
                     </TableCell>
