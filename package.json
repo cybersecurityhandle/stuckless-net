@@ -15,7 +15,8 @@
     "refresh-lookthrough": "tsx scripts/refresh-lookthrough.ts",
     "send-alerts": "tsx scripts/send-alerts.ts",
     "refresh-backtest": "tsx scripts/refresh-backtest.ts",
-    "refresh-fivefactor": "tsx scripts/refresh-fivefactor.ts"
+    "refresh-fivefactor": "tsx scripts/refresh-fivefactor.ts",
+    "refresh-isolation": "tsx scripts/refresh-isolation.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",

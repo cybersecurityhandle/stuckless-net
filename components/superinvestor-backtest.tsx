@@ -31,7 +31,7 @@ const MANAGER = "#10b981";
 const BENCH = "var(--color-zinc-500)";
 const TOOLTIP_STYLE = { backgroundColor: "var(--color-zinc-900)", border: "1px solid var(--color-zinc-800)", borderRadius: "8px", fontSize: "12px" };
 
-function useJson<T>(url: string): T | null | undefined {
+export function useJson<T>(url: string): T | null | undefined {
   // undefined = loading, null = not available
   const [data, setData] = useState<T | null | undefined>(undefined);
   useEffect(() => {
@@ -43,7 +43,7 @@ function useJson<T>(url: string): T | null | undefined {
   return data;
 }
 
-const signed = (n: number | null | undefined, d = 1) => (n == null ? "—" : `${n >= 0 ? "+" : ""}${(n * 100).toFixed(d)}%`);
+export const signed = (n: number | null | undefined, d = 1) => (n == null ? "—" : `${n >= 0 ? "+" : ""}${(n * 100).toFixed(d)}%`);
 
 function GrowthChart({ r, bench, name }: { r: BacktestManager; bench: string; name: string }) {
   const b = new Map(r.bench ?? []);

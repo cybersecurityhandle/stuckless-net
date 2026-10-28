@@ -19,6 +19,7 @@ import { CompareView } from "@/components/superinvestor-compare";
 import { SimilarityMapView } from "@/components/superinvestor-map";
 import { PortfolioTreemap } from "@/components/superinvestor-treemap";
 import { BacktestView, ManagerReturnsCard } from "@/components/superinvestor-backtest";
+import { IsolationView } from "@/components/superinvestor-isolation";
 import {
   buildIssuers,
   filingUrl,
@@ -1083,7 +1084,7 @@ function ManagerView({
 /* ── Page ──────────────────────────────────────── */
 
 // Non-manager views reachable by ?m=
-const VIEWS = ["filings", "consensus", "signals", "compare", "map", "backtest", "all"];
+const VIEWS = ["filings", "consensus", "signals", "compare", "map", "backtest", "isolation", "all"];
 
 export function Superinvestors() {
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
@@ -1184,6 +1185,7 @@ export function Superinvestors() {
           {selected === "compare" && <CompareView index={index} latest={latest} onSelect={select} />}
           {selected === "map" && <SimilarityMapView index={index} latest={latest} onSelect={select} />}
           {selected === "backtest" && <BacktestView index={index} onSelect={select} />}
+          {selected === "isolation" && <IsolationView index={index} onSelect={select} />}
           {manager && (
             <ManagerView key={manager.id} summary={manager} latest={latest} index={index} onSelect={select} />
           )}

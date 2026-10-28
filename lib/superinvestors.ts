@@ -282,6 +282,61 @@ export interface BacktestJson {
   managers: Record<string, BacktestManager>;
 }
 
+/* ── superinvestors/isolation.json ── */
+
+// One holding year: the four filings for quarter ends in `year`, each held
+// from public to the next filing, chained
+export interface IsolationYear {
+  year: number;
+  ret: number; // chained copycat return
+  bench: number; // benchmark over the same windows
+  excess: number; // ret − bench
+  avgSim: number; // mean over the four quarters of avg cosine vs every other manager
+  maxSim: number; // likewise, vs the single closest manager
+  coverage: number; // avg weight with price data, 0..1
+}
+
+export interface IsolationManager {
+  avgSim: number; // mean over the included years' quarters
+  maxSim: number;
+  avgExcess: number; // mean annual excess
+  years: IsolationYear[];
+}
+
+export interface IsolationGroup {
+  label: string;
+  ids: string[];
+  sim: [number, number]; // range of the group's overlap scores
+  meanExcess: number;
+  medianExcess: number;
+  beat: number; // managers with avgExcess > 0
+}
+
+// One isolation measure (avg or closest overlap) vs average annual excess
+export interface IsolationStats {
+  pearson: number; // across managers
+  spearman: number;
+  looMin: number; // Pearson range when any one manager is left out
+  looMax: number;
+  pooled: number; // Pearson over manager-years, both demeaned within each year
+  halves: IsolationGroup[]; // most isolated first
+  quartiles: IsolationGroup[];
+}
+
+export interface IsolationJson {
+  updated: string;
+  bench: string;
+  minYears: number;
+  years: [number, number]; // first and last holding year included
+  managers: Record<string, IsolationManager>;
+  stats: {
+    managers: number;
+    managerYears: number;
+    avg: IsolationStats; // avgSim vs excess
+    closest: IsolationStats; // maxSim vs excess
+  };
+}
+
 export interface Factors {
   sales: number;
   shares: number; // effect on per-share value: −Δshares/(1+Δshares)

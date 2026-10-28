@@ -23,6 +23,7 @@ const PAGES: Item[] = [
   ["Signals", "/superinvestors?m=signals"],
   ["Compare managers", "/superinvestors?m=compare"],
   ["Similarity map", "/superinvestors?m=map"],
+  ["Isolation vs performance", "/superinvestors?m=isolation"],
   ["Copycat backtest", "/superinvestors?m=backtest"],
   ["All managers", "/superinvestors?m=all"],
   ["Insider buys", "/insiders"],

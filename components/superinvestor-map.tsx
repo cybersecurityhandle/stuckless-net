@@ -1103,6 +1103,9 @@ export function SimilarityMapView({
           Outer ring: idiosyncratic, under {Math.round(UNIQUE_BELOW * 100)}% overlap with anyone
         </span>
       </div>
+      <button onClick={() => onSelect("isolation")} className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+        Do lone wolves do better than the pack? →
+      </button>
     </div>
   );
 }
