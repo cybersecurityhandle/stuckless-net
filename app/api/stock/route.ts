@@ -5,7 +5,7 @@ import lookThroughData from "@/data/lookthrough.json";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.22.0"; // 1.22.0 = SONY discontinued operations (Sony Financial spin-off) stripped
+const API_VERSION = "1.23.0"; // 1.23.0 = Up-C note (share count from unit exchanges, not dilution)
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -96,6 +96,33 @@ const BETA_TRADING_DAYS = 60;
 // unit's profit too, so the series is the business that remains.
 const STRIP_DISCONTINUED: Record<string, string> = {
   SONY: "Sony Financial Group, spun off Oct 2025",
+};
+
+// Up-C structures: the listed company owns part of an operating partnership,
+// and pre-IPO owners swap partnership units for listed shares over time. The
+// listed share count and attributable net income both rise with that slice,
+// which isn't dilution or margin expansion, so the page says so (EPS and
+// total return are unaffected). List: 10-Ks filed 2025–26 mentioning a tax
+// receivable agreement plus unit-for-share exchanges (SEC full-text search),
+// kept where noncontrolling interests were a large share of earnings or
+// equity; consolidated-fund/subsidiary NCIs (APO since 2022, BAM, CNNE, FLEX)
+// left out. Some have since collapsed the structure — the note hedges.
+const UP_C = new Set([
+  "ACDC", "AHCO", "ALIT", "ALTI", "AMRX", "APAM", "ARES", "ARIS", "ASTS", "BKKT", "BMBL", "BRBR",
+  "BRCB", "BRCC", "BRDG", "BRLT", "BROS", "BTM", "BTMD", "BVS", "BWIN", "CBUS", "CDNL", "CHTR",
+  "CNM", "CVNA", "CWAN", "CWH", "DH", "DRCT", "DSP", "EDR", "EE", "ENFN", "ETWO", "EVGO", "EVH",
+  "EVR", "EWCZ", "FBYD", "FLOC", "FLYX", "FNKO", "FOA", "FOUR", "FPS", "GCMG", "GENK", "GLXY",
+  "GNLN", "GOCO", "GPGI", "GSHD", "HGTY", "HLNE", "IBKR", "IIIV", "INR", "ISPO", "LBRT", "LCAP",
+  "LDI", "LGN", "LUNR", "MAPS", "MBUU", "MC", "MDLN", "MKTW", "MRVI", "NCMI", "NMRK", "NPWR",
+  "NRDY", "NXT", "ONEW", "OPAL", "OPFI", "OS", "OWL", "PBF", "PIII", "PJT", "PLNT", "PROK", "PRPL",
+  "PTLO", "PWP", "RANI", "RKT", "RMAX", "RNGR", "RPAY", "RRR", "RSI", "RYAN", "SAMG", "SBDS",
+  "SDHC", "SEAT", "SEI", "SHAK", "SHLS", "SKYH", "SMR", "SST", "STEP", "STGW", "SYM", "TKO", "TPG",
+  "TW", "TWFG", "UTZ", "UWMC", "VCSA", "VIRT", "VTVT", "WHD", "WTTR", "XPOF", "YOU", "ZEO", "ZVIA"
+]);
+// Verified case by case: who exchanges, for a firmer note. IBKR: IBG, Inc.
+// owned ~10% of IBG LLC at the 2007 IPO, about a quarter by 2025.
+const UP_C_DETAIL: Record<string, string> = {
+  IBKR: "Thomas Peterffy and employees (IBG Holdings) swapping IBG LLC units for Class A shares",
 };
 
 const ATTRIBUTABLE_SHARE: Record<string, { fcf: number; netIncome?: number }> = {
@@ -1488,6 +1515,8 @@ export async function GET(req: NextRequest) {
             ),
           }
         : null,
+      // Listed share count grows by unit exchanges, not issuance (see UP_C)
+      upC: UP_C.has(ticker.toUpperCase()) ? { who: UP_C_DETAIL[ticker.toUpperCase()] ?? null } : null,
       // After-tax retained earnings of investees added to holdco net income, by year
       lookThrough: Object.keys(lookThrough).length ? lookThrough : null,
       years,

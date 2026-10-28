@@ -60,6 +60,7 @@ interface StockData {
   lookThrough?: Record<string, number> | null; // after-tax retained investee earnings added, by year
   discontinued?: { label: string; years: Record<string, number> } | null; // removed from net income
   tcja?: Record<string, number>; // one-time 2017 tax-reform effect removed (positive = charge added back)
+  upC?: { who: string | null } | null; // Up-C; who swaps partnership units for listed shares, when verified
   currentPrice?: number | null;
   years: YearData[];
   calendarYears?: YearData[];
@@ -510,6 +511,15 @@ export function StockAnalyzer({
                   .
                 </p>
               )}
+              {stockData.upC && (
+                <p className="text-[10px] text-yellow-500/80">
+                  {stockData.upC.who
+                    ? `Up-C structure: the listed company owns part of an operating partnership, and its slice grows as ${stockData.upC.who}. So the listed share count rises without anyone being diluted, and net income (the listed slice's share) rises with it, which overstates margin growth.`
+                    : "Up-C structure: the listed company owns part of an operating partnership, and pre-IPO owners can swap partnership units for listed shares. Those swaps raise the listed share count without diluting anyone, and raise the listed slice's share of net income, which flatters margin growth — so some of the share count and margin change here may be ownership shifting rather than dilution or better margins."}{" "}
+                  EPS and total return are unaffected; the split between the share count and margin
+                  factors is not.
+                </p>
+              )}
               {stockData.discontinued && Object.keys(stockData.discontinued.years).length > 0 && (
                 <p className="text-[10px] text-yellow-500/80">
                   Earnings exclude discontinued operations ({stockData.discontinued.label}), including
@@ -745,7 +755,11 @@ export function StockAnalyzer({
                 <p className="mt-3 text-xs text-muted-foreground">
                   Earnings grew <span className="text-foreground">{fmtPct(analysis.annNetIncome)}</span>/yr in
                   total; EPS grew <span className="text-foreground">{fmtPct(analysis.annEps)}</span>/yr.{" "}
-                  {Math.abs(gap) < 0.0005
+                  {stockData.upC?.who && gap < 0
+                    ? "The listed share count rose as partnership units were swapped for shares — the listed company's slice of the business grew, nobody was diluted."
+                    : stockData.upC && gap < 0
+                    ? "The listed share count rose; in an Up-C some or all of that is partnership units swapped for shares, not dilution (see note)."
+                    : Math.abs(gap) < 0.0005
                     ? "Share count barely moved, so per-share and total earnings tracked each other."
                     : gap > 0
                       ? <>Buybacks added <span className="text-emerald-500">{fmtPct(gap)}</span>/yr to EPS on top of business growth.</>
@@ -795,7 +809,15 @@ export function StockAnalyzer({
               <FactorRow
                 label="Share Count (dilution/accretion)"
                 value={-analysis.annShareCount / (1 + analysis.annShareCount)}
-                hint={analysis.annShareCount > 0 ? "Dilutive — more shares issued" : "Accretive — shares bought back"}
+                hint={
+                  stockData?.upC && analysis.annShareCount > 0
+                    ? stockData.upC.who
+                      ? "Unit exchanges into listed shares, not dilution (see note)"
+                      : "Up-C: partly unit exchanges, not dilution (see note)"
+                    : analysis.annShareCount > 0
+                      ? "Dilutive — more shares issued"
+                      : "Accretive — shares bought back"
+                }
               />
               <FactorRow
                 label="Margin Growth"
