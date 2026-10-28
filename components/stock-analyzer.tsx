@@ -586,6 +586,12 @@ export function StockAnalyzer({
             end: fmtBig(endY.sharesOutstanding, ""),
             change: analysis.shareCountGrowth,
             ann: analysis.annShareCount,
+            note:
+              stockData.upC && (analysis.shareCountGrowth ?? 0) > 0
+                ? stockData.upC.who
+                  ? "Up-C unit exchanges, not dilution — see note above"
+                  : "Up-C: may be partly unit exchanges, not dilution — see note above"
+                : undefined,
           },
           {
             label: "Net Margin",
@@ -593,6 +599,7 @@ export function StockAnalyzer({
             end: fmtPct(endY.netMargin),
             change: analysis.marginGrowth,
             ann: analysis.annMargin,
+            note: stockData.upC ? "Up-C: listed slice's share of profit — growth overstated, see note above" : undefined,
           },
           {
             label: "P/E Multiple",
@@ -639,6 +646,7 @@ export function StockAnalyzer({
                       }
                     </div>
                   </div>
+                  {m.note && <p className="mt-2 text-[10px] text-yellow-500/80">{m.note}</p>}
                 </CardContent>
               </Card>
             ))}
