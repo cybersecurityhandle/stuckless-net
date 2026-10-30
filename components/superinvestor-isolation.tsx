@@ -12,7 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import type { IsolationGroup, IsolationJson, IsolationStats, SuperinvestorsJson } from "@/lib/superinvestors";
-import { caption, frame, table, td, th, zebra } from "@/components/superinvestors";
+import { caption, frame, table, td, th, wide, zebra } from "@/components/superinvestors";
 import { signed, useJson } from "@/components/superinvestor-backtest";
 
 // Isolation vs performance: are lone-wolf portfolios better or worse to copy
@@ -64,9 +64,9 @@ function GroupTable({ groups, title }: { groups: IsolationGroup[]; title: string
           <tr className="text-left">
             <th className={th}>{title}</th>
             <th className={`${th} text-right`}>Managers</th>
-            <th className={`${th} text-right`}>Overlap</th>
+            <th className={`${th} ${wide} text-right`}>Overlap</th>
             <th className={`${th} text-right`}>Mean excess / yr</th>
-            <th className={`${th} text-right`}>Median</th>
+            <th className={`${th} ${wide} text-right`}>Median</th>
             <th className={`${th} text-right`}>Beat SPY</th>
           </tr>
         </thead>
@@ -75,11 +75,11 @@ function GroupTable({ groups, title }: { groups: IsolationGroup[]; title: string
             <tr key={g.label} className={`border-b border-border/30 ${zebra}`}>
               <td className={`${td} font-medium`}>{g.label}</td>
               <td className={`${td} text-right`}>{g.ids.length}</td>
-              <td className={`${td} text-right text-muted-foreground`}>
+              <td className={`${td} ${wide} text-right text-muted-foreground`}>
                 {fmtSim(g.sim[0])}–{fmtSim(g.sim[1])}
               </td>
               <td className={`${td} text-right`}>{signed(g.meanExcess)}</td>
-              <td className={`${td} text-right`}>{signed(g.medianExcess)}</td>
+              <td className={`${td} ${wide} text-right`}>{signed(g.medianExcess)}</td>
               <td className={`${td} text-right text-muted-foreground`}>
                 {g.beat} of {g.ids.length}
               </td>

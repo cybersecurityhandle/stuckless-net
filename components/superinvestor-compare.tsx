@@ -16,6 +16,7 @@ import {
   table,
   td,
   th,
+  wide,
   zebra,
 } from "@/components/superinvestors";
 
@@ -60,7 +61,7 @@ export function CompareView({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-9 max-w-[280px] rounded-md border border-border bg-background px-2 text-sm"
+      className="h-9 min-w-0 max-w-[280px] flex-1 rounded-md sm:flex-none border border-border bg-background px-2 text-sm"
     >
       <optgroup label="My picks">
         {favs.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -72,7 +73,7 @@ export function CompareView({
   );
 
   const only = (rows: typeof onlyA, side: "oa" | "ob", who: string) => (
-    <div>
+    <div className="min-w-0">
       <h3 className={caption}>Only {who}</h3>
       <div className={`${frame} mt-2`}>
         <table className={table}>
@@ -118,14 +119,14 @@ export function CompareView({
       <section>
         <h3 className={caption}>Held by both</h3>
         <div className={`${frame} mt-2`}>
-          <table className={`${table} min-w-[640px]`}>
+          <table className={`${table} sm:min-w-[640px]`}>
             <thead>
               <tr className="text-left">
                 <th className={th}>Stock</th>
                 <th className={`${th} text-right`}>{ma.name}</th>
-                <th className={th}></th>
+                <th className={`${th} ${wide}`}></th>
                 <th className={`${th} text-right`}>{mb.name}</th>
-                <th className={th}></th>
+                <th className={`${th} ${wide}`}></th>
               </tr>
             </thead>
             <tbody>
@@ -138,9 +139,9 @@ export function CompareView({
                   <tr key={r.key} className={`border-b border-border/30 ${zebra} ${split ? "!bg-yellow-500/10" : ""}`}>
                     <td className={`${td} max-w-[260px]`}><StockCell ticker={r.ticker} name={r.name} /></td>
                     <td className={`${td} text-right`}>{fmtPct(r.oa!.w, 2)}</td>
-                    <td className={`${td} text-xs`}><ActivityText type={r.oa!.c} pct={r.oa!.p} /></td>
+                    <td className={`${td} ${wide} text-xs`}><ActivityText type={r.oa!.c} pct={r.oa!.p} /></td>
                     <td className={`${td} text-right`}>{fmtPct(r.ob!.w, 2)}</td>
-                    <td className={`${td} text-xs`}><ActivityText type={r.ob!.c} pct={r.ob!.p} /></td>
+                    <td className={`${td} ${wide} text-xs`}><ActivityText type={r.ob!.c} pct={r.ob!.p} /></td>
                   </tr>
                 );
               })}
@@ -150,7 +151,7 @@ export function CompareView({
             </tbody>
           </table>
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">Highlighted rows: one is buying while the other sells.</p>
+        <p className="mt-1 text-xs text-muted-foreground">Highlighted rows: one is buying while the other sells<span className="sm:hidden"> (buys and sells are listed on wider screens)</span>.</p>
       </section>
 
       <div className="grid gap-6 md:grid-cols-2">

@@ -20,6 +20,7 @@ import {
   table,
   td,
   th,
+  wide,
   zebra,
   type Scope,
 } from "@/components/superinvestors";
@@ -131,7 +132,7 @@ export function SignalsView({
               <table className={table}>
                 <thead>
                   <tr className="text-left">
-                    <th className={th}>Filed</th>
+                    <th className={`${th} ${wide}`}>Filed</th>
                     <th className={th}>Manager</th>
                     <th className={th}>Stock</th>
                     <th className={`${th} text-right`}>Trade</th>
@@ -140,14 +141,14 @@ export function SignalsView({
                 <tbody>
                   {trades.slice(0, SHOWN).map((t) => (
                     <tr key={`${t.accession}-${t.side}`} className={`border-b border-border/30 ${zebra}`}>
-                      <td className={`${td} whitespace-nowrap text-muted-foreground`}>
+                      <td className={`${td} ${wide} whitespace-nowrap text-muted-foreground`}>
                         <a href={filingIndexUrl(t.issuerCik, t.accession)} target="_blank" rel="noopener noreferrer" className="hover:underline">
                           {t.filed}
                         </a>
                       </td>
                       <td className={`${td} text-muted-foreground`}>{byId.get(t.managerId) ? managerCell(byId.get(t.managerId)!) : t.owner}</td>
                       <td className={`${td} max-w-[200px]`}><StockCell ticker={t.ticker} name={t.issuer} /></td>
-                      <td className={`${td} whitespace-nowrap text-right ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>
+                      <td className={`${td} text-right sm:whitespace-nowrap ${t.side === "buy" ? "text-emerald-400" : "text-red-400"}`}>
                         {t.side === "buy" ? "Bought" : "Sold"} {fmtMoneyShort(t.value)} @ {fmtPrice(t.avgPrice)}
                       </td>
                     </tr>
@@ -160,7 +161,7 @@ export function SignalsView({
               <table className={table}>
                 <thead>
                   <tr className="text-left">
-                    <th className={th}>Filed</th>
+                    <th className={`${th} ${wide}`}>Filed</th>
                     <th className={th}>Manager</th>
                     <th className={th}>Company</th>
                     <th className={`${th} text-right`}>Stake</th>
@@ -169,12 +170,12 @@ export function SignalsView({
                 <tbody>
                   {stakes.slice(0, SHOWN).map((x) => (
                     <tr key={x.accession} className={`border-b border-border/30 ${zebra}`}>
-                      <td className={`${td} whitespace-nowrap text-muted-foreground`}>
+                      <td className={`${td} ${wide} whitespace-nowrap text-muted-foreground`}>
                         <a href={stakeUrl(x)} target="_blank" rel="noopener noreferrer" className="hover:underline">{x.filed}</a>
                       </td>
                       <td className={`${td} text-muted-foreground`}>{byId.get(x.managerId) ? managerCell(byId.get(x.managerId)!) : x.managerId}</td>
                       <td className={`${td} max-w-[200px]`}><StockCell ticker={x.ticker} name={x.subject} /></td>
-                      <td className={`${td} whitespace-nowrap text-right`}>
+                      <td className={`${td} text-right sm:whitespace-nowrap`}>
                         <span className={x.form.startsWith("13D") ? "text-yellow-400" : "text-muted-foreground"} title={x.form.startsWith("13D") ? "13D: active intent" : "13G: passive"}>
                           {x.form}
                         </span>
@@ -197,15 +198,15 @@ export function SignalsView({
           {fmtPct(CONVICTION_IMPACT, 0)}+ of it — size is where conviction shows.
         </p>
         <div className={frame}>
-          <table className={`${table} min-w-[720px]`}>
+          <table className={`${table} sm:min-w-[720px]`}>
             <thead>
               <tr className="text-left">
                 <th className={th}>Stock</th>
                 <th className={th}>Manager</th>
-                <th className={th}>Activity</th>
+                <th className={`${th} ${wide}`}>Activity</th>
                 <th className={`${th} text-right`}>Portfolio<br />Impact</th>
-                <th className={`${th} text-right`}>% of<br />Portfolio</th>
-                <th className={`${th} text-right`}>Quarter</th>
+                <th className={`${th} ${wide} text-right`}>% of<br />Portfolio</th>
+                <th className={`${th} ${wide} text-right`}>Quarter</th>
               </tr>
             </thead>
             <tbody>
@@ -213,10 +214,10 @@ export function SignalsView({
                 <tr key={`${r.m.id}-${r.p.k}`} className={`border-b border-border/30 ${zebra}`}>
                   <td className={`${td} max-w-[260px]`}><StockCell ticker={r.ticker} name={r.name} /></td>
                   <td className={`${td} text-muted-foreground`}>{managerCell(r.m)}</td>
-                  <td className={td}><ActivityText type={r.p.c} pct={r.p.p} /></td>
+                  <td className={`${td} ${wide}`}><ActivityText type={r.p.c} pct={r.p.p} /></td>
                   <td className={`${td} text-right text-emerald-400`}>+{fmtPct(impact(r.p), 2)}</td>
-                  <td className={`${td} text-right`}>{fmtPct(r.p.w, 2)}</td>
-                  <td className={`${td} text-right text-muted-foreground`}>{fmtQuarter(r.m.period)}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPct(r.p.w, 2)}</td>
+                  <td className={`${td} ${wide} text-right text-muted-foreground`}>{fmtQuarter(r.m.period)}</td>
                 </tr>
               ))}
               {!conviction.length && <EmptyRow cols={6} />}
@@ -232,14 +233,14 @@ export function SignalsView({
           sustained build is a thesis.
         </p>
         <div className={frame}>
-          <table className={`${table} min-w-[720px]`}>
+          <table className={`${table} sm:min-w-[720px]`}>
             <thead>
               <tr className="text-left">
                 <th className={th}>Stock</th>
                 <th className={th}>Manager</th>
                 <th className={`${th} text-right`}>Quarters<br />Adding</th>
-                <th className={`${th} text-right`}>Held<br />Since</th>
-                <th className={`${th} text-right`}>% of<br />Portfolio</th>
+                <th className={`${th} ${wide} text-right`}>Held<br />Since</th>
+                <th className={`${th} ${wide} text-right`}>% of<br />Portfolio</th>
               </tr>
             </thead>
             <tbody>
@@ -248,8 +249,8 @@ export function SignalsView({
                   <td className={`${td} max-w-[260px]`}><StockCell ticker={r.ticker} name={r.name} /></td>
                   <td className={`${td} text-muted-foreground`}>{managerCell(r.m)}</td>
                   <td className={`${td} text-right font-medium text-emerald-400`}>{r.p.streak}</td>
-                  <td className={`${td} text-right text-muted-foreground`}>{r.p.since ? fmtQuarter(r.p.since) : "—"}</td>
-                  <td className={`${td} text-right`}>{fmtPct(r.p.w, 2)}</td>
+                  <td className={`${td} ${wide} text-right text-muted-foreground`}>{r.p.since ? fmtQuarter(r.p.since) : "—"}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPct(r.p.w, 2)}</td>
                 </tr>
               ))}
               {!streaks.length && <EmptyRow cols={5} />}
@@ -266,15 +267,15 @@ export function SignalsView({
           from quarter-end prices, so treat it as ± a few percent.
         </p>
         <div className={frame}>
-          <table className={`${table} min-w-[720px]`}>
+          <table className={`${table} sm:min-w-[720px]`}>
             <thead>
               <tr className="text-left">
                 <th className={th}>Stock</th>
                 <th className={th}>Manager</th>
-                <th className={`${th} text-right`}>Est.<br />Cost</th>
-                <th className={`${th} text-right`}>Current<br />Price</th>
+                <th className={`${th} ${wide} text-right`}>Est.<br />Cost</th>
+                <th className={`${th} ${wide} text-right`}>Current<br />Price</th>
                 <th className={`${th} text-right`}>vs<br />Cost</th>
-                <th className={`${th} text-right`}>% of<br />Portfolio</th>
+                <th className={`${th} ${wide} text-right`}>% of<br />Portfolio</th>
               </tr>
             </thead>
             <tbody>
@@ -282,10 +283,10 @@ export function SignalsView({
                 <tr key={`${r.m.id}-${r.p.k}`} className={`border-b border-border/30 ${zebra}`}>
                   <td className={`${td} max-w-[260px]`}><StockCell ticker={r.ticker} name={r.name} /></td>
                   <td className={`${td} text-muted-foreground`}>{managerCell(r.m)}</td>
-                  <td className={`${td} text-right`}>{fmtPrice(r.p.cost)}</td>
-                  <td className={`${td} text-right`}>{fmtPrice(r.price)}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPrice(r.p.cost)}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPrice(r.price)}</td>
                   <td className={`${td} text-right text-red-400`}>{fmtPct(r.vsCost!)}</td>
-                  <td className={`${td} text-right`}>{fmtPct(r.p.w, 2)}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPct(r.p.w, 2)}</td>
                 </tr>
               ))}
               {!belowCost.length && <EmptyRow cols={6} />}

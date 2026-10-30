@@ -133,7 +133,8 @@ export function StockCell({ ticker, name }: { ticker: string | null; name: strin
       ) : (
         <span className="shrink-0 text-muted-foreground">—</span>
       )}
-      <span className="truncate">
+      {/* Wraps on phones — a nowrap name keeps the table wider than the screen */}
+      <span className="min-w-0 sm:truncate">
         <span className="text-muted-foreground">- </span>
         {name}
       </span>
@@ -150,6 +151,9 @@ export const zebra =
   "even:bg-muted hover:bg-zinc-800/50 dark:even:bg-muted/20 dark:hover:bg-muted/40";
 // Tables sit in a thin rounded frame; the table itself is page-colored
 export const frame = "overflow-x-auto rounded-md border border-border";
+// Phones get each table's key columns only; the rest show from sm up (and
+// some move into a second line or an expanded row instead of side-scrolling)
+export const wide = "hidden sm:table-cell";
 export const table = "w-full text-sm tabular-nums";
 // A page-colored gap cell (border-hidden wins over the row border) splits
 // off the price block
@@ -236,17 +240,17 @@ function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSele
               </span>
             </h3>
             <div className={`mt-2 ${frame}`}>
-              <table className={`${table} min-w-[960px]`}>
+              <table className={`${table} sm:min-w-[960px]`}>
                 <thead>
                   <tr className="text-left">
-                    <th className={th}>Filed</th>
+                    <th className={`${th} ${wide}`}>Filed</th>
                     <th className={th}>Manager</th>
                     <th className={`${th} text-right`}>Portfolio<br />Value</th>
                     <th className={`${th} text-right`}>vs Prior<br />Quarter</th>
-                    <th className={`${th} text-right`}>Stocks</th>
-                    <th className={`${th} text-right`}>Buys</th>
-                    <th className={`${th} text-right`}>Sells</th>
-                    <th className={th}>Biggest Move</th>
+                    <th className={`${th} ${wide} text-right`}>Stocks</th>
+                    <th className={`${th} ${wide} text-right`}>Buys</th>
+                    <th className={`${th} ${wide} text-right`}>Sells</th>
+                    <th className={`${th} ${wide}`}>Biggest Move</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -258,20 +262,21 @@ function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSele
                         onClick={() => onSelect(m.id)}
                         className={`cursor-pointer border-b border-border/30 ${zebra} ${m.favorite && scope === "all" ? "!bg-emerald-500/10" : ""}`}
                       >
-                        <td className={`${td} whitespace-nowrap text-muted-foreground`}>{fmtDate(m.filed)}</td>
-                        <td className={`${td} whitespace-nowrap`}>
+                        <td className={`${td} ${wide} whitespace-nowrap text-muted-foreground`}>{fmtDate(m.filed)}</td>
+                        <td className={`${td} sm:whitespace-nowrap`}>
                           <span className="mr-1.5 inline-block w-3 text-emerald-400">{m.favorite ? "★" : ""}</span>
                           <span className="font-medium text-emerald-400">{m.name}</span>
-                          {m.firm && <span className="text-muted-foreground"> - {m.firm}</span>}
+                          {m.firm && <span className="hidden text-muted-foreground sm:inline"> - {m.firm}</span>}
+                          <span className="block pl-[1.125rem] text-xs text-muted-foreground sm:hidden">Filed {fmtDate(m.filed)}</span>
                         </td>
                         <td className={`${td} text-right`}>{fmtMoney(m.totalValue)}</td>
                         <td className={`${td} text-right ${vsPrior == null ? "text-muted-foreground" : vsPrior >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                           {vsPrior == null ? "—" : signedPct(vsPrior)}
                         </td>
-                        <td className={`${td} text-right`}>{m.positions}</td>
-                        <td className={`${td} text-right text-emerald-400`}>{m.buys ?? "—"}</td>
-                        <td className={`${td} text-right text-red-400`}>{m.sells ?? "—"}</td>
-                        <td className={`${td} whitespace-nowrap`}>
+                        <td className={`${td} ${wide} text-right`}>{m.positions}</td>
+                        <td className={`${td} ${wide} text-right text-emerald-400`}>{m.buys ?? "—"}</td>
+                        <td className={`${td} ${wide} text-right text-red-400`}>{m.sells ?? "—"}</td>
+                        <td className={`${td} ${wide} whitespace-nowrap`}>
                           {m.move ? (
                             <span className="flex items-baseline gap-1.5">
                               <ActivityText type={m.move.c} pct={m.move.p} />
@@ -357,14 +362,14 @@ function ConsensusView({
         <ScopeToggle scope={scope} onChange={setScope} />
       </div>
       <div className={`mt-5 ${frame}`}>
-        <table className={`${table} min-w-[760px]`}>
+        <table className={`${table} sm:min-w-[760px]`}>
           <thead>
             <tr className="text-left">
               <th className={th}>Stock</th>
               <th className={`${th} text-right`}>Owners</th>
               <th className={`${th} text-right`}>Avg %</th>
-              <th className={`${th} text-right`}>Price</th>
-              <th className={th}>Held by</th>
+              <th className={`${th} ${wide} text-right`}>Price</th>
+              <th className={`${th} ${wide}`}>Held by</th>
             </tr>
           </thead>
           <tbody>
@@ -372,34 +377,38 @@ function ConsensusView({
               // Your picks first, then by weight
               const owners = [...r.owners].sort((a, b) => Number(b.favorite) - Number(a.favorite) || b.w - a.w);
               const hidden = owners.length - OWNERS_SHOWN;
+              const heldBy = (
+                <span className="text-muted-foreground">
+                  {owners.slice(0, OWNERS_SHOWN).map((o, i) => (
+                    <Fragment key={o.id}>
+                      {i > 0 && <span className="mx-1.5 text-border">·</span>}
+                      <button
+                        onClick={() => onSelect(o.id)}
+                        className={`hover:text-foreground hover:underline ${o.favorite && scope === "all" ? "text-foreground" : ""}`}
+                      >
+                        {shortName(o.name)}
+                      </button>{" "}
+                      <span className="text-foreground">{fmtPct(o.w, o.w < 0.001 ? 2 : 1)}</span>
+                      {o.c && (
+                        <span className="ml-1 text-xs">
+                          <ActivityText type={o.c} pct={o.p} />
+                        </span>
+                      )}
+                    </Fragment>
+                  ))}
+                  {hidden > 0 && <span className="ml-1.5">+{hidden} more</span>}
+                </span>
+              );
               return (
                 <tr key={r.key} className={`border-b border-border/30 ${zebra}`}>
-                  <td className={`${td} max-w-[260px]`}><StockCell ticker={r.ticker} name={r.name} /></td>
-                  <td className={`${td} text-right`}>{r.owners.length}</td>
-                  <td className={`${td} text-right`}>{fmtPct(r.avg)}</td>
-                  <td className={`${td} text-right`}>{fmtPrice(r.ticker ? latest.quotes[r.ticker]?.price : null)}</td>
-                  <td className={`${td} text-sm`}>
-                    <span className="text-muted-foreground">
-                      {owners.slice(0, OWNERS_SHOWN).map((o, i) => (
-                        <Fragment key={o.id}>
-                          {i > 0 && <span className="mx-1.5 text-border">·</span>}
-                          <button
-                            onClick={() => onSelect(o.id)}
-                            className={`hover:text-foreground hover:underline ${o.favorite && scope === "all" ? "text-foreground" : ""}`}
-                          >
-                            {shortName(o.name)}
-                          </button>{" "}
-                          <span className="text-foreground">{fmtPct(o.w, o.w < 0.001 ? 2 : 1)}</span>
-                          {o.c && (
-                            <span className="ml-1 text-xs">
-                              <ActivityText type={o.c} pct={o.p} />
-                            </span>
-                          )}
-                        </Fragment>
-                      ))}
-                      {hidden > 0 && <span className="ml-1.5">+{hidden} more</span>}
-                    </span>
+                  <td className={`${td} max-w-[260px]`}>
+                    <StockCell ticker={r.ticker} name={r.name} />
+                    <div className="mt-1 text-xs sm:hidden">{heldBy}</div>
                   </td>
+                  <td className={`${td} align-top text-right sm:align-middle`}>{r.owners.length}</td>
+                  <td className={`${td} align-top text-right sm:align-middle`}>{fmtPct(r.avg)}</td>
+                  <td className={`${td} ${wide} text-right`}>{fmtPrice(r.ticker ? latest.quotes[r.ticker]?.price : null)}</td>
+                  <td className={`${td} ${wide} text-sm`}>{heldBy}</td>
                 </tr>
               );
             })}
@@ -441,19 +450,19 @@ function AllManagersView({ index, onSelect }: { index: SuperinvestorsJson; onSel
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search manager, firm or ticker"
-          className="h-9 w-64 rounded-md border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground"
+          className="h-9 w-full rounded-md sm:w-64 border border-border bg-transparent px-3 text-sm placeholder:text-muted-foreground"
         />
       </div>
       <div className={`mt-5 ${frame}`}>
-        <table className={`${table} min-w-[760px]`}>
+        <table className={`${table} sm:min-w-[760px]`}>
           <thead>
             <tr className="text-left">
               <th className={th}>Manager</th>
               <th className={`${th} text-right`}>Portfolio<br />Value</th>
-              <th className={`${th} text-right`}>Stocks</th>
-              <th className={th}>Top Holdings</th>
+              <th className={`${th} ${wide} text-right`}>Stocks</th>
+              <th className={`${th} ${wide}`}>Top Holdings</th>
               <th className={`${th} text-right`}>Period</th>
-              <th className={`${th} text-right`}>Filed</th>
+              <th className={`${th} ${wide} text-right`}>Filed</th>
             </tr>
           </thead>
           <tbody>
@@ -462,13 +471,14 @@ function AllManagersView({ index, onSelect }: { index: SuperinvestorsJson; onSel
                 <td className={td}>
                   <span className="mr-1.5 inline-block w-3 text-emerald-400">{m.favorite ? "★" : ""}</span>
                   <span className="font-medium text-emerald-400">{m.name}</span>
-                  {m.firm && <span className="text-muted-foreground"> - {m.firm}</span>}
+                  {m.firm && <span className="hidden text-muted-foreground sm:inline"> - {m.firm}</span>}
+                  <span className="block pl-[1.125rem] text-xs text-muted-foreground sm:hidden">{m.top.slice(0, 3).join(", ")}</span>
                 </td>
                 <td className={`${td} text-right`}>{fmtMoney(m.totalValue)}</td>
-                <td className={`${td} text-right`}>{m.positions}</td>
-                <td className={`${td} text-sm text-muted-foreground`}>{m.top.join(", ")}</td>
-                <td className={`${td} text-right`}>{fmtQuarter(m.period)}</td>
-                <td className={`${td} text-right text-muted-foreground`}>{fmtDate(m.filed)}</td>
+                <td className={`${td} ${wide} text-right`}>{m.positions}</td>
+                <td className={`${td} ${wide} text-sm text-muted-foreground`}>{m.top.join(", ")}</td>
+                <td className={`${td} whitespace-nowrap text-right`}>{fmtQuarter(m.period)}</td>
+                <td className={`${td} ${wide} text-right text-muted-foreground`}>{fmtDate(m.filed)}</td>
               </tr>
             ))}
           </tbody>
@@ -580,20 +590,25 @@ function HoldingsTab({
               <span aria-hidden className="w-2.5 shrink-0 text-[10px] text-muted-foreground">{open ? "▾" : "▸"}</span>
               <StockCell ticker={s.t} name={isClass ? shareClass(s.cl) : s.d} />
             </span>
+            {p.c && (
+              <span className={`mt-0.5 block text-xs sm:hidden ${isClass ? "pl-8" : "pl-4"}`}>
+                <ActivityText type={p.c} pct={p.p} />
+              </span>
+            )}
           </td>
           <td className={`${td} text-right ${isClass ? "text-muted-foreground" : "font-medium"}`}>
             {fmtPct(q.total ? p.v / q.total : 0, 2)}
           </td>
-          <td className={`${td} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
-          <td className={`${td} text-right`}>{p.s.toLocaleString()}</td>
-          <td className={`${td} text-right`}>{fmtPrice(reported)}</td>
-          <td className={`${td} text-right ${isClass ? "text-muted-foreground" : ""}`}>{fmtMoney(p.v)}</td>
+          <td className={`${td} ${wide} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
+          <td className={`${td} ${wide} text-right`}>{p.s.toLocaleString()}</td>
+          <td className={`${td} ${wide} text-right`}>{fmtPrice(reported)}</td>
+          <td className={`${td} ${wide} text-right ${isClass ? "text-muted-foreground" : ""}`}>{fmtMoney(p.v)}</td>
           {quotes && (
             <>
-              <td className={gap} />
-              <td className={`${td} text-right`}>{fmtPrice(quote?.price)}</td>
+              <td className={`${gap} ${wide}`} />
+              <td className={`${td} ${wide} text-right`}>{fmtPrice(quote?.price)}</td>
               <td
-                className={`${td} text-right ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                className={`${td} ${wide} text-right ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
                 title={
                   quote && reported && vsReported == null
                     ? "Not comparable: spin-off or filing error since quarter end"
@@ -605,16 +620,16 @@ function HoldingsTab({
                 {vsReported == null ? "—" : `${vsReported >= 0 ? "+" : ""}${fmtPct(vsReported)}`}
                 {split !== 1 && vsReported != null && <span className="text-muted-foreground">*</span>}
               </td>
-              <td className={`${td} text-right`}>{fmtPrice(quote?.low52)}</td>
-              <td className={`${td} text-right`}>{fmtPrice(quote?.high52)}</td>
+              <td className={`${td} ${wide} text-right`}>{fmtPrice(quote?.low52)}</td>
+              <td className={`${td} ${wide} text-right`}>{fmtPrice(quote?.high52)}</td>
               <td
-                className={`${td} text-right ${lp?.costPartial ? "text-muted-foreground" : ""}`}
+                className={`${td} ${wide} text-right ${lp?.costPartial ? "text-muted-foreground" : ""}`}
                 title={lp?.costPartial ? "Held before Q2 2013 — true cost is likely lower" : lp?.since ? `Held since ${fmtQuarter(lp.since)}` : undefined}
               >
                 {lp?.costPartial && cost != null && "≥"}
                 {fmtPrice(cost)}
               </td>
-              <td className={`${td} text-right ${vsCost == null ? "" : vsCost >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              <td className={`${td} ${wide} text-right ${vsCost == null ? "" : vsCost >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {vsCost == null ? "—" : `${vsCost >= 0 ? "+" : ""}${fmtPct(vsCost)}`}
               </td>
             </>
@@ -622,7 +637,32 @@ function HoldingsTab({
         </tr>
         {open && (
           <tr className="border-b border-border/40 bg-emerald-500/5">
-            <td colSpan={cols} className="pl-6"><PositionHistory history={history} k={p.k} /></td>
+            <td colSpan={cols} className="pl-6">
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 pr-3 pt-3 text-xs tabular-nums sm:hidden">
+                {(
+                  [
+                    ["Shares", p.s.toLocaleString()],
+                    ["Value", fmtMoney(p.v)],
+                    ["Reported price", fmtPrice(reported)],
+                    ...(quotes
+                      ? [
+                          ["Current price", fmtPrice(quote?.price)],
+                          ["± Reported price", vsReported == null ? "—" : signedPct(vsReported)],
+                          ["52-week range", `${fmtPrice(quote?.low52)} – ${fmtPrice(quote?.high52)}`],
+                          ["Est. cost", `${lp?.costPartial && cost != null ? "≥" : ""}${fmtPrice(cost)}`],
+                          ["± Est. cost", vsCost == null ? "—" : signedPct(vsCost)],
+                        ]
+                      : []),
+                  ] as [string, string][]
+                ).map(([k, v]) => (
+                  <div key={k}>
+                    <dt className="text-muted-foreground">{k}</dt>
+                    <dd className="font-medium">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <PositionHistory history={history} k={p.k} />
+            </td>
           </tr>
         )}
       </Fragment>
@@ -648,33 +688,34 @@ function HoldingsTab({
         <PortfolioTreemap history={history} positions={longs} total={q.total} />
       ) : (
       <div className="overflow-x-auto">
-        <table className={`${table} ${quotes ? "min-w-[1180px]" : "min-w-[640px]"}`}>
+        <table className={`${table} ${quotes ? "sm:min-w-[1180px]" : "sm:min-w-[640px]"}`}>
           <thead>
             <tr className="text-left">
-              <th colSpan={6} className={`${caption} px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
+              <th colSpan={2} className={`${caption} whitespace-nowrap px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
+              <th colSpan={4} className={wide} />
               {quotes && (
                 <>
-                  <th className={gap} />
-                  <th colSpan={6} className={`${caption} px-3 pb-1.5`}>Now</th>
+                  <th className={`${gap} ${wide}`} />
+                  <th colSpan={6} className={`${caption} ${wide} px-3 pb-1.5`}>Now</th>
                 </>
               )}
             </tr>
             <tr className="text-left">
               <th className={th}>Stock</th>
               <th className={`${th} text-right`}>% of<br />Portfolio</th>
-              <th className={th}>Recent<br />Activity</th>
-              <th className={`${th} text-right`}>Shares</th>
-              <th className={`${th} text-right`}>Reported<br />Price</th>
-              <th className={`${th} text-right`}>Value</th>
+              <th className={`${th} ${wide}`}>Recent<br />Activity</th>
+              <th className={`${th} ${wide} text-right`}>Shares</th>
+              <th className={`${th} ${wide} text-right`}>Reported<br />Price</th>
+              <th className={`${th} ${wide} text-right`}>Value</th>
               {quotes && (
                 <>
-                  <th className={gap} />
-                  <th className={`${th} text-right`}>Current<br />Price</th>
-                  <th className={`${th} text-right`}>± Reported<br />Price</th>
-                  <th className={`${th} text-right`}>52 Week<br />Low</th>
-                  <th className={`${th} text-right`}>52 Week<br />High</th>
-                  <th className={`${th} text-right`} title="Estimated average cost from quarter-end prices of each buy since Q2 2013">Est.<br />Cost</th>
-                  <th className={`${th} text-right`}>± Est.<br />Cost</th>
+                  <th className={`${gap} ${wide}`} />
+                  <th className={`${th} ${wide} text-right`}>Current<br />Price</th>
+                  <th className={`${th} ${wide} text-right`}>± Reported<br />Price</th>
+                  <th className={`${th} ${wide} text-right`}>52 Week<br />Low</th>
+                  <th className={`${th} ${wide} text-right`}>52 Week<br />High</th>
+                  <th className={`${th} ${wide} text-right`} title="Estimated average cost from quarter-end prices of each buy since Q2 2013">Est.<br />Cost</th>
+                  <th className={`${th} ${wide} text-right`}>± Est.<br />Cost</th>
                 </>
               )}
             </tr>
@@ -694,12 +735,12 @@ function HoldingsTab({
                       </span>
                     </td>
                     <td className={`${td} text-right font-semibold`}>{fmtPct(q.total ? value / q.total : 0, 2)}</td>
-                    <td colSpan={3} />
-                    <td className={`${td} text-right font-medium`}>{fmtMoney(value)}</td>
+                    <td colSpan={3} className={wide} />
+                    <td className={`${td} ${wide} text-right font-medium`}>{fmtMoney(value)}</td>
                     {quotes && (
                       <>
-                        <td className={gap} />
-                        <td colSpan={6} />
+                        <td className={`${gap} ${wide}`} />
+                        <td colSpan={6} className={wide} />
                       </>
                     )}
                   </tr>
@@ -734,7 +775,7 @@ function HoldingsTab({
       )}
 
       <p className="mt-4 px-2 text-xs text-muted-foreground">
-        Click a row for its weight over time. Reported price = 13F value ÷ shares at quarter end.
+        Click a row for its weight over time<span className="sm:hidden"> and the full figures</span>. Reported price = 13F value ÷ shares at quarter end.
         {quotes && " Current prices as of the last data refresh; * = adjusted for a stock split since quarter end. Est. cost = average of quarter-end prices of each buy (≥ = held before Q2 2013, so the real cost is likely lower)."}
         {options.length > 0 && (
           <>
@@ -1122,12 +1163,12 @@ export function Superinvestors() {
   // Filings in the newest quarter, while that quarter is still coming in
   const newest = index?.managers.reduce((p, m) => (m.period > p ? m.period : p), "");
   const newCount = index?.managers.filter((m) => m.period === newest).length ?? 0;
-  const navItem = (id: string, label: React.ReactNode, title?: string) => (
+  const navItem = (id: string, label: React.ReactNode, title?: string, extra = "") => (
     <button
       key={id}
       onClick={() => select(id)}
       title={title}
-      className={`-mb-px shrink-0 border-b-2 pb-2 text-sm transition-colors ${
+      className={`-mb-px shrink-0 border-b-2 pb-2 text-sm transition-colors ${extra} ${
         selected === id
           ? "border-emerald-500 font-medium text-foreground"
           : "border-transparent text-muted-foreground hover:text-foreground"
@@ -1172,7 +1213,18 @@ export function Superinvestors() {
             {navItem("compare", "Compare", "Two portfolios side by side")}
             {navItem("map", "Map", "Managers placed by portfolio similarity")}
             {navItem("backtest", "Backtest", "Would copying each manager's 13Fs have worked?")}
-            {favorites.map((m) => navItem(m.id, m.name, `${m.firm} · ${fmtQuarter(m.period)}`))}
+            {/* Ten manager tabs would wrap to six rows on a phone */}
+            {favorites.map((m) => navItem(m.id, m.name, `${m.firm} · ${fmtQuarter(m.period)}`, "hidden sm:block"))}
+            <select
+              value={manager?.favorite ? manager.id : ""}
+              onChange={(e) => e.target.value && select(e.target.value)}
+              className={`-mb-px border-b-2 bg-transparent pb-2 text-sm sm:hidden ${
+                manager?.favorite ? "border-emerald-500 font-medium text-foreground" : "border-transparent text-muted-foreground"
+              }`}
+            >
+              <option value="">Featured managers…</option>
+              {favorites.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+            </select>
             {/* A manager opened from All managers gets a temporary tab */}
             {manager && !manager.favorite && navItem(manager.id, manager.name)}
             <span className="ml-auto" />

@@ -19,6 +19,7 @@ import {
   table,
   td,
   th,
+  wide,
   zebra,
   type Scope,
 } from "@/components/superinvestors";
@@ -138,16 +139,16 @@ export function BacktestView({ index, onSelect }: { index: SuperinvestorsJson; o
       )}
 
       <div className={frame}>
-        <table className={`${table} min-w-[820px]`}>
+        <table className={`${table} sm:min-w-[820px]`}>
           <thead>
             <tr className="text-left">
               <th className={th}>Manager</th>
-              <th className={`${th} text-right`}>Since</th>
+              <th className={`${th} ${wide} text-right`}>Since</th>
               <th className={`${th} text-right`}>Copycat<br />CAGR</th>
-              <th className={`${th} text-right`}>{bt.bench}<br />Same Dates</th>
+              <th className={`${th} ${wide} text-right`}>{bt.bench}<br />Same Dates</th>
               <th className={`${th} text-right`}>Excess<br />/ yr</th>
-              <th className={`${th} text-right`} title="At quarterly rebalance points — intra-quarter drawdowns were deeper">Max<br />Drawdown</th>
-              <th className={`${th} text-right`} title="Average share of each portfolio with price data (delisted names drop out)">Coverage</th>
+              <th className={`${th} ${wide} text-right`} title="At quarterly rebalance points — intra-quarter drawdowns were deeper">Max<br />Drawdown</th>
+              <th className={`${th} ${wide} text-right`} title="Average share of each portfolio with price data (delisted names drop out)">Coverage</th>
             </tr>
           </thead>
           <tbody>
@@ -171,12 +172,12 @@ export function BacktestView({ index, onSelect }: { index: SuperinvestorsJson; o
                       {m?.name ?? id}
                     </button>
                   </td>
-                  <td className={`${td} text-right text-muted-foreground`}>{r.start.slice(0, 4)}</td>
+                  <td className={`${td} ${wide} text-right text-muted-foreground`}>{r.start.slice(0, 4)}</td>
                   <td className={`${td} text-right font-medium`}>{fmtPct(r.cagr!)}</td>
-                  <td className={`${td} text-right text-muted-foreground`}>{r.benchCagr != null ? fmtPct(r.benchCagr) : "—"}</td>
+                  <td className={`${td} ${wide} text-right text-muted-foreground`}>{r.benchCagr != null ? fmtPct(r.benchCagr) : "—"}</td>
                   <td className={`${td} text-right ${(r.excess ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"}`}>{signed(r.excess)}</td>
-                  <td className={`${td} text-right text-red-400`}>{fmtPct(r.maxDrawdown, 0)}</td>
-                  <td className={`${td} text-right text-muted-foreground`}>{fmtPct(r.coverage, 0)}</td>
+                  <td className={`${td} ${wide} text-right text-red-400`}>{fmtPct(r.maxDrawdown, 0)}</td>
+                  <td className={`${td} ${wide} text-right text-muted-foreground`}>{fmtPct(r.coverage, 0)}</td>
                 </tr>
               );
             })}
