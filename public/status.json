@@ -1,32 +1,32 @@
 {
  "refresh-backtest": {
-  "ranAt": "2026-10-29T22:39:05.432Z",
+  "ranAt": "2026-10-30T22:41:30.933Z",
   "ok": true,
   "summary": "85 managers backtested",
   "seconds": 11
  },
  "refresh-13f": {
-  "ranAt": "2026-10-30T21:48:09.766Z",
+  "ranAt": "2026-10-30T22:38:39.241Z",
   "ok": true,
   "summary": "85 managers",
-  "seconds": 157
+  "seconds": 155
  },
  "refresh-fivefactor": {
-  "ranAt": "2026-10-29T22:39:42.378Z",
+  "ranAt": "2026-10-30T22:42:30.397Z",
   "ok": true,
   "summary": "8 managers decomposed",
-  "seconds": 23
+  "seconds": 45
  },
  "refresh-insiders": {
-  "ranAt": "2026-10-29T22:38:54.152Z",
+  "ranAt": "2026-10-30T22:41:19.396Z",
   "ok": true,
-  "summary": "498 insider buys, 5 superinvestor trades, 19 stakes",
-  "seconds": 152
+  "summary": "505 insider buys, 6 superinvestor trades, 18 stakes",
+  "seconds": 160
  },
  "refresh-isolation": {
-  "ranAt": "2026-10-29T22:39:18.431Z",
+  "ranAt": "2026-10-30T22:41:44.422Z",
   "ok": true,
   "summary": "84 managers, 861 manager-years, r=-0.0559",
-  "seconds": 12
+  "seconds": 13
  }
 }
