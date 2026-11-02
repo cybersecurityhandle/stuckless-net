@@ -5,7 +5,7 @@ import lookThroughData from "@/data/lookthrough.json";
 
 export const runtime = "nodejs";
 
-const API_VERSION = "1.23.0"; // 1.23.0 = Up-C note (share count from unit exchanges, not dilution)
+const API_VERSION = "1.24.0"; // 1.24.0 = Nintendo (7974.T) hard-coded 10 years
 
 // Tickers whose EDGAR filings report share counts for a different share
 // class than the listed ticker. BRK filings carry Class A equivalents;
@@ -203,6 +203,30 @@ const HARDCODED_FINANCIALS: Record<string, {
       "2023-12-31": { revenue: 11139.0*M, netIncome: 748.6*M, shares: 21.2*M, dps: 5.30, equity: 2485.6*M, totalAssets: 14391.8*M, longTermDebt: 2978.5*M },
       "2024-12-31": { revenue: 14471.8*M, netIncome: 1051.0*M, shares: 21.2*M, dps: 5.75, equity: 4016.9*M, totalAssets: 18471.4*M, longTermDebt: 5095.2*M },
       "2025-12-31": { revenue: 15953.4*M, netIncome: 702.8*M, shares: 21.2*M, dps: 5.49, equity: 4908.3*M, totalAssets: 22195.8*M, longTermDebt: 5487.5*M },
+    },
+  },
+  // Nintendo — TSE:7974 (JPY), fiscal years ending March. From the English
+  // annual reports (nintendo.co.jp/ir/pdf/YYYY/annualYY03e.pdf): five-year
+  // "Key financial data" in the 2021 and 2026 reports, dividends and capex
+  // from each year's report. Shares = profit ÷ profit per share (weighted
+  // average); equity = capital adequacy ratio × total assets (owners' share of
+  // net assets); FCF = operating cash flow − purchases of PP&E and
+  // intangibles. No borrowings. Shares and DPS are as reported, pre-split
+  // through FY3/2022 — the 10-for-1 split of 1 Oct 2022 is applied from
+  // Yahoo's split history. FY3/2023 DPS is ¥63 interim (¥630 pre-split) + ¥123.
+  "7974.T": {
+    name: "Nintendo Co., Ltd.",
+    yearData: {
+      "2017-03-31": { revenue: 489095*M,  netIncome: 102574*M, shares: 120.13*M,  dps: 430,  equity: 1250387*M, totalAssets: 1468452*M, longTermDebt: 0, fcf: 8643*M },
+      "2018-03-31": { revenue: 1055682*M, netIncome: 139590*M, shares: 120.10*M,  dps: 590,  equity: 1319030*M, totalAssets: 1633474*M, longTermDebt: 0, fcf: 142599*M },
+      "2019-03-31": { revenue: 1200560*M, netIncome: 194009*M, shares: 120.09*M,  dps: 810,  equity: 1409714*M, totalAssets: 1690304*M, longTermDebt: 0, fcf: 159793*M },
+      "2020-03-31": { revenue: 1308519*M, netIncome: 258641*M, shares: 119.12*M,  dps: 1090, equity: 1540694*M, totalAssets: 1934087*M, longTermDebt: 0, fcf: 337910*M },
+      "2021-03-31": { revenue: 1758910*M, netIncome: 480376*M, shares: 119.12*M,  dps: 2220, equity: 1874339*M, totalAssets: 2446918*M, longTermDebt: 0, fcf: 605095*M },
+      "2022-03-31": { revenue: 1695344*M, netIncome: 477691*M, shares: 118.04*M,  dps: 2030, equity: 2068939*M, totalAssets: 2662384*M, longTermDebt: 0, fcf: 282074*M },
+      "2023-03-31": { revenue: 1601677*M, netIncome: 432768*M, shares: 1165.20*M, dps: 186,  equity: 2266301*M, totalAssets: 2854284*M, longTermDebt: 0, fcf: 300653*M },
+      "2024-03-31": { revenue: 1671865*M, netIncome: 490602*M, shares: 1164.25*M, dps: 211,  equity: 2603682*M, totalAssets: 3151394*M, longTermDebt: 0, fcf: 445974*M },
+      "2025-03-31": { revenue: 1164922*M, netIncome: 278806*M, shares: 1164.26*M, dps: 120,  equity: 2724250*M, totalAssets: 3398515*M, longTermDebt: 0, fcf: -6939*M },
+      "2026-03-31": { revenue: 2313051*M, netIncome: 424056*M, shares: 1163.36*M, dps: 219,  equity: 2954064*M, totalAssets: 3805312*M, longTermDebt: 0, fcf: 262620*M },
     },
   },
 };

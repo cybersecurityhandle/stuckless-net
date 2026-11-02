@@ -102,6 +102,13 @@ interface FiveFactorResult {
   annTotalReturn: number;
 }
 
+// ADR / OTC lines whose home listing has hard-coded 10-year financials
+// (HARDCODED_FINANCIALS in the stock route); Yahoo has ~4 years for them
+const HOME_LISTING: Record<string, string> = {
+  NTDOY: "7974.T",
+  NTDOF: "7974.T",
+};
+
 /* ── Helpers ───────────────────────────────────── */
 
 function fmtCurrency(n: number, currency: string) {
@@ -483,6 +490,18 @@ export function StockAnalyzer({
                   Per-share figures are per ADR (1 ADR ={" "}
                   {stockData.adrRatio < 1 ? `${stockData.adrRatio} share` : `${stockData.adrRatio} shares`}), inferred
                   from market cap ÷ price.
+                </p>
+              )}
+              {HOME_LISTING[stockData.ticker.toUpperCase()] && (
+                <p className="text-[10px] text-muted-foreground">
+                  Yahoo only has a few years for this listing.{" "}
+                  <button
+                    type="button"
+                    onClick={() => selectTicker(HOME_LISTING[stockData.ticker.toUpperCase()])}
+                    className="text-foreground underline hover:no-underline"
+                  >
+                    10 years from the company&apos;s reports: {HOME_LISTING[stockData.ticker.toUpperCase()]} →
+                  </button>
                 </p>
               )}
               {stockData.earningsBasis === "operating" && (() => {
