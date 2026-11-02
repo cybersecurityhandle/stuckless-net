@@ -139,8 +139,9 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
                 <Stat label="Operating Margin" value={fmtPct(stats.operatingMargin)} />
                 <Stat label="ROE" value={fmtPct(stats.roe)} />
                 <Stat label="Debt / Equity" value={stats.debtToEquity != null ? `${stats.debtToEquity.toFixed(2)}x` : "—"} />
-                <Stat label="Revenue (ttm)" value={stats.revenue != null ? fmtBig(stats.revenue, cur) : "—"} />
-                <Stat label="Free Cash Flow" value={stats.freeCashflow != null ? fmtBig(stats.freeCashflow, cur) : "—"} />
+                {/* Yahoo reports these in the reporting currency, not the trading one */}
+                <Stat label="Revenue (ttm)" value={stats.revenue != null ? fmtBig(stats.revenue, stats.financialCurrency ?? cur) : "—"} />
+                <Stat label="Free Cash Flow" value={stats.freeCashflow != null ? fmtBig(stats.freeCashflow, stats.financialCurrency ?? cur) : "—"} />
                 <Stat label="Employees" value={stats.employees != null ? stats.employees.toLocaleString() : "—"} />
               </div>
               {rangePos != null && (
@@ -160,8 +161,8 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
               )}
               {stats.financialCurrency && stats.financialCurrency !== cur && (
                 <p className="mt-4 text-[10px] text-yellow-500/80">
-                  Reports in {stats.financialCurrency} but trades in {cur} — Yahoo&apos;s P/E, EPS and
-                  revenue may mix the two currencies.
+                  Reports in {stats.financialCurrency} but trades in {cur}: revenue and cash flow are in{" "}
+                  {stats.financialCurrency}; price, EPS and P/E are per {cur} share (per ADR for depositary receipts).
                 </p>
               )}
               <p className="mt-4 text-[10px] text-muted-foreground/70">
