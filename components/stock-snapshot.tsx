@@ -4,7 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import type { StockStats } from "@/app/api/stock/stats/route";
-import type { InsiderBuy, InsiderBuysJson } from "@/lib/insiders";
+import { MIN_BUY_VALUE } from "@/lib/insiders";
+import { majorHolders } from "@/lib/major-holders";
+import { clusterBuys, fmtValue, useCompanyInsiders } from "@/components/company-insiders";
 import {
   buildIssuers,
   issuerKeyForTicker,
@@ -70,8 +72,7 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
   const [statsError, setStatsError] = useState(false);
   const [index, setIndex] = useState<SuperinvestorsJson | null>(null);
   const [latest, setLatest] = useState<LatestHoldingsJson | null>(null);
-  const [buys, setBuys] = useState<InsiderBuy[]>([]);
-  const [buysWindow, setBuysWindow] = useState<string | null>(null);
+  const insiders = useCompanyInsiders(ticker);
 
   // Mounted with key={ticker}, so state starts fresh per ticker
   useEffect(() => {
@@ -87,18 +88,14 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
       .then((res) => (res.ok ? res.json() : null))
       .then((d: LatestHoldingsJson | null) => d && setLatest(d))
       .catch(() => {});
-    fetch("/insider-buys.json")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((d: InsiderBuysJson | null) => {
-        if (!d) return;
-        setBuys(d.buys.filter((b) => b.ticker === ticker));
-        setBuysWindow(d.from);
-      })
-      .catch(() => {});
   }, [ticker]);
 
   const owners = useMemo(() => findOwners(index, latest, ticker), [index, latest, ticker]);
   const favCount = owners.filter((o) => o.favorite).length;
+  const outside = majorHolders(ticker);
+  const allBuys = useMemo(() => insiders.data?.buys ?? [], [insiders.data]);
+  const buys = allBuys.filter((b) => b.value >= MIN_BUY_VALUE);
+  const clusters = useMemo(() => clusterBuys(allBuys), [allBuys]);
 
   if (statsError && !owners.length && !buys.length) return null;
 
@@ -189,7 +186,10 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
               )}
             </div>
             {!owners.length ? (
-              <p className="text-xs text-muted-foreground">None of the tracked managers hold {ticker}.</p>
+              <p className="text-xs text-muted-foreground">
+                None of the tracked managers hold {ticker}
+                {outside.length ? " in their 13Fs." : "."}
+              </p>
             ) : (
               <ul className="space-y-2">
                 {owners.slice(0, OWNERS_SHOWN).map((o) => {
@@ -215,16 +215,44 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
                 {owners.length > OWNERS_SHOWN && ` · +${owners.length - OWNERS_SHOWN} more`}
               </p>
             )}
+            {outside.length > 0 && (
+              <>
+                <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Outside 13F</p>
+                <ul className="space-y-2">
+                  {outside.slice(0, 4).map((h) => (
+                    <li key={h.holder} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="truncate" title={h.group ? `${h.holder} - ${h.group}` : h.holder}>
+                        {h.featured && <span className="mr-1 text-emerald-400">★</span>}
+                        {h.short ?? h.holder}
+                      </span>
+                      <span className="shrink-0 text-xs font-medium">{(h.pct * 100).toFixed(1)}%</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-[10px] text-muted-foreground/70">% held, company disclosures</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
         {/* Insider buys */}
         <Card>
           <CardContent className="pt-5">
-            <p className="mb-3 text-sm font-medium">Insider Buys</p>
-            {!buys.length ? (
+            <div className="mb-3 flex items-baseline justify-between gap-2">
+              <p className="text-sm font-medium">Insider Buys</p>
+              {insiders.data && <p className="text-[10px] text-muted-foreground">2 years · open market</p>}
+            </div>
+            {insiders.foreign ? (
               <p className="text-xs text-muted-foreground">
-                No open-market insider purchases{buysWindow ? ` since ${buysWindow}` : ""}.
+                SEC insider filings (Form 4) only cover US-listed companies; {ticker}&apos;s insiders report in its home market.
+              </p>
+            ) : insiders.loading ? (
+              <p className="animate-pulse text-xs text-muted-foreground">Reading Form 4s from EDGAR…</p>
+            ) : !insiders.data ? (
+              <p className="text-xs text-muted-foreground">Insider filings unavailable.</p>
+            ) : !buys.length ? (
+              <p className="text-xs text-muted-foreground">
+                No open-market insider purchases of {fmtValue(MIN_BUY_VALUE)}+ since {insiders.data.from}.
               </p>
             ) : (
               <ul className="space-y-2">
@@ -235,7 +263,10 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
                       <span className="shrink-0 font-medium">{fmtBig(b.value, "USD")}</span>
                     </div>
                     <div className="flex justify-between gap-2 text-[10px] text-muted-foreground">
-                      <span className="truncate">{b.role}</span>
+                      <span className="truncate">
+                        {b.role}
+                        {clusters.has(b.accession) && <span className="text-yellow-500/90"> · cluster</span>}
+                      </span>
                       <span className="shrink-0">
                         {b.lastTrade} @ ${b.avgPrice.toFixed(2)}
                       </span>
@@ -244,9 +275,11 @@ export function StockSnapshot({ ticker }: { ticker: string }) {
                 ))}
               </ul>
             )}
-            <Link href={`/insiders`} className="mt-3 block text-[10px] text-muted-foreground/70 hover:underline">
-              All insider buys →
-            </Link>
+            {!insiders.foreign && (
+              <a href="#insiders" className="mt-3 block text-[10px] text-muted-foreground/70 hover:underline">
+                {buys.length > 6 ? `All ${buys.length} purchases ↓` : "Details ↓"}
+              </a>
+            )}
           </CardContent>
         </Card>
       </div>

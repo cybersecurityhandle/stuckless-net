@@ -88,6 +88,23 @@ export interface InsiderBuysJson {
   buys: InsiderBuy[]; // newest filing first
 }
 
+/* ── /api/stock/insiders ───────────────────────── */
+
+// One company's open-market insider purchases, from its own filing list
+export interface CompanyInsiderBuy extends InsiderBuy {
+  ret: number | null; // total return since the last trade date (adjusted closes)
+}
+
+export interface CompanyInsidersJson {
+  ticker: string;
+  cik: number;
+  from: string; // first filing date covered
+  to: string;
+  form4s: number; // Form 4s the company's insiders filed in the window
+  pending: number; // not parsed yet (time budget or SEC errors) — retry later
+  buys: CompanyInsiderBuy[]; // newest trade first, any size
+}
+
 // Below this a purchase is noise (DRIP-sized, token director buys)
 export const MIN_BUY_VALUE = 10_000;
 

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StockSnapshot } from "@/components/stock-snapshot";
 import { SuperinvestorOwnership } from "@/components/superinvestor-ownership";
+import { CompanyInsiders } from "@/components/company-insiders";
 import { ValuationTools } from "@/components/valuation-tools";
 import { SuperinvestorMovesChart } from "@/components/superinvestor-moves-chart";
 import {
@@ -1208,6 +1209,7 @@ export function StockAnalyzer({
 
       {stockData && <SuperinvestorMovesChart key={`moves-${stockData.ticker}`} ticker={stockData.ticker} />}
       {stockData && <SuperinvestorOwnership key={`owners-${stockData.ticker}`} ticker={stockData.ticker} />}
+      {stockData && <CompanyInsiders key={`insiders-${stockData.ticker}`} ticker={stockData.ticker} />}
     </div>
   );
 }

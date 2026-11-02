@@ -24,6 +24,7 @@ import {
   th,
   zebra,
 } from "@/components/superinvestors";
+import { isForeignListing, isStale, majorHolders, STALE_MONTHS } from "@/lib/major-holders";
 
 // Dataroma's stock page bottom: every tracked superinvestor holding this
 // issuer (all share classes), with size and last-quarter activity.
@@ -89,6 +90,9 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
       {!rows.length ? (
         <p className="mt-2 text-sm text-muted-foreground">
           None of the {index.managers.length} tracked superinvestors hold {ticker} as of their latest 13F.
+          {isForeignListing(ticker) && (
+            <> 13Fs only cover US-listed securities, so stakes in a stock listed only abroad never appear there.</>
+          )}
         </p>
       ) : (
         <>
@@ -154,6 +158,64 @@ export function SuperinvestorOwnership({ ticker }: { ticker: string }) {
           </p>
         </>
       )}
+
+      <MajorHolders ticker={ticker} today={latest.updated} />
     </section>
+  );
+}
+
+// Stakes from the company's own disclosures and fund letters (lib/major-holders.ts)
+function MajorHolders({ ticker, today }: { ticker: string; today: string }) {
+  const holders = majorHolders(ticker);
+  if (!holders.length) return null;
+  return (
+    <div className="mt-6">
+      <h3 className="text-base font-semibold">Major holders outside 13F</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        From {ticker}&apos;s own shareholder disclosures and fund letters, updated by hand each quarter.
+      </p>
+      <div className={`mt-3 ${frame}`}>
+        <table className={`${table} min-w-[640px]`}>
+          <thead>
+            <tr className="text-left">
+              <th className={th}>Holder</th>
+              <th className={`${th} text-right`}>%<br />Held</th>
+              <th className={`${th} text-right`}>As of</th>
+              <th className={th}>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {holders.map((h) => (
+              <tr key={h.holder} className={`border-b border-border/30 ${zebra}`}>
+                <td className={td}>
+                  <span className="mr-1.5 inline-block w-3 text-emerald-400">{h.featured ? "★" : ""}</span>
+                  {h.managerId ? (
+                    <Link href={`/superinvestors?m=${h.managerId}`} className="font-medium text-emerald-400 hover:underline">
+                      {h.holder}
+                    </Link>
+                  ) : (
+                    <span className="font-medium">{h.holder}</span>
+                  )}
+                  {h.group && <span className="text-muted-foreground"> - {h.group}</span>}
+                  {h.note && <p className="ml-[1.125rem] mt-0.5 max-w-xl text-[11px] text-muted-foreground/80">{h.note}</p>}
+                </td>
+                <td className={`${td} text-right align-top font-medium`}>{fmtPct(h.pct, 2)}</td>
+                <td
+                  className={`${td} whitespace-nowrap text-right align-top ${isStale(h.asOf, today) ? "text-yellow-500/80" : "text-muted-foreground"}`}
+                  title={isStale(h.asOf, today) ? `Older than ${STALE_MONTHS} months — due a recheck` : undefined}
+                >
+                  {h.asOf}
+                </td>
+                <td className={`${td} align-top`}>
+                  <a href={h.source} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground hover:underline">
+                    {h.sourceLabel}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

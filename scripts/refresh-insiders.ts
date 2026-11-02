@@ -34,6 +34,7 @@ import {
   type TrackRecord,
 } from "../lib/insiders";
 import { MANAGERS } from "../lib/superinvestors";
+import { decode, dedupe, insiderBuy, readForm4, sum, tag, txns } from "../lib/form4";
 
 const SEC_HEADERS = { "User-Agent": "stuckless.net admin@stuckless.net" };
 const SEC_INTERVAL_MS = 125; // ≤ 8 req/s across all workers (SEC limit is 10)
@@ -100,67 +101,11 @@ function addMonths(iso: string, months: number) {
   return isoDate(d);
 }
 
-function tag(xml: string, name: string): string | undefined {
-  const m = xml.match(new RegExp(`<${name}>([\\s\\S]*?)</${name}>`));
-  return m ? m[1].trim() : undefined;
-}
-
-// Form 4 wraps most leaf values as <x><value>…</value></x>
-function val(xml: string, name: string): string | undefined {
-  const inner = tag(xml, name);
-  if (inner == null) return undefined;
-  return (tag(inner, "value") ?? inner).trim() || undefined;
-}
-
-function decode(s: string) {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
-}
-
-const flag = (s: string | undefined) => s === "1" || s?.toLowerCase() === "true";
-
 function readJson<T>(path: string, fallback: T): T {
   return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : fallback;
 }
 
 /* ── Form 4 parsing ────────────────────────────────────────── */
-
-interface Txn {
-  shares: number;
-  price: number;
-  after: number | null;
-  date: string | null;
-  indirect: boolean;
-}
-
-// Non-derivative transactions with the given code and acquired/disposed flag
-function txns(doc: string, code: "P" | "S", ad: "A" | "D"): Txn[] {
-  return [...doc.matchAll(/<nonDerivativeTransaction>([\s\S]*?)<\/nonDerivativeTransaction>/g)]
-    .map((m) => m[1])
-    .filter((t) => tag(tag(t, "transactionCoding") ?? "", "transactionCode") === code && val(t, "transactionAcquiredDisposedCode") === ad)
-    .map((t) => {
-      const after = Number(val(t, "sharesOwnedFollowingTransaction"));
-      return {
-        shares: Number(val(t, "transactionShares") ?? 0),
-        price: Number(val(t, "transactionPricePerShare") ?? 0),
-        after: Number.isFinite(after) ? after : null,
-        date: val(t, "transactionDate")?.slice(0, 10) ?? null,
-        indirect: val(t, "directOrIndirectOwnership") === "I",
-      };
-    })
-    .filter((t) => t.shares > 0 && t.price > 0);
-}
-
-function sum(list: Txn[]) {
-  const shares = list.reduce((s, t) => s + t.shares, 0);
-  const value = list.reduce((s, t) => s + t.shares * t.price, 0);
-  const dates = list.map((t) => t.date).filter((d): d is string => !!d).sort();
-  return { shares, value, dates, after: list.length ? list[list.length - 1].after : null };
-}
 
 interface ParsedForm4 {
   buy: InsiderBuy | null; // open-market purchase ≥ MIN_BUY_VALUE, by anyone
@@ -170,20 +115,11 @@ interface ParsedForm4 {
 }
 
 function parseForm4(txt: string, accession: string, filed: string): ParsedForm4 | null {
-  const doc = tag(txt, "ownershipDocument");
-  if (!doc || tag(doc, "documentType") !== "4") return null;
+  const f = readForm4(txt);
+  if (!f) return null;
+  const { owners, ownerCik, ownerName, issuerCik, issuer, ticker } = f;
 
-  const owners = [...doc.matchAll(/<reportingOwner>([\s\S]*?)<\/reportingOwner>/g)].map((m) => m[1]);
-  const o = owners[0] ?? "";
-  const ownerCik = Number(tag(o, "rptOwnerCik"));
-  const rawTicker = (tag(tag(doc, "issuer") ?? "", "issuerTradingSymbol") ?? "").toUpperCase().replace(/[^A-Z0-9.-]/g, "");
-  // Some filers put "NONE" / "[NONE]" / "N/A" in the symbol field
-  const ticker = rawTicker && !/^(NONE|NA)$/.test(rawTicker) ? rawTicker.replace(".", "-") : null;
-  const issuerCik = Number(tag(doc, "issuerCik"));
-  const issuer = decode(tag(doc, "issuerName") ?? "");
-  const ownerName = decode(tag(o, "rptOwnerName") ?? "") + (owners.length > 1 ? ` +${owners.length - 1}` : "");
-
-  const purchases = txns(doc, "P", "A");
+  const purchases = txns(f.doc, "P", "A");
   const bought = sum(purchases);
   const out: ParsedForm4 = { buy: null, trades: [], rawBuy: null };
 
@@ -191,42 +127,12 @@ function parseForm4(txt: string, accession: string, filed: string): ParsedForm4 
     out.rawBuy = { ownerCik, date: bought.dates[bought.dates.length - 1] ?? filed, ticker, price: bought.value / bought.shares };
   }
 
-  if (bought.shares && bought.value >= MIN_BUY_VALUE) {
-    const rel = tag(o, "reportingOwnerRelationship") ?? "";
-    const isDirector = flag(tag(rel, "isDirector"));
-    const isOfficer = flag(tag(rel, "isOfficer"));
-    const isTenPct = flag(tag(rel, "isTenPercentOwner"));
-    const title = decode(tag(rel, "officerTitle") ?? "");
-    const role =
-      (isOfficer && title) ||
-      [isOfficer && "Officer", isDirector && "Director", isTenPct && "10% Owner"].filter(Boolean).join(", ") ||
-      decode(tag(rel, "otherText") ?? "Other");
-    out.buy = {
-      accession,
-      filed,
-      issuerCik,
-      issuer,
-      ticker,
-      owner: ownerName,
-      ownerCik,
-      role,
-      isDirector,
-      isOfficer,
-      isTenPct,
-      firstTrade: bought.dates[0] ?? filed,
-      lastTrade: bought.dates[bought.dates.length - 1] ?? filed,
-      shares: bought.shares,
-      avgPrice: bought.value / bought.shares,
-      value: bought.value,
-      sharesAfter: bought.after,
-      direct: !purchases.some((t) => t.indirect),
-    };
-  }
+  if (bought.shares && bought.value >= MIN_BUY_VALUE) out.buy = insiderBuy(f, accession, filed);
 
   // A tracked manager among the reporting owners → keep both sides, any size
   const managerId = owners.map((x) => MANAGER_BY_CIK.get(Number(tag(x, "rptOwnerCik")))).find(Boolean);
   if (managerId) {
-    for (const [side, list] of [["buy", purchases], ["sell", txns(doc, "S", "D")]] as const) {
+    for (const [side, list] of [["buy", purchases], ["sell", txns(f.doc, "S", "D")]] as const) {
       const t = sum(list);
       if (!t.shares) continue;
       out.trades.push({
@@ -587,21 +493,6 @@ async function main() {
       `${trades.length} superinvestor trades + ${stakes.length} stakes to public/superinvestors/realtime.json`
   );
   recordStatus("refresh-insiders", started, true, `${buys.length} insider buys, ${trades.length} superinvestor trades, ${stakes.length} stakes`);
-}
-
-/**
- * Affiliated entities (fund, GP, parent) each file a Form 4 for the same
- * trade — keep one row per identical purchase and note the extra filers.
- */
-function dedupe(buys: InsiderBuy[]): InsiderBuy[] {
-  const groups = new Map<string, InsiderBuy[]>();
-  for (const b of buys) {
-    const key = `${b.issuerCik}|${b.lastTrade}|${b.shares}|${b.avgPrice.toFixed(4)}`;
-    groups.set(key, [...(groups.get(key) ?? []), b]);
-  }
-  return [...groups.values()].map(([first, ...rest]) =>
-    rest.length ? { ...first, owner: `${first.owner} (+${rest.length} related filer${rest.length > 1 ? "s" : ""})` } : first
-  );
 }
 
 main().catch((err) => {
