@@ -37,6 +37,7 @@ import {
   type Quote,
   type SuperinvestorsJson,
 } from "@/lib/superinvestors";
+import { holdingsOutside13F, isStale, STALE_MONTHS } from "@/lib/major-holders";
 
 // Flat, dense, Dataroma-style: no cards, plain tables, colored text instead
 // of badges.
@@ -185,10 +186,17 @@ export function ScopeToggle({ scope, onChange }: { scope: Scope; onChange: (s: S
 
 const FILINGS_SHOWN = 15;
 
-// 13F-HR deadline: 45 days after quarter end
+// 13F-HR deadline: 45 days after quarter end, rolled to the next business day.
+// Presidents' Day is the only federal holiday a rolled deadline can land on
+// (Feb 14 on a weekend, e.g. Feb 17 2026).
 function dueDate(period: string) {
   const d = new Date(`${period}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + 45);
+  const closed = () =>
+    d.getUTCDay() === 0 ||
+    d.getUTCDay() === 6 ||
+    (d.getUTCMonth() === 1 && d.getUTCDay() === 1 && d.getUTCDate() >= 15 && d.getUTCDate() <= 21);
+  while (closed()) d.setUTCDate(d.getUTCDate() + 1);
   return d.toISOString().slice(0, 10);
 }
 
@@ -229,6 +237,11 @@ function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSele
         const due = dueDate(period);
         const all = gi === 0 || open.has(period);
         const filed = rows.map((m) => m.filed).sort();
+        // N-PORT funds report on their own schedule (~60 days), so aren't late
+        const waiting =
+          gi === 0 && index.updated <= due
+            ? index.managers.filter((m) => m.favorite && m.period < period && !MANAGERS.find((x) => x.id === m.id)?.nport)
+            : [];
         return (
           <section key={period} className="mt-6">
             <h3 className="flex flex-wrap items-baseline gap-x-3 text-sm">
@@ -239,6 +252,19 @@ function NewFilingsView({ index, onSelect }: { index: SuperinvestorsJson; onSele
                   : `${rows.length} filed ${fmtDate(filed[0])} – ${fmtDate(filed[filed.length - 1])}`}
               </span>
             </h3>
+            {waiting.length > 0 && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Still waiting on{" "}
+                {waiting.map((m, i) => (
+                  <Fragment key={m.id}>
+                    {i > 0 && ", "}
+                    <button onClick={() => onSelect(m.id)} className="text-emerald-400 hover:underline">
+                      {m.name}
+                    </button>
+                  </Fragment>
+                ))}
+              </p>
+            )}
             <div className={`mt-2 ${frame}`}>
               <table className={`${table} sm:min-w-[960px]`}>
                 <thead>
@@ -972,6 +998,60 @@ function StyleStrip({
 
 /* ── Manager ───────────────────────────────────── */
 
+// Stakes a 13F misses (lib/major-holders.ts). Share of each company, not of
+// the portfolio, and kept out of the 13F weights and totals: it's partial, and
+// its dates don't line up with the filing above.
+function OutsideHoldings({ id, today }: { id: string; today: string }) {
+  const rows = holdingsOutside13F(id);
+  if (!rows.length) return null;
+  return (
+    <section className="mt-8">
+      <h3 className="text-base font-semibold">Holdings outside 13F</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Known stakes from company and regulatory filings, updated by hand. Not included in the portfolio figures
+        above, and not a complete list.
+      </p>
+      <div className={`mt-3 ${frame}`}>
+        <table className={`${table} min-w-[640px]`}>
+          <thead>
+            <tr className="text-left">
+              <th className={th}>Stock</th>
+              <th className={`${th} text-right`}>% of<br />Company</th>
+              <th className={`${th} text-right`}>As of</th>
+              <th className={th}>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((h) => (
+              <tr key={h.ticker} className={`border-b border-border/30 ${zebra}`}>
+                <td className={td}>
+                  <Link href={`/finance?ticker=${encodeURIComponent(h.ticker)}`} className="font-medium text-emerald-400 hover:underline">
+                    {h.ticker}
+                  </Link>
+                  {h.company && <span className="text-muted-foreground"> - {h.company}</span>}
+                  {h.note && <p className="mt-0.5 max-w-xl text-[11px] text-muted-foreground/80">{h.note}</p>}
+                </td>
+                <td className={`${td} text-right align-top font-medium`}>{fmtPct(h.pct, 2)}</td>
+                <td
+                  className={`${td} whitespace-nowrap text-right align-top ${isStale(h.asOf, today) ? "text-yellow-500/80" : "text-muted-foreground"}`}
+                  title={isStale(h.asOf, today) ? `Older than ${STALE_MONTHS} months — due a recheck` : undefined}
+                >
+                  {h.asOf}
+                </td>
+                <td className={`${td} align-top`}>
+                  <a href={h.source} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground hover:underline">
+                    {h.sourceLabel}
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 const TABS = [
   { id: "holdings", label: "Holdings" },
   { id: "activity", label: "Activity" },
@@ -1099,15 +1179,18 @@ function ManagerView({
           </div>
 
           {tab === "holdings" && (
-            <HoldingsTab
-              key={q.period}
-              history={history}
-              q={q}
-              prev={prev}
-              quotes={qi === 0 ? quotes : null}
-              positions={qi === 0 ? positions : null}
-              splits={splits}
-            />
+            <>
+              <HoldingsTab
+                key={q.period}
+                history={history}
+                q={q}
+                prev={prev}
+                quotes={qi === 0 ? quotes : null}
+                positions={qi === 0 ? positions : null}
+                splits={splits}
+              />
+              <OutsideHoldings id={summary.id} today={latest.updated} />
+            </>
           )}
           {tab === "activity" && <ActivityTab history={history} />}
           {tab === "history" && (

@@ -18,7 +18,8 @@ export interface MajorHolder {
   holder: string; // as named in the source
   group?: string; // ultimate parent, when that's who you'd recognise
   short?: string; // name for the narrow snapshot card
-  managerId?: string; // id in MANAGERS, when it's a tracked superinvestor
+  managerId?: string; // id in MANAGERS, when it's a tracked superinvestor; also lists it on their page
+  company?: string; // the stock held, named on the manager's page (with managerId)
   featured?: boolean; // starred like favorite managers
   pct: number; // fraction of shares outstanding (= votes unless the note says otherwise)
   asOf: string; // YYYY-MM-DD the figure is as of
@@ -79,6 +80,38 @@ const TEQNION_AR: Source = {
   asOf: "2026-03-07",
   source: "https://cdn.bequoted.com/media/1/d676fd84-76fa-4e28-adbb-bf3c6f21e9b6/Teqnion-Annual-report-ENG-version-2025.pdf",
   sourceLabel: "Annual Report 2025",
+};
+
+// Berkshire's Japan stakes, held through National Indemnity (EDINET filer
+// E35979). Large-holder reports are only due on a 1%+ change, so these can sit
+// unchanged for a long time. The percentages use different bases: reports use
+// issued shares including treasury, Itochu's notice uses voting rights.
+const edinet = (asOf: string, doc: string): Source => ({
+  asOf,
+  source: `https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/${doc}.pdf`,
+  sourceLabel: "Large-holder report (EDINET)",
+});
+const NICO = {
+  holder: "National Indemnity",
+  group: "Berkshire Hathaway",
+  short: "Berkshire",
+  managerId: "buffett",
+  featured: true,
+};
+const ITOCHU_NOTICE: Source = {
+  asOf: "2026-02-27",
+  source: "https://www.itochu.co.jp/ja/files/ITC20260302_2_J.pdf",
+  sourceLabel: "Major shareholder notice (Itochu)",
+};
+const TOKIO_MARINE_FY25: Source = {
+  asOf: "2026-04-13",
+  source: "https://www.tokiomarinehd.com/en/ir/event/presentation/2025/f5hrqd0000005mbv-att/4Q_FY2025_Summary_Report_e.pdf",
+  sourceLabel: "FY2025 results (Tokio Marine)",
+};
+const BSP_BERKSHIRE: Source = {
+  asOf: "2026-10-14",
+  source: "https://www.sec.gov/Archives/edgar/data/2004711/000200471126000018/bsp_ex99-1.htm",
+  sourceLabel: "Form 6-K press release (SEC)",
 };
 
 // Keyed by Yahoo ticker (as typed on the Five-Factor page)
@@ -204,10 +237,48 @@ export const MAJOR_HOLDERS: Record<string, MajorHolder[]> = {
     { holder: "Vixar AB", short: "Vixar", pct: 0.1094, ...TEQNION_AR },
     { holder: "Johan Steene", group: "CEO", pct: 0.0502, ...TEQNION_AR },
   ],
+  // Japan: holders of 5%+ report each 1% change through EDINET
+  "8058.T": [{ ...NICO, company: "Mitsubishi Corp", pct: 0.1106, note: "% of issued shares.", ...edinet("2026-04-30", "S100Y33F") }],
+  "8031.T": [{ ...NICO, company: "Mitsui & Co", pct: 0.1083, note: "% of issued shares.", ...edinet("2026-06-24", "S100YO0N") }],
+  "8002.T": [{ ...NICO, company: "Marubeni Corp", pct: 0.1032, note: "% of issued shares.", ...edinet("2026-06-25", "S100YO1O") }],
+  "8053.T": [{ ...NICO, company: "Sumitomo Corp", pct: 0.103, note: "% of issued shares.", ...edinet("2026-05-12", "S100Y4U6") }],
+  "8001.T": [{ ...NICO, company: "Itochu Corp", pct: 0.1007, note: "% of voting rights, which excludes treasury shares.", ...ITOCHU_NOTICE }],
+  "8766.T": [
+    {
+      ...NICO,
+      company: "Tokio Marine Holdings",
+      pct: 0.0249,
+      note: "Bought from treasury in a strategic partnership; % of issued shares.",
+      ...TOKIO_MARINE_FY25,
+    },
+  ],
+  // US-listed, so 13Fs do cover it, but they lag: the Oct 2026 purchase isn't
+  // reported until the Q4 13F (Feb 2027). Recheck then; drop this entry if the
+  // 13F shows the full stake.
+  BSP: [
+    {
+      holder: "Berkshire Hathaway",
+      group: "Warren Buffett",
+      short: "Berkshire",
+      managerId: "buffett",
+      company: "Bending Spoons",
+      featured: true,
+      pct: 0.04,
+      note: "$600M at the July 2026 IPO plus $330M on Oct 14, 2026. The October purchase falls in Q4, so it won't appear in a 13F until Feb 2027.",
+      ...BSP_BERKSHIRE,
+    },
+  ],
 };
 
 export function majorHolders(ticker: string): MajorHolder[] {
   return MAJOR_HOLDERS[ticker.toUpperCase()] ?? [];
+}
+
+// A manager's stakes from this list, largest share of the company first
+export function holdingsOutside13F(managerId: string) {
+  return Object.entries(MAJOR_HOLDERS)
+    .flatMap(([ticker, holders]) => holders.filter((h) => h.managerId === managerId).map((h) => ({ ticker, ...h })))
+    .sort((a, b) => b.pct - a.pct);
 }
 
 // Yahoo exchange suffixes. Listed explicitly so share classes (BRK.B) don't
