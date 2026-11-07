@@ -19,6 +19,7 @@
  *   npm run refresh-13f
  */
 
+import { FILING_CACHE } from "./filing-cache";
 import { recordStatus } from "./status";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
@@ -47,7 +48,6 @@ const SEC_HEADERS = { "User-Agent": "stuckless.net admin@stuckless.net" };
 const SEC_DELAY_MS = 150; // SEC fair-access limit is 10 req/s
 const HISTORY_FROM = "2013-06-30"; // first quarter of mandatory XML info tables
 const DATA_DIR = join(process.cwd(), "data");
-const FILING_CACHE = join(DATA_DIR, "13f-cache", "v1"); // bump on parser changes
 const TICKER_CACHE = join(DATA_DIR, "cusip-tickers.json");
 const MISS_CACHE = join(DATA_DIR, "cusip-misses.json");
 const MISS_RETRY_DAYS = 30;
