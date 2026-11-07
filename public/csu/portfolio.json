@@ -1,0 +1,3684 @@
+{
+ "updated": "2026-11-07",
+ "groups": {
+  "volaris": {
+   "updated": "2026-11-07",
+   "source": "https://www.volarisgroup.com/portfolio/",
+   "companies": [
+    {
+     "name": "4D SAS",
+     "url": "https://us.4d.com/",
+     "vertical": "Software Development",
+     "acquired": 2024,
+     "hq": "Le Pecq, France"
+    },
+    {
+     "name": "Accent Technologies",
+     "url": "https://accent-technologies.com/",
+     "vertical": "Compliance",
+     "acquired": 2026,
+     "hq": "Melbourne, Florida, USA"
+    },
+    {
+     "name": "Across Systems",
+     "url": "https://www.across.net/en",
+     "vertical": "Language Services",
+     "acquired": 2021,
+     "hq": "Karlsbad, Germany"
+    },
+    {
+     "name": "AdaptIt",
+     "url": "https://www.adaptit.com/",
+     "vertical": "Independent Software Vendor",
+     "acquired": 2022,
+     "hq": "Johannesburg, South Africa"
+    },
+    {
+     "name": "Advantage360",
+     "url": "https://www.advantage360.com/",
+     "acquired": 2019,
+     "hq": "Rancho Cucamonga, California"
+    },
+    {
+     "name": "AEP Ticketing Solution",
+     "url": "http://www.aep-italia.it/",
+     "vertical": "People Transportation",
+     "acquired": 2021,
+     "hq": "Florence, Italy"
+    },
+    {
+     "name": "Aeros",
+     "url": "http://getaeros.com/",
+     "vertical": "Agri-food",
+     "acquired": 2013,
+     "hq": "Rancho Cucamonga, California"
+    },
+    {
+     "name": "agentOS",
+     "url": "https://agentos.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2024,
+     "hq": "Cardiff, United Kingdom"
+    },
+    {
+     "name": "Agiboo",
+     "url": "https://www.agiboo.com/",
+     "vertical": "Agri-food",
+     "acquired": 2024,
+     "hq": "Almere, The Netherlands"
+    },
+    {
+     "name": "Agronomix Software",
+     "url": "https://agronomix.com/",
+     "vertical": "Agri-food",
+     "acquired": 2022,
+     "hq": "Winnipeg, Manitoba"
+    },
+    {
+     "name": "AgVision",
+     "url": "https://www.agvisionsoftware.com/",
+     "vertical": "Agri-food",
+     "acquired": 2021,
+     "hq": "Ankeny, Iowa"
+    },
+    {
+     "name": "Aislelabs",
+     "url": "https://www.aislelabs.com/",
+     "vertical": "MarTech",
+     "acquired": 2021,
+     "hq": "Toronto, Canada"
+    },
+    {
+     "name": "Akuiteo",
+     "url": "https://www.akuiteo.com/en/",
+     "vertical": "Independent Software Vendor",
+     "acquired": 2019,
+     "hq": "Lyon, France"
+    },
+    {
+     "name": "Alemba",
+     "url": "https://alemba.com/",
+     "vertical": "IT Service Management",
+     "acquired": 2022,
+     "hq": "Edinburgh, United Kingdom"
+    },
+    {
+     "name": "Aleyant",
+     "url": "https://www.aleyant.com/",
+     "vertical": "Print & Publishing",
+     "acquired": 2018,
+     "hq": "Wheaton, Illinois"
+    },
+    {
+     "name": "Alpine Testing Solutions",
+     "url": "https://www.alpinetesting.com/",
+     "vertical": "Workforce Management",
+     "acquired": 2025,
+     "hq": "Orem, Utah"
+    },
+    {
+     "name": "AMIC",
+     "url": "https://amic.de/",
+     "vertical": "Agri-food",
+     "acquired": 2016,
+     "hq": "Kiel, Germany"
+    },
+    {
+     "name": "AMS",
+     "url": "https://www.ams.co.nz/",
+     "vertical": "Healthcare",
+     "acquired": 2021,
+     "hq": "Auckland, New Zealand"
+    },
+    {
+     "name": "Andar Software",
+     "url": "https://andarsoftware.com/",
+     "vertical": "Non-Profit",
+     "acquired": 2016,
+     "hq": "Mississauga, Ontario"
+    },
+    {
+     "name": "Apdata",
+     "url": "https://www.apdata.com/",
+     "vertical": "Human Capital Management",
+     "acquired": 2019,
+     "hq": "São Paulo"
+    },
+    {
+     "name": "ArtBinder",
+     "url": "https://artbinder.com/",
+     "vertical": "Arts & Culture",
+     "acquired": 2022,
+     "hq": "New York, New York"
+    },
+    {
+     "name": "Artifax",
+     "url": "https://artifax.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2019,
+     "hq": "London, United Kingdom"
+    },
+    {
+     "name": "Artsystems",
+     "url": "https://www.artsystems.com/",
+     "vertical": "Arts & Culture",
+     "acquired": 2022,
+     "hq": "New York, New York"
+    },
+    {
+     "name": "ASC Automotive",
+     "url": "https://www.asc-ag.com",
+     "vertical": "Automotive",
+     "acquired": 2018,
+     "hq": "Heerbrugg, Switzerland"
+    },
+    {
+     "name": "AskCody",
+     "url": "https://www.askcody.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2025,
+     "hq": "Aalborg, Denmark"
+    },
+    {
+     "name": "ASSET Intertech",
+     "url": "https://www.asset-intertech.com/",
+     "vertical": "Engineering",
+     "acquired": 2021,
+     "hq": "Plano, Texas"
+    },
+    {
+     "name": "AssetWorks",
+     "url": "https://www.goassetworks.com/",
+     "vertical": "Education",
+     "acquired": 2008,
+     "hq": "San Antonio, Texas"
+    },
+    {
+     "name": "AssetWorks – Fleet",
+     "url": "https://www.assetworks.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2008,
+     "hq": "Wayne, Pennsylvania"
+    },
+    {
+     "name": "AssetWorks Appraisal – Risk Management",
+     "url": "https://www.assetworks.com/",
+     "vertical": "Risk Management",
+     "acquired": 2008,
+     "hq": "Wayne, Pennsylvania"
+    },
+    {
+     "name": "AudioNET",
+     "url": "https://public.audionet.com.au/",
+     "vertical": "MarTech",
+     "acquired": 2024,
+     "hq": "Melbourne, Australia"
+    },
+    {
+     "name": "Automate",
+     "url": "https://www.automate.co.za/",
+     "vertical": "Automotive",
+     "acquired": 2025,
+     "hq": "South Africa"
+    },
+    {
+     "name": "Avance Metering",
+     "url": "https://www.avancemetering.com/",
+     "vertical": "Utilities",
+     "acquired": 2019,
+     "hq": "Östersund, Sweden"
+    },
+    {
+     "name": "Avencall",
+     "url": "https://www.xivo.solutions/",
+     "vertical": "Government Administration",
+     "acquired": 2024,
+     "hq": "Lyon, France"
+    },
+    {
+     "name": "Baseplan",
+     "url": "https://baseplan.com/au/",
+     "vertical": "Rental Management",
+     "acquired": 2018,
+     "hq": "Thornleigh, New South Wales"
+    },
+    {
+     "name": "BBT Software",
+     "url": "https://www.bbtsoftware.ch/",
+     "vertical": "Financial Services",
+     "acquired": 2017,
+     "hq": "Zermatt, Switzerland"
+    },
+    {
+     "name": "BiblioCommons",
+     "url": "https://www.bibliocommons.com/",
+     "vertical": "Library Management",
+     "acquired": 2020,
+     "hq": "Toronto, Ontario"
+    },
+    {
+     "name": "BIG Consulting",
+     "url": "https://bigurus.net/",
+     "vertical": "Agri-food",
+     "acquired": 2026,
+     "hq": "Cottage Grove, Wisconsin"
+    },
+    {
+     "name": "Binary System",
+     "url": "https://www.binarysystem.eu/en",
+     "vertical": "People Transportation",
+     "acquired": 2019,
+     "hq": "Piacenza, Italy"
+    },
+    {
+     "name": "Bit Soft",
+     "url": "https://www.bit-soft.ro/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2025,
+     "hq": "Bucharest, Romania"
+    },
+    {
+     "name": "Bravura Security",
+     "url": "https://www.bravurasecurity.com/",
+     "vertical": "Security",
+     "acquired": 2022,
+     "hq": "Calgary, Alberta"
+    },
+    {
+     "name": "Broadcast M.A.P.",
+     "url": "https://www.tvmap.co.nz/",
+     "vertical": "MarTech",
+     "acquired": 2020,
+     "hq": "Auckland, New Zealand"
+    },
+    {
+     "name": "Bullet Solutions",
+     "url": "https://bulletsolutions.com/en/",
+     "vertical": "Education",
+     "acquired": 2024,
+     "hq": "Porto, Portugal"
+    },
+    {
+     "name": "Cactus Utilities",
+     "url": "https://www.cactus.se/",
+     "vertical": "Utilities",
+     "acquired": 2022,
+     "hq": "Mölndal, Sweden"
+    },
+    {
+     "name": "Cammax",
+     "url": "https://www.cammaxlimited.co.uk/",
+     "vertical": "People Transportation",
+     "acquired": 2024,
+     "hq": "Castleford, United Kingdom"
+    },
+    {
+     "name": "CaterTrax",
+     "url": "https://catertrax.com/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2017,
+     "hq": "Rochester, New York"
+    },
+    {
+     "name": "Celcat",
+     "url": "https://www.celcat.com/",
+     "vertical": "Education",
+     "acquired": 2023,
+     "hq": "Coventry, United Kingdom"
+    },
+    {
+     "name": "Centurisk",
+     "url": "https://centurisk.com/",
+     "vertical": "Risk Management",
+     "acquired": 2008,
+     "hq": "Green Tree, Pennsylvania"
+    },
+    {
+     "name": "Charity Dynamics",
+     "url": "https://www.charitydynamics.com/",
+     "vertical": "Non-Profit",
+     "acquired": 2020,
+     "hq": "Austin, Texas"
+    },
+    {
+     "name": "Cittati",
+     "url": "https://cittati.com.br/",
+     "vertical": "People Transportation",
+     "acquired": 2019,
+     "hq": "São Paulo"
+    },
+    {
+     "name": "Clarity Group",
+     "url": "https://www.claritygrp.com/",
+     "vertical": "Healthcare",
+     "acquired": 2020,
+     "hq": "Chicago, Illinois"
+    },
+    {
+     "name": "ClickDimensions",
+     "url": "https://clickdimensions.com/",
+     "vertical": "MarTech",
+     "acquired": 2023,
+     "hq": "Sandy Springs, Georgia"
+    },
+    {
+     "name": "Company Watch",
+     "url": "https://www.companywatch.net/",
+     "vertical": "Risk Management",
+     "acquired": 2022,
+     "hq": "London, United Kingdom"
+    },
+    {
+     "name": "ComputerCamp",
+     "url": "https://www.computercamp.dk/",
+     "vertical": "Non-Profit",
+     "acquired": 2022,
+     "hq": "Frederikssund, Denmark"
+    },
+    {
+     "name": "ConWX",
+     "url": "https://conwx.com/",
+     "vertical": "Renewable Energy",
+     "acquired": 2021,
+     "hq": "Copenhagen, Denmark"
+    },
+    {
+     "name": "CORE Tech",
+     "url": "http://coresoftware.ie/",
+     "vertical": "Agri-food",
+     "acquired": 2015,
+     "hq": "Mitchelstown, Ireland"
+    },
+    {
+     "name": "Covenir",
+     "url": "https://www.covenirbpo.com/",
+     "vertical": "Financial Services",
+     "acquired": 2019,
+     "hq": "Worcester, Massachusetts"
+    },
+    {
+     "name": "CPR Vision",
+     "url": "https://cprvision.com/",
+     "vertical": "MarTech",
+     "acquired": 2021,
+     "hq": "Singapore"
+    },
+    {
+     "name": "Crealogix",
+     "url": "https://crealogix.com/en",
+     "vertical": "Financial Services",
+     "acquired": 2024,
+     "hq": "Zürich, Switzerland"
+    },
+    {
+     "name": "Criterions",
+     "url": "http://www.criterions.com/",
+     "vertical": "Healthcare",
+     "acquired": 2019,
+     "hq": "University Gardens, New York"
+    },
+    {
+     "name": "Crosscap",
+     "url": "https://www.crosscap.com/",
+     "vertical": "MarTech",
+     "acquired": 2022,
+     "hq": "Markham, Ontario"
+    },
+    {
+     "name": "Curbstone",
+     "url": "https://curbstone.com/",
+     "vertical": "Financial Services",
+     "acquired": 2021,
+     "hq": "Ball Ground, Georgia"
+    },
+    {
+     "name": "Dassian",
+     "url": "https://www.dassian.com/",
+     "vertical": "Compliance",
+     "acquired": 2024,
+     "hq": "Atlanta, Georgia"
+    },
+    {
+     "name": "Data Consulting",
+     "url": "https://data-consulting.ch/",
+     "vertical": "Government Administration",
+     "acquired": 2024,
+     "hq": "Lausanne, Switzerland"
+    },
+    {
+     "name": "Datagrafikk",
+     "url": "https://datagrafikk.com/",
+     "vertical": "People Transportation",
+     "acquired": 2020,
+     "hq": "Bergen, Norway"
+    },
+    {
+     "name": "Datapro",
+     "url": "https://datapromiami.com/",
+     "vertical": "Financial Services",
+     "acquired": 2021,
+     "hq": "Coral Gables, Florida"
+    },
+    {
+     "name": "Dealernet",
+     "url": "https://dealernet.com.br/",
+     "vertical": "Automotive",
+     "acquired": 2020,
+     "hq": "Lauro de Freitas, Brazil"
+    },
+    {
+     "name": "DecideWare",
+     "url": "https://www.decideware.com/",
+     "vertical": "MarTech",
+     "acquired": 2021,
+     "hq": "Emerald Hill, New South Wales"
+    },
+    {
+     "name": "Delacon",
+     "url": "https://www.delacon.com.au/",
+     "vertical": "MarTech",
+     "acquired": 2023,
+     "hq": "Bondi Junction, New South Wales"
+    },
+    {
+     "name": "Delta Logic",
+     "url": "https://www.deltalogic.ch/",
+     "vertical": "Justice",
+     "acquired": 2019,
+     "hq": "Sursee, Switzerland"
+    },
+    {
+     "name": "DisplayNote",
+     "url": "https://www.displaynote.com/",
+     "vertical": "Education",
+     "acquired": 2023,
+     "hq": "Belfast, United Kingdom"
+    },
+    {
+     "name": "Dragintra",
+     "url": "https://www.dragintra.co.uk/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2024,
+     "hq": "Kapellen, Belgium"
+    },
+    {
+     "name": "DRAMS Software",
+     "url": "http://www.drams-software.com/",
+     "vertical": "Supply Chain & Inventory Management",
+     "acquired": 2018,
+     "hq": "Aberdeen, United Kingdom"
+    },
+    {
+     "name": "EASA",
+     "url": "https://www.easasoftware.com/",
+     "vertical": "Software Development",
+     "acquired": 2022,
+     "hq": "Oxford, United Kingdom"
+    },
+    {
+     "name": "Edge Learning Solutions",
+     "url": "https://www.edgelearning.co.nz/",
+     "vertical": "Education",
+     "acquired": 2020,
+     "hq": "Palmerston North, New Zealand"
+    },
+    {
+     "name": "Edumate",
+     "url": "https://www.edumate.com.au/",
+     "vertical": "Education",
+     "acquired": 2017,
+     "hq": "Alexandria, New South Wales"
+    },
+    {
+     "name": "Elovate",
+     "url": "https://elovate.com/",
+     "vertical": "People Transportation",
+     "acquired": 2024,
+     "hq": "Toronto, Canada"
+    },
+    {
+     "name": "Empresa1",
+     "url": "https://www.empresa1.com.br/",
+     "vertical": "People Transportation",
+     "acquired": 2018,
+     "hq": "Belo Horizonte, Brazil"
+    },
+    {
+     "name": "EnvisionWare",
+     "url": "https://www.envisionware.com/",
+     "vertical": "Library Management",
+     "acquired": 2021,
+     "hq": "Duluth, Georgia"
+    },
+    {
+     "name": "Equiplano",
+     "url": "https://www.equiplano.com.br/index.php",
+     "vertical": "Government Administration",
+     "acquired": 2022,
+     "hq": "Curitiba, Brazil"
+    },
+    {
+     "name": "equivant",
+     "url": "http://www.equivant.com/",
+     "vertical": "Justice",
+     "acquired": 2008,
+     "hq": "Canton, Ohio"
+    },
+    {
+     "name": "Eureka Technology",
+     "url": "http://www.eureka-technology.fr/en/home.html",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2020,
+     "hq": "Le Plessis-Bouchard, France"
+    },
+    {
+     "name": "ExtendAg",
+     "url": "https://www.extendag.com/",
+     "vertical": "Agri-food",
+     "acquired": 2013,
+     "hq": "Alpharetta, Georgia"
+    },
+    {
+     "name": "FacilityForce",
+     "url": "https://facilityforce.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2008,
+     "hq": "Austin, Texas"
+    },
+    {
+     "name": "Fisa Group",
+     "url": "https://www.fisagrp.com/",
+     "vertical": "Financial Services",
+     "acquired": 2016,
+     "hq": "Loja, Ecuador"
+    },
+    {
+     "name": "FIVE x 5",
+     "url": "https://fx5solutions.com/",
+     "vertical": "Supply Chain & Inventory Management",
+     "acquired": 2019,
+     "hq": "Westminster, Colorado"
+    },
+    {
+     "name": "Flash Networks",
+     "url": "https://www.flashnetworks.com/",
+     "acquired": 2020,
+     "hq": "Herzliya, Israel"
+    },
+    {
+     "name": "fmade",
+     "url": "http://www.fmade.at/index.php/en/",
+     "vertical": "Automotive",
+     "acquired": 2022,
+     "hq": "Linz, Austria"
+    },
+    {
+     "name": "Food Experts",
+     "url": "https://home.food-experts.com/en/",
+     "vertical": "Agri-food",
+     "acquired": 2024,
+     "hq": "Madrid, Spain"
+    },
+    {
+     "name": "Four Js",
+     "url": "https://4js.com/",
+     "vertical": "Software Development",
+     "acquired": 2021,
+     "hq": "Irving, Texas"
+    },
+    {
+     "name": "Function Point",
+     "url": "https://functionpoint.com/",
+     "vertical": "MarTech",
+     "acquired": 2018,
+     "hq": "Vancouver, British Colombia"
+    },
+    {
+     "name": "FunctionFox",
+     "url": "https://www.functionfox.com/",
+     "vertical": "MarTech",
+     "acquired": 2023,
+     "hq": "Victoria, British Columbia"
+    },
+    {
+     "name": "Furlong",
+     "url": "http://www.furlongsolutions.com/",
+     "vertical": "Education",
+     "acquired": 2017,
+     "hq": "Andover, United Kingdom"
+    },
+    {
+     "name": "Gaina",
+     "url": "http://www.gainasoftware.com/",
+     "vertical": "Supply Chain & Inventory Management",
+     "acquired": 2016,
+     "hq": "Belfast, United Kingdom"
+    },
+    {
+     "name": "Gallery Systems",
+     "url": "http://www.gallerysystems.com/",
+     "vertical": "Arts & Culture",
+     "acquired": 2012,
+     "hq": "New York, New York"
+    },
+    {
+     "name": "Geomatic",
+     "url": "https://www.geomatic.dk/",
+     "vertical": "Data Management",
+     "acquired": 2022,
+     "hq": "Copenhagen, Denmark"
+    },
+    {
+     "name": "Go Solutions",
+     "url": "https://www.gosolutions.net/",
+     "vertical": "Education",
+     "acquired": 2020,
+     "hq": "Lansing, Michigan"
+    },
+    {
+     "name": "Gold-Vision",
+     "vertical": "MarTech",
+     "acquired": 2024,
+     "hq": "West Haddon, United Kingdom"
+    },
+    {
+     "name": "Governança Brasil",
+     "url": "https://www.govbr.com.br/",
+     "vertical": "Government Administration",
+     "acquired": 2023,
+     "hq": "Blumenau, Brazil"
+    },
+    {
+     "name": "Greenstone",
+     "url": "http://www.greenstonesystems.com/",
+     "vertical": "Agri-food",
+     "acquired": 2016,
+     "hq": "Alpharetta, Georgia"
+    },
+    {
+     "name": "Grosvenor Systems",
+     "url": "https://www.grosvenorsystems.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2018,
+     "hq": "London, United Kingdom"
+    },
+    {
+     "name": "Helm",
+     "url": "https://www.helmoperations.com/",
+     "vertical": "Marine",
+     "acquired": 2018,
+     "hq": "Victoria, British Colombia"
+    },
+    {
+     "name": "HGEM",
+     "url": "https://www.hgem.com/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2023,
+     "hq": "Bath, United Kingdom"
+    },
+    {
+     "name": "Holmedal",
+     "url": "https://www.holmedal.se/",
+     "vertical": "People Transportation",
+     "acquired": 2014,
+     "hq": "stra Karup, Sweden"
+    },
+    {
+     "name": "Holocentric Compliance",
+     "url": "https://www.holocentric.com/",
+     "vertical": "Compliance",
+     "acquired": 2019,
+     "hq": "Sydney, Australia"
+    },
+    {
+     "name": "Hospedia",
+     "url": "https://www.hospedia.com/",
+     "vertical": "Healthcare",
+     "acquired": 2021,
+     "hq": "Pontefract, United Kingdom"
+    },
+    {
+     "name": "Husk",
+     "url": "https://huskwellness.com/",
+     "vertical": "Healthcare",
+     "acquired": 2024,
+     "hq": "Wayne, Pennsylvania"
+    },
+    {
+     "name": "Hypersoft",
+     "url": "https://hypersoft.de/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2024,
+     "hq": "Hamburg, Germany"
+    },
+    {
+     "name": "iCore",
+     "url": "https://www.icoresolutions.com/en",
+     "vertical": "Data Management",
+     "acquired": 2024,
+     "hq": "Göteborg, Sweden"
+    },
+    {
+     "name": "IDEA",
+     "url": "https://idea-yacht.com/",
+     "vertical": "Marine",
+     "acquired": 2017,
+     "hq": "Düsseldorf, Germany"
+    },
+    {
+     "name": "IDS",
+     "url": "https://ids.inf.br/",
+     "vertical": "Government Administration",
+     "acquired": 2024,
+     "hq": "Pato Branco, Brazil"
+    },
+    {
+     "name": "Imperial",
+     "url": "https://www.imperial.co.uk/",
+     "vertical": "People Transportation",
+     "acquired": 2019,
+     "hq": "Bristol, United Kingdom"
+    },
+    {
+     "name": "IMS",
+     "url": "https://www.ims-ag.com/",
+     "vertical": "Compliance",
+     "acquired": 2022,
+     "hq": "Risch-Rotkreuz, Switzerland"
+    },
+    {
+     "name": "Incadea",
+     "url": "https://www.incadea.com/",
+     "vertical": "Automotive",
+     "acquired": 2018,
+     "hq": "Munich, Germany"
+    },
+    {
+     "name": "Incognito",
+     "url": "https://www.incognito.com/",
+     "acquired": 2014,
+     "hq": "Vancouver, British Colombia"
+    },
+    {
+     "name": "Incom Gieres",
+     "url": "https://www.incom-sa.fr/",
+     "vertical": "Utilities",
+     "acquired": 2021,
+     "hq": "Gieres, France"
+    },
+    {
+     "name": "IndiCater",
+     "url": "http://www.indicater.com/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2019,
+     "hq": "Reading, United Kingdom"
+    },
+    {
+     "name": "Infogate",
+     "url": "https://www.infogate.ch/de/home",
+     "vertical": "Social Welfare",
+     "acquired": 2019,
+     "hq": "Zürich, Switzerland"
+    },
+    {
+     "name": "Infoview",
+     "url": "https://infoview.com.au/",
+     "vertical": "Compliance",
+     "acquired": 2020,
+     "hq": "Fortitude Valley, Queensland"
+    },
+    {
+     "name": "Insuresoft",
+     "url": "https://www.insuresoft.com/",
+     "vertical": "Financial Services",
+     "acquired": 2019,
+     "hq": "University Park, Illinois"
+    },
+    {
+     "name": "Intellicene",
+     "url": "https://intellicene.com/",
+     "vertical": "Security",
+     "acquired": 2022,
+     "hq": "Melville, New York"
+    },
+    {
+     "name": "Intellior",
+     "url": "https://www.intellior.com/",
+     "vertical": "Compliance",
+     "acquired": 2024,
+     "hq": "Stuttgart, Germany"
+    },
+    {
+     "name": "InTempo",
+     "url": "http://www.intemposoftware.com/",
+     "vertical": "Rental Management",
+     "acquired": 2015,
+     "hq": "Springfield, Massachusetts"
+    },
+    {
+     "name": "Intranote",
+     "url": "https://www.intranote.dk/",
+     "vertical": "Construction",
+     "acquired": 2020,
+     "hq": "Silkeborg, Denmark"
+    },
+    {
+     "name": "IRIS (Runya)",
+     "url": "https://www.iris-technologies.com.cn",
+     "vertical": "Automotive",
+     "acquired": 2023,
+     "hq": "Shanghai, China"
+    },
+    {
+     "name": "ISB",
+     "url": "https://www.gosolutions.com/",
+     "vertical": "Education",
+     "acquired": 2021,
+     "hq": "Boise, Idaho"
+    },
+    {
+     "name": "Kansys",
+     "url": "https://www.kansys.com/",
+     "acquired": 2021,
+     "hq": "Olathe, Kansas"
+    },
+    {
+     "name": "Kielkone Oy",
+     "url": "https://www.sanakirja.fi/",
+     "vertical": "Language Services",
+     "acquired": 2024,
+     "hq": "Helsinki, Finland"
+    },
+    {
+     "name": "Kinetic",
+     "url": "http://www.kineticsolutions.co.uk/",
+     "vertical": "Education",
+     "acquired": 2015,
+     "hq": "Milton Keynes, United Kingdom"
+    },
+    {
+     "name": "Kinetic North America",
+     "url": "https://kineticsoftwareinc.com",
+     "vertical": "Education",
+     "acquired": 2015,
+     "hq": "Chicago, Illinois"
+    },
+    {
+     "name": "Lifecycle Software",
+     "url": "https://www.lifecycle-software.com/",
+     "acquired": 2020,
+     "hq": "Angers, France"
+    },
+    {
+     "name": "Lightbulb Analytics",
+     "url": "https://lba.ltd/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2021,
+     "hq": "London, United Kingdom"
+    },
+    {
+     "name": "LoginRadius Global",
+     "url": "https://www.loginradius.com",
+     "vertical": "Security",
+     "acquired": 2026,
+     "hq": "Vancouver, British Columbia, Canada"
+    },
+    {
+     "name": "Macos",
+     "url": "https://www.macos-software.ch/",
+     "vertical": "Social Welfare",
+     "acquired": 2021,
+     "hq": "Volketswil, Switzerland"
+    },
+    {
+     "name": "Malmator",
+     "url": "https://malmator.se/index.html",
+     "vertical": "People Transportation",
+     "acquired": 2014,
+     "hq": "Malmö, Sweden"
+    },
+    {
+     "name": "Maxima Tech",
+     "url": "https://maximatech.com.br/",
+     "vertical": "Field Service Management",
+     "acquired": 2024,
+     "hq": "Goiânia, Brazil"
+    },
+    {
+     "name": "Maze Feedback AS",
+     "url": "https://en.mymaze.com/",
+     "vertical": "MarTech",
+     "acquired": 2025,
+     "hq": "Oslo, Norway"
+    },
+    {
+     "name": "MDS Global",
+     "url": "https://mdsglobal.com/",
+     "acquired": 2014,
+     "hq": "Limerick, Ireland"
+    },
+    {
+     "name": "medaptus",
+     "url": "https://www.medaptus.com/",
+     "vertical": "Healthcare",
+     "acquired": 2020,
+     "hq": "Raleigh, North Carolina"
+    },
+    {
+     "name": "Metadados",
+     "url": "https://www.metadados.com.br/",
+     "vertical": "Human Capital Management",
+     "acquired": 2024,
+     "hq": "Caxias, Brazil"
+    },
+    {
+     "name": "MetaViewer",
+     "url": "https://www.metaviewer.com/",
+     "vertical": "Financial Services",
+     "acquired": 2021,
+     "hq": "Rochester, Minnesota"
+    },
+    {
+     "name": "Momentm",
+     "url": "https://momentmtech.com/",
+     "vertical": "People Transportation",
+     "acquired": 2018,
+     "hq": "Mississauga, Ontario"
+    },
+    {
+     "name": "MotionData Vector",
+     "url": "https://motiondata-vector.com/",
+     "vertical": "Automotive",
+     "acquired": 2020,
+     "hq": "Seiersberg, Austria"
+    },
+    {
+     "name": "Multiforce Systems Corporation",
+     "url": "https://www.fuelforce.com/",
+     "vertical": "Fuel",
+     "acquired": 2023,
+     "hq": "Rocky Hill, New Jersey"
+    },
+    {
+     "name": "nCara",
+     "url": "https://www.ncara.de",
+     "vertical": "Healthcare",
+     "acquired": 2023,
+     "hq": "Berlin, Germany"
+    },
+    {
+     "name": "Netadmin Systems",
+     "url": "https://www.netadminsystems.com/",
+     "acquired": 2015,
+     "hq": "Linkping, Sweden"
+    },
+    {
+     "name": "NetEngage",
+     "url": "https://www.netengage.com/",
+     "acquired": 2021,
+     "hq": "Warrington, United Kingdom"
+    },
+    {
+     "name": "Neural Technologies",
+     "url": "http://www.neuralt.com/",
+     "acquired": 2021,
+     "hq": "Petersfield, United Kingdom"
+    },
+    {
+     "name": "Nydus Systems Informatica",
+     "url": "https://nydus.com.br/",
+     "vertical": "Human Capital Management",
+     "acquired": 2025,
+     "hq": "São Paulo, Brazil"
+    },
+    {
+     "name": "Oasys",
+     "url": "http://www.oasys-llc.com/",
+     "vertical": "Education",
+     "acquired": 2021,
+     "hq": "Franklin, Wisconsin"
+    },
+    {
+     "name": "Orkis",
+     "url": "https://www.orkis.com/",
+     "vertical": "Government Administration",
+     "acquired": 2024,
+     "hq": "Aix-en-provence, France"
+    },
+    {
+     "name": "Parlance",
+     "url": "https://www.parlancecorp.com",
+     "vertical": "Healthcare",
+     "acquired": 2024,
+     "hq": "Woburn, United States"
+    },
+    {
+     "name": "PC Soft",
+     "url": "https://pcsoft.fr",
+     "vertical": "Software Development",
+     "acquired": 2024,
+     "hq": "Paris, France"
+    },
+    {
+     "name": "Pcentra",
+     "url": "https://www.pcentra.com/",
+     "vertical": "People Transportation",
+     "acquired": 2022,
+     "hq": "Tel Aviv-Yafo, Israel"
+    },
+    {
+     "name": "Pegasus Systems",
+     "url": "https://www.pegasussystems.com/",
+     "vertical": "MarTech",
+     "acquired": 2019,
+     "hq": "8 Mile Plains, Australia"
+    },
+    {
+     "name": "PLANit",
+     "url": "https://www.planit.se/",
+     "vertical": "People Transportation",
+     "acquired": 2014,
+     "hq": "Gothenburg, Sweden"
+    },
+    {
+     "name": "Portfolio+",
+     "url": "https://portfolioplus.com/",
+     "vertical": "Financial Services",
+     "acquired": 2019,
+     "hq": "Whitechurch-Stouffville, Ontario"
+    },
+    {
+     "name": "Prima",
+     "url": "https://www.sophia.com.br/",
+     "vertical": "Library Management",
+     "acquired": 2018,
+     "hq": "São Paulo, Brazil"
+    },
+    {
+     "name": "Primetics",
+     "url": "http://www.primetics.co.uk/",
+     "vertical": "Agri-food",
+     "acquired": 2016,
+     "hq": "Chorley, United Kingdom"
+    },
+    {
+     "name": "ProFundo",
+     "url": "https://profundo.no/",
+     "vertical": "Non-Profit",
+     "acquired": 2023,
+     "hq": "Kristiansand, Norway"
+    },
+    {
+     "name": "PurpleView",
+     "url": "https://purpleview.de/",
+     "vertical": "Financial Services",
+     "acquired": 2021,
+     "hq": "Dortmund, Germany"
+    },
+    {
+     "name": "Quarzo",
+     "url": "https://pagina.quarzo.com/",
+     "vertical": "Financial Services",
+     "acquired": 2023,
+     "hq": "San José, Costa Rica"
+    },
+    {
+     "name": "RAF",
+     "url": "https://www.raf.com/",
+     "vertical": "Post & Parcel",
+     "acquired": 2023,
+     "hq": "Redmond, Washington"
+    },
+    {
+     "name": "Red River Software",
+     "url": "http://www.redriversoftware.com/",
+     "vertical": "Fuel",
+     "acquired": 2015,
+     "hq": "Fargo, North Dakota"
+    },
+    {
+     "name": "RedHawk",
+     "url": "https://www.redhawkis.com/",
+     "vertical": "Financial Services",
+     "acquired": 2019,
+     "hq": "Worcester, Massachusetts"
+    },
+    {
+     "name": "ResultsPlus",
+     "url": "https://www.resultsplussoftware.com/",
+     "vertical": "Non-Profit",
+     "acquired": 2021,
+     "hq": "Rochester, Minnesota"
+    },
+    {
+     "name": "Saatmann",
+     "url": "https://www.saatmann.de/",
+     "vertical": "Healthcare",
+     "acquired": 2020,
+     "hq": "Worms, Germany"
+    },
+    {
+     "name": "Sansio",
+     "url": "https://sansio.com/",
+     "vertical": "Healthcare",
+     "acquired": 2021,
+     "hq": "Duluth, Minnesota"
+    },
+    {
+     "name": "SDM Housing",
+     "url": "https://www.sdmhousing.co.uk/",
+     "vertical": "Rental Management",
+     "acquired": 2022,
+     "hq": "Ellesmere Port, United Kingdom"
+    },
+    {
+     "name": "Sentean",
+     "url": "https://www.senteangroup.com/en/",
+     "vertical": "Healthcare",
+     "acquired": 2024,
+     "hq": "Eindhoven, Netherlands"
+    },
+    {
+     "name": "Service ERP",
+     "url": "https://service-erp.de/?lang=en",
+     "vertical": "Agri-food",
+     "acquired": 2024,
+     "hq": "Wietmarschen, Germany"
+    },
+    {
+     "name": "Servoy",
+     "url": "https://servoy.com",
+     "vertical": "Software Development",
+     "acquired": 2024,
+     "hq": "Amersfoort, The Netherlands"
+    },
+    {
+     "name": "ShipNet",
+     "url": "http://www.shipnet.no/",
+     "vertical": "Marine",
+     "acquired": 2017,
+     "hq": "Oslo, Norway"
+    },
+    {
+     "name": "Sicap",
+     "url": "http://www.sicap.com/",
+     "acquired": 2018,
+     "hq": "Lyon, France"
+    },
+    {
+     "name": "Signature Rail",
+     "url": "https://signaturerail.com/",
+     "vertical": "People Transportation",
+     "acquired": 2017,
+     "hq": "York, United Kingdom"
+    },
+    {
+     "name": "Silvervine",
+     "url": "http://www.silvervinesoftware.com/",
+     "vertical": "Financial Services",
+     "acquired": 2013,
+     "hq": "Warner Robins, Georgia"
+    },
+    {
+     "name": "Smartrak",
+     "url": "https://www.smartrak.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2017,
+     "hq": "Hamilton, New Zealand"
+    },
+    {
+     "name": "Softchalk",
+     "url": "https://softchalk.com/",
+     "vertical": "Education",
+     "acquired": 2021,
+     "hq": "San Antonio, Texas"
+    },
+    {
+     "name": "Softlink Education",
+     "url": "https://www.softlinkint.com/edu/",
+     "vertical": "Education",
+     "acquired": 2021,
+     "hq": "Eight Mile Plains, Queensland"
+    },
+    {
+     "name": "Softlink Information Centres",
+     "url": "https://ic.softlinkint.com/",
+     "vertical": "Library Management",
+     "acquired": 2021,
+     "hq": "Eight Mile Plains, Queensland"
+    },
+    {
+     "name": "Solentra",
+     "url": "https://solentraglobal.com/",
+     "vertical": "Agri-food",
+     "acquired": 2015,
+     "hq": "Alpharetta, Georgia"
+    },
+    {
+     "name": "SPARK TSL",
+     "url": "https://www.wifispark.com/",
+     "vertical": "Healthcare",
+     "acquired": 2020,
+     "hq": "Exeter, United Kingdom"
+    },
+    {
+     "name": "SpecTec Cruise",
+     "url": "https://www.specteccruise.com",
+     "vertical": "Marine",
+     "acquired": 2012,
+     "hq": "Hollywood, Florida"
+    },
+    {
+     "name": "Squirrel Systems",
+     "url": "https://www.squirrelsystems.com/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2024,
+     "hq": "Burnaby, Canada"
+    },
+    {
+     "name": "Squirrels",
+     "url": "https://www.airsquirrels.com/",
+     "vertical": "Education",
+     "acquired": 2023,
+     "hq": "North Canton, Ohio"
+    },
+    {
+     "name": "SSP",
+     "url": "https://www.ssp-worldwide.com/",
+     "vertical": "Financial Services",
+     "acquired": 2021,
+     "hq": "Halifax, United Kingdom"
+    },
+    {
+     "name": "Sunrise Software",
+     "url": "https://www.sunrisesoftware.com/",
+     "vertical": "IT Service Management",
+     "acquired": 2022,
+     "hq": "Chessington, United Kingdom"
+    },
+    {
+     "name": "Sureview Systems",
+     "url": "https://www.sureviewsystems.com/",
+     "vertical": "Security",
+     "acquired": 2026,
+     "hq": "Tampa, Florida"
+    },
+    {
+     "name": "Surveypal Oy",
+     "url": "https://surveypal.com/",
+     "vertical": "MarTech",
+     "acquired": 2025,
+     "hq": "Tampere, Finland"
+    },
+    {
+     "name": "Symbrio",
+     "url": "https://www.symbrio.com/",
+     "vertical": "Installation",
+     "acquired": 2020,
+     "hq": "Stockholm, Sweden"
+    },
+    {
+     "name": "Symplicity",
+     "url": "https://www.symplicity.com/",
+     "vertical": "Education",
+     "acquired": 2026,
+     "hq": "Arlington, VA"
+    },
+    {
+     "name": "SYSTEMTECHNIK",
+     "url": "https://www.systemtechnik-online.de/home/",
+     "vertical": "People Transportation",
+     "acquired": 2017,
+     "hq": "Smmerda, Germany"
+    },
+    {
+     "name": "Taranto Systems",
+     "url": "https://tarantosystems.com/",
+     "vertical": "People Transportation",
+     "acquired": 2020,
+     "hq": "Chippenham, United Kingdom"
+    },
+    {
+     "name": "Tarantula",
+     "url": "http://tarantula.net/",
+     "acquired": 2017,
+     "hq": "Singapore"
+    },
+    {
+     "name": "TASS",
+     "url": "http://www.tassweb.com.au/",
+     "vertical": "Education",
+     "acquired": 2016,
+     "hq": "Hendra, Queensland"
+    },
+    {
+     "name": "Technology Blueprint (TBL)",
+     "url": "https://www.technologyblueprint.co.uk",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2022,
+     "hq": "Warwick, United Kingdom"
+    },
+    {
+     "name": "Telepin",
+     "url": "https://www.telepin.com/",
+     "acquired": 2014,
+     "hq": "Kanata, Ottawa"
+    },
+    {
+     "name": "Tibersoft",
+     "url": "https://www.tibersoft.com/",
+     "vertical": "Agri-food",
+     "acquired": 2017,
+     "hq": "Alpharetta, Georgia"
+    },
+    {
+     "name": "Titanium",
+     "url": "https://titaniumplatform.com/",
+     "acquired": 2023,
+     "hq": "Lowell, Massachusetts"
+    },
+    {
+     "name": "Tomia",
+     "url": "https://www.tomiaglobal.com/",
+     "acquired": 2022,
+     "hq": "Tysons, Virginia"
+    },
+    {
+     "name": "TOPAZ Technologies",
+     "url": "http://www.topazti.com/",
+     "vertical": "Healthcare",
+     "acquired": 2016,
+     "hq": "Alpharetta, United States"
+    },
+    {
+     "name": "TrackOne Studio",
+     "url": "https://www.trackonestudio.com/",
+     "vertical": "Education",
+     "acquired": 2021,
+     "hq": "Morningside, Queensland"
+    },
+    {
+     "name": "TransLoc",
+     "url": "https://transloc.com/",
+     "vertical": "People Transportation",
+     "acquired": 2022,
+     "hq": "Durham, North Carolina"
+    },
+    {
+     "name": "TransMedia Dynamics (TMD)",
+     "url": "https://www.tmd.tv/",
+     "acquired": 2021,
+     "hq": "Aylesbury, United Kingdom"
+    },
+    {
+     "name": "TransTrack",
+     "url": "https://www.transtracksystems.net/",
+     "vertical": "People Transportation",
+     "acquired": 2017,
+     "hq": "Cedar Rapids, Iowa"
+    },
+    {
+     "name": "Trapeze Group",
+     "url": "https://www.trapezegroup.com/",
+     "vertical": "People Transportation",
+     "acquired": 1995,
+     "hq": "Mississauga, Ontario"
+    },
+    {
+     "name": "Travisoft",
+     "url": "https://www.travisoft.com/",
+     "vertical": "Financial Services",
+     "acquired": 2012,
+     "hq": "Greenway, Houston"
+    },
+    {
+     "name": "Trellint",
+     "url": "https://trellint.com/en-us/",
+     "vertical": "People Transportation",
+     "acquired": 2024,
+     "hq": "Boston, United States"
+    },
+    {
+     "name": "Tribute",
+     "url": "https://www.tribute.com/",
+     "vertical": "Asset Management & Logistics",
+     "acquired": 2020,
+     "hq": "Cuyahoga Falls, Ohio"
+    },
+    {
+     "name": "TripSpark",
+     "url": "https://www.tripspark.com/",
+     "vertical": "People Transportation",
+     "acquired": 2014,
+     "hq": "Mississauga, Ontario"
+    },
+    {
+     "name": "TSi Auto Solutions",
+     "vertical": "Automotive",
+     "acquired": 2022,
+     "hq": "Bathurst, New Brunswick"
+    },
+    {
+     "name": "Ubersmith",
+     "url": "https://ubersmith.com/",
+     "acquired": 2021,
+     "hq": "New York, New York"
+    },
+    {
+     "name": "Unique Business Systems",
+     "url": "http://www.unibiz.com/",
+     "vertical": "Rental Management",
+     "acquired": 2020,
+     "hq": "Santa Monica, California"
+    },
+    {
+     "name": "ValuePRO",
+     "url": "https://valuepro.com.au/",
+     "vertical": "Property Valuation",
+     "acquired": 2019,
+     "hq": "Birsbane, Queensland"
+    },
+    {
+     "name": "VAS-X",
+     "url": "https://vas-x.com/",
+     "acquired": 2021,
+     "hq": "Sippy Downs, Queensland"
+    },
+    {
+     "name": "Velocix",
+     "url": "https://velocix.com/",
+     "acquired": 2019,
+     "hq": "Cambridge, United Kingdom"
+    },
+    {
+     "name": "Vontas",
+     "url": "https://www.vontas.com/",
+     "vertical": "People Transportation",
+     "acquired": 2021,
+     "hq": "Cedar Rapids, Iowa"
+    },
+    {
+     "name": "WDS",
+     "url": "https://www.wds.co/",
+     "acquired": 2017,
+     "hq": "Bournemouth, United Kingdom"
+    },
+    {
+     "name": "WebCheckout",
+     "url": "http://www.webcheckout.net/",
+     "vertical": "Education",
+     "acquired": 2017,
+     "hq": "Chicago, Illinois"
+    },
+    {
+     "name": "WebSell",
+     "url": "https://www.websell.io/",
+     "vertical": "Retail",
+     "acquired": 2021,
+     "hq": "Cork, Ireland"
+    },
+    {
+     "name": "Wellington IT",
+     "url": "https://www.well-it.com/",
+     "vertical": "Financial Services",
+     "acquired": 2014,
+     "hq": "Belfast, United Kingdom"
+    },
+    {
+     "name": "WennSoft",
+     "url": "https://www.wennsoft.com/",
+     "vertical": "Field Service Management",
+     "acquired": 2023,
+     "hq": "New Berlin, Wisconsin"
+    },
+    {
+     "name": "WideOrbit",
+     "url": "https://www.wideorbit.com/",
+     "acquired": 2023,
+     "hq": "San Francisco, California"
+    },
+    {
+     "name": "WinCar Automotive ICT Solutions",
+     "url": "https://www.wincar.nl",
+     "vertical": "Automotive",
+     "acquired": 2025,
+     "hq": "Zevenaar, Netherlands"
+    },
+    {
+     "name": "Windward",
+     "url": "https://www.windwardsoftware.com/",
+     "vertical": "Retail",
+     "acquired": 2019,
+     "hq": "Penticton, British Colombia"
+    },
+    {
+     "name": "Wiztivi",
+     "url": "https://www.wiztivi.com/",
+     "acquired": 2022,
+     "hq": "Carquefou, France"
+    },
+    {
+     "name": "Worldwide Chain Stores",
+     "url": "https://wwchainstores.com/",
+     "vertical": "Supply Chain & Inventory Management",
+     "acquired": 2019,
+     "hq": "Camberley, England"
+    },
+    {
+     "name": "Wynne Systems",
+     "url": "https://www.wynnesystems.com/",
+     "vertical": "Rental Management",
+     "acquired": 2012,
+     "hq": "Irvine, California"
+    },
+    {
+     "name": "Zeit AG",
+     "url": "https://zeitag.ch/english/",
+     "vertical": "Human Capital Management",
+     "acquired": 2024,
+     "hq": "Sursee, Switzerland"
+    },
+    {
+     "name": "Zupa",
+     "url": "https://www.zupa.com/",
+     "vertical": "Foodservice & Hospitality",
+     "acquired": 2024,
+     "hq": "Farnham, United Kingdom"
+    }
+   ]
+  },
+  "lumine": {
+   "updated": "2026-11-07",
+   "source": "https://www.luminegroup.com/our-companies/",
+   "companies": [
+    {
+     "name": "Advantage 360"
+    },
+    {
+     "name": "Aleyant"
+    },
+    {
+     "name": "Avance Metering"
+    },
+    {
+     "name": "Axyom.Core"
+    },
+    {
+     "name": "Collab"
+    },
+    {
+     "name": "Datafusion Systems"
+    },
+    {
+     "name": "Flash Networks"
+    },
+    {
+     "name": "Imagine Communications"
+    },
+    {
+     "name": "Incognito Software Systems"
+    },
+    {
+     "name": "Kansys Inc."
+    },
+    {
+     "name": "Lifecycle Software"
+    },
+    {
+     "name": "MACH"
+    },
+    {
+     "name": "MDS Global"
+    },
+    {
+     "name": "Motive"
+    },
+    {
+     "name": "Netadmin Systems"
+    },
+    {
+     "name": "NetEngage"
+    },
+    {
+     "name": "Neural Technologies"
+    },
+    {
+     "name": "Openwave"
+    },
+    {
+     "name": "Quortex"
+    },
+    {
+     "name": "RazorFlow"
+    },
+    {
+     "name": "SpatialNetworX"
+    },
+    {
+     "name": "Symbrio"
+    },
+    {
+     "name": "Synchronoss Technologies, Inc."
+    },
+    {
+     "name": "Tarantula"
+    },
+    {
+     "name": "Telarix"
+    },
+    {
+     "name": "Telepin"
+    },
+    {
+     "name": "Titan.ium"
+    },
+    {
+     "name": "TOMIA"
+    },
+    {
+     "name": "TransMedia Dynamics"
+    },
+    {
+     "name": "Ubersmith"
+    },
+    {
+     "name": "VAS-X"
+    },
+    {
+     "name": "Velocix"
+    },
+    {
+     "name": "Vidispine"
+    },
+    {
+     "name": "WDS-SICAP"
+    },
+    {
+     "name": "WideOrbit"
+    },
+    {
+     "name": "Wiztivi"
+    }
+   ]
+  },
+  "modaxo": {
+   "updated": "2026-11-07",
+   "source": "https://modaxo.com/people-transportation-brands/index.html",
+   "companies": [
+    {
+     "name": "AEP Ticketing Solutions",
+     "url": "https://modaxo.com/our-brands/aep-ticketing-solutions/index.html"
+    },
+    {
+     "name": "Aerivo",
+     "url": "https://modaxo.com/our-brands/aerivo/index.html"
+    },
+    {
+     "name": "Binary System",
+     "url": "https://modaxo.com/our-brands/binary-system/index.html"
+    },
+    {
+     "name": "Busology",
+     "url": "https://modaxo.com/our-brands/busology/index.html"
+    },
+    {
+     "name": "Cammax",
+     "url": "https://modaxo.com/our-brands/cammax/index.html"
+    },
+    {
+     "name": "Cittati",
+     "url": "https://modaxo.com/our-brands/cittati/index.html"
+    },
+    {
+     "name": "Corvanta",
+     "url": "https://modaxo.com/our-brands/corvanta/index.html"
+    },
+    {
+     "name": "ebblo",
+     "url": "https://modaxo.com/our-brands/ebblo/index.html"
+    },
+    {
+     "name": "Elovate",
+     "url": "https://modaxo.com/our-brands/elovate/index.html"
+    },
+    {
+     "name": "Empresa 1",
+     "url": "https://modaxo.com/our-brands/empresa-1/index.html"
+    },
+    {
+     "name": "Expretio",
+     "url": "https://modaxo.com/our-brands/expretio/index.html"
+    },
+    {
+     "name": "FARA",
+     "url": "https://modaxo.com/our-brands/fara/index.html"
+    },
+    {
+     "name": "Fiscaltech",
+     "url": "https://modaxo.com/our-brands/fiscaltech/index.html"
+    },
+    {
+     "name": "Grampian Solutions",
+     "url": "https://modaxo.com/our-brands/grampian-solutions/index.html"
+    },
+    {
+     "name": "Imperial",
+     "url": "https://modaxo.com/our-brands/imperial/index.html"
+    },
+    {
+     "name": "Intelliscape",
+     "url": "https://modaxo.com/our-brands/intelliscape/index.html"
+    },
+    {
+     "name": "Momentm",
+     "url": "https://modaxo.com/our-brands/momentm/index.html"
+    },
+    {
+     "name": "Naviquate",
+     "url": "https://modaxo.com/our-brands/naviquate/index.html"
+    },
+    {
+     "name": "Nexfeld",
+     "url": "https://modaxo.com/our-brands/nexfeld/index.html"
+    },
+    {
+     "name": "Novvan",
+     "url": "https://modaxo.com/our-brands/novvan/index.html"
+    },
+    {
+     "name": "Pcentra",
+     "url": "https://modaxo.com/our-brands/pcentra/index.html"
+    },
+    {
+     "name": "Routeward",
+     "url": "https://modaxo.com/our-brands/routeward/index.html"
+    },
+    {
+     "name": "SharpStack",
+     "url": "https://modaxo.com/our-brands/sharpstack/index.html"
+    },
+    {
+     "name": "Signature Rail",
+     "url": "https://modaxo.com/our-brands/signature-rail/index.html"
+    },
+    {
+     "name": "SISCOG",
+     "url": "https://modaxo.com/our-brands/siscog/index.html"
+    },
+    {
+     "name": "SS Telemática",
+     "url": "https://modaxo.com/our-brands/ss-telematica/index.html"
+    },
+    {
+     "name": "TADERA",
+     "url": "https://modaxo.com/our-brands/tadera/index.html"
+    },
+    {
+     "name": "Taranto Systems",
+     "url": "https://modaxo.com/our-brands/taranto-systems/index.html"
+    },
+    {
+     "name": "TransLoc",
+     "url": "https://modaxo.com/our-brands/transloc/index.html"
+    },
+    {
+     "name": "TransTrack",
+     "url": "https://modaxo.com/our-brands/transtrack/index.html"
+    },
+    {
+     "name": "Trapeze Group",
+     "url": "https://modaxo.com/our-brands/trapeze-group/index.html"
+    },
+    {
+     "name": "Trellint",
+     "url": "https://modaxo.com/our-brands/trellint/index.html"
+    },
+    {
+     "name": "TripSpark",
+     "url": "https://modaxo.com/our-brands/tripspark/index.html"
+    },
+    {
+     "name": "unitSTS",
+     "url": "https://modaxo.com/our-brands/unitsts/index.html"
+    },
+    {
+     "name": "Vontas",
+     "url": "https://modaxo.com/our-brands/vontas/index.html"
+    },
+    {
+     "name": "Voyagerr",
+     "url": "https://modaxo.com/our-brands/voyagerr/index.html"
+    },
+    {
+     "name": "Zelra",
+     "url": "https://modaxo.com/our-brands/zelra/index.html"
+    }
+   ]
+  },
+  "perseus": {
+   "updated": "2026-11-07",
+   "source": "https://csiperseus.com/portfolio/",
+   "companies": [
+    {
+     "name": "Auto-IT"
+    },
+    {
+     "name": "BuildTopia"
+    },
+    {
+     "name": "c-Systems"
+    },
+    {
+     "name": "Campana Systems"
+    },
+    {
+     "name": "Catalyst Computer Systems"
+    },
+    {
+     "name": "Charter Software"
+    },
+    {
+     "name": "Clinical Computing"
+    },
+    {
+     "name": "CONASYS"
+    },
+    {
+     "name": "Constellation Automotive Software"
+    },
+    {
+     "name": "Constellation HomeBuilder Systems"
+    },
+    {
+     "name": "DIS"
+    },
+    {
+     "name": "ediwise"
+    },
+    {
+     "name": "GoldCare"
+    },
+    {
+     "name": "Ibcos"
+    },
+    {
+     "name": "IDEAL"
+    },
+    {
+     "name": "IDS"
+    },
+    {
+     "name": "Infian"
+    },
+    {
+     "name": "LandDev"
+    },
+    {
+     "name": "Magstar"
+    },
+    {
+     "name": "MAJIQ"
+    },
+    {
+     "name": "Matrix"
+    },
+    {
+     "name": "Mediqal H.I."
+    },
+    {
+     "name": "MIQS"
+    },
+    {
+     "name": "MOPSsys"
+    },
+    {
+     "name": "NEWSTAR"
+    },
+    {
+     "name": "OPTIVIQ Inc."
+    },
+    {
+     "name": "POMS"
+    },
+    {
+     "name": "QMS"
+    },
+    {
+     "name": "R.O. Writer"
+    },
+    {
+     "name": "Renal Insights"
+    },
+    {
+     "name": "Sales1440"
+    },
+    {
+     "name": "Starkwood"
+    },
+    {
+     "name": "WinTech"
+    },
+    {
+     "name": "Woodland, O’Brien & Scott"
+    }
+   ]
+  },
+  "andromeda": {
+   "updated": "2026-11-07",
+   "source": "https://www.csiandromeda.com/our-portfolio",
+   "companies": [
+    {
+     "name": "Autosoft",
+     "url": "https://www.autosoftdynamics.com/"
+    },
+    {
+     "name": "Axacore",
+     "url": "https://www.axacore.com/"
+    },
+    {
+     "name": "Baynet World",
+     "url": "https://www.constellationws.com/baynet/"
+    },
+    {
+     "name": "Birdview",
+     "url": "https://constellation1.com/"
+    },
+    {
+     "name": "cake",
+     "url": "https://getcake.com/"
+    },
+    {
+     "name": "Constellation Data Labs",
+     "url": "http://www.cdatalabs.com"
+    },
+    {
+     "name": "Constellation Financial Software",
+     "url": "https://constellationfs.com/"
+    },
+    {
+     "name": "Constellation Mortgage",
+     "url": "https://constellationmortgagesolutions.com/"
+    },
+    {
+     "name": "Constellation Web Solutions",
+     "url": "https://www.constellationreg.com/"
+    },
+    {
+     "name": "Constellation1",
+     "url": "https://constellation1.com/"
+    },
+    {
+     "name": "Contour",
+     "url": "https://contour-software.com/"
+    },
+    {
+     "name": "Covaleyo",
+     "url": "https://www.covaleyo.com/"
+    },
+    {
+     "name": "Dark Matter",
+     "url": "https://dmatter.com/"
+    },
+    {
+     "name": "Diverse Solutions",
+     "url": "https://www.diversesolutions.com/"
+    },
+    {
+     "name": "emphasys",
+     "url": "https://constellation1.com/back-office/commissions/"
+    },
+    {
+     "name": "Enspire",
+     "url": "https://enspireforenterprise.com/"
+    },
+    {
+     "name": "Market Leader",
+     "url": "https://www.marketleader.com/"
+    },
+    {
+     "name": "offrs",
+     "url": "https://offrs.com/index.cfm"
+    },
+    {
+     "name": "Paradym",
+     "url": "https://www.paradym.com/"
+    },
+    {
+     "name": "Red real estate digital",
+     "url": "https://constellation1.com/front-office/websites/"
+    },
+    {
+     "name": "Relocation Specialist",
+     "url": "https://constellation1.com/"
+    },
+    {
+     "name": "ReverseVision",
+     "url": "https://constellationmortgagesolutions.com/reversevision-los/"
+    },
+    {
+     "name": "Select a pension",
+     "url": "https://www.selectapension.com"
+    },
+    {
+     "name": "Sharper Agent",
+     "url": "https://www.marketleader.com/"
+    },
+    {
+     "name": "Showcase IDX",
+     "url": "https://showcaseidx.com/"
+    },
+    {
+     "name": "Top Producer",
+     "url": "https://www.topproducer.com/"
+    },
+    {
+     "name": "torchx",
+     "url": "https://torchx.com/"
+    },
+    {
+     "name": "TUNE",
+     "url": "https://www.tune.com/"
+    },
+    {
+     "name": "Untitled design (42)",
+     "url": "https://smartzip.com/"
+    },
+    {
+     "name": "Virtual Properties",
+     "url": "https://constellation1.com/"
+    },
+    {
+     "name": "z57",
+     "url": "https://z57.com/"
+    },
+    {
+     "name": "Zurple",
+     "url": "https://zurple.com/"
+    }
+   ]
+  },
+  "vela": {
+   "updated": "2026-11-07",
+   "source": "https://velasoftwaregroup.com/portfolio/",
+   "companies": [
+    {
+     "name": "a-w.com",
+     "url": "https://a-w.com",
+     "vertical": "Glass, Windows, and Doors"
+    },
+    {
+     "name": "accredo.co.nz",
+     "url": "https://accredo.co.nz",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "acquire.com.au",
+     "url": "https://acquire.com.au",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "asaauto.com",
+     "url": "https://asaauto.com",
+     "vertical": "Automotive"
+    },
+    {
+     "name": "ascsoftware.com",
+     "url": "https://ascsoftware.com",
+     "vertical": "Logistics, Supply Chain, and Warehouse Management"
+    },
+    {
+     "name": "atex.com",
+     "url": "https://atex.com",
+     "vertical": "Publishing"
+    },
+    {
+     "name": "aurum.com.br",
+     "url": "https://aurum.com.br",
+     "vertical": "Legal Tech"
+    },
+    {
+     "name": "avaloninformatica.com",
+     "url": "https://avaloninformatica.com",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "bitec.de",
+     "url": "https://bitec.de",
+     "vertical": "Glass, Windows, and Doors"
+    },
+    {
+     "name": "cadretech.com",
+     "url": "https://cadretech.com",
+     "vertical": "Logistics, Supply Chain, and Warehouse Management"
+    },
+    {
+     "name": "centricminingsystems.com",
+     "url": "https://centricminingsystems.com",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "compusense.com",
+     "url": "https://compusense.com",
+     "vertical": "CPG"
+    },
+    {
+     "name": "coresense.com",
+     "url": "https://coresense.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "coresoft.com.au",
+     "url": "https://coresoft.com.au",
+     "vertical": "Nonprofit / Industry Associations"
+    },
+    {
+     "name": "crescentone.com",
+     "url": "https://crescentone.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "dataminesoftware.com",
+     "url": "https://dataminesoftware.com",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "e-logimax.com",
+     "url": "https://e-logimax.com",
+     "vertical": "Logistics, Supply Chain, and Warehouse Management"
+    },
+    {
+     "name": "elmtreesystem.com",
+     "url": "https://elmtreesystem.com",
+     "vertical": "Construction & Engineering"
+    },
+    {
+     "name": "epicloansystems.com",
+     "url": "https://epicloansystems.com",
+     "vertical": "Financial Services & Insurance"
+    },
+    {
+     "name": "factivity.com",
+     "url": "https://factivity.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "facton.com",
+     "url": "https://facton.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "fameinc.com",
+     "url": "https://fameinc.com",
+     "vertical": "Education"
+    },
+    {
+     "name": "fbsaust.com.au",
+     "url": "https://fbsaust.com.au",
+     "vertical": "Textile & Apparel"
+    },
+    {
+     "name": "fieldviewcfd.com",
+     "url": "https://fieldviewcfd.com",
+     "vertical": "Construction & Engineering"
+    },
+    {
+     "name": "flairbase.dataminesoftware.com",
+     "url": "https://flairbase.dataminesoftware.com",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "foresiight.com.au",
+     "url": "https://foresiight.com.au",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "freestylesolutions.com",
+     "url": "https://freestylesolutions.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "friedmancorp.com",
+     "url": "https://friedmancorp.com",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "gewatec.com",
+     "url": "https://gewatec.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "gm-soft.com",
+     "url": "https://gm-soft.com",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "gnt-systems.com",
+     "url": "https://gnt-systems.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "independentsolutions.com.au",
+     "url": "https://independentsolutions.com.au",
+     "vertical": "Retail"
+    },
+    {
+     "name": "industrios.com",
+     "url": "https://industrios.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "infocorp.com.uy",
+     "url": "https://infocorp.com.uy",
+     "vertical": "Financial Services & Insurance"
+    },
+    {
+     "name": "infoprojekt.hr",
+     "url": "https://infoprojekt.hr",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "interica.com",
+     "url": "https://interica.com",
+     "vertical": "Oil & Gas"
+    },
+    {
+     "name": "krispsystems.com",
+     "url": "https://krispsystems.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "kuriertecnologia.com.br",
+     "url": "https://kuriertecnologia.com.br",
+     "vertical": "Legal Tech"
+    },
+    {
+     "name": "mainpac.com",
+     "url": "https://mainpac.com",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "markinson.com.au",
+     "url": "https://markinson.com.au",
+     "vertical": "Logistics, Supply Chain, and Warehouse Management"
+    },
+    {
+     "name": "minemax.com",
+     "url": "https://minemax.com",
+     "vertical": "Metals and Mining"
+    },
+    {
+     "name": "mosaicprms.com",
+     "url": "https://mosaicprms.com",
+     "vertical": "Oil & Gas"
+    },
+    {
+     "name": "navarik.com",
+     "url": "https://navarik.com",
+     "vertical": "Oil & Gas"
+    },
+    {
+     "name": "optosoftware.com.au",
+     "url": "https://optosoftware.com.au",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "pacecomputer.com",
+     "url": "https://pacecomputer.com",
+     "vertical": "Automotive"
+    },
+    {
+     "name": "petrosys.com.au",
+     "url": "https://petrosys.com.au",
+     "vertical": "Oil & Gas"
+    },
+    {
+     "name": "pmcsoftware.com",
+     "url": "https://pmcsoftware.com",
+     "vertical": "Glass, Windows, and Doors"
+    },
+    {
+     "name": "proshipinc.com",
+     "url": "https://proshipinc.com",
+     "vertical": "Logistics, Supply Chain, and Warehouse Management"
+    },
+    {
+     "name": "proxia.com",
+     "url": "https://proxia.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "shoplogix.com",
+     "url": "https://shoplogix.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "spectraqest.com",
+     "url": "https://spectraqest.com",
+     "vertical": "Construction & Engineering"
+    },
+    {
+     "name": "statease.com",
+     "url": "https://statease.com",
+     "vertical": "Construction & Engineering"
+    },
+    {
+     "name": "surefiresystems.com",
+     "url": "https://surefiresystems.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "svamplus.com.hr",
+     "url": "https://svamplus.com.hr",
+     "vertical": "ERP/Horizontal"
+    },
+    {
+     "name": "sympac.com.au",
+     "url": "https://sympac.com.au",
+     "vertical": "Retail"
+    },
+    {
+     "name": "tecplot.com",
+     "url": "https://tecplot.com",
+     "vertical": "Construction & Engineering"
+    },
+    {
+     "name": "thinkcei.com",
+     "url": "https://thinkcei.com",
+     "vertical": "Multi-vertical"
+    },
+    {
+     "name": "tpfsoftware.com",
+     "url": "https://tpfsoftware.com",
+     "vertical": "Travel"
+    },
+    {
+     "name": "volocommerce.com",
+     "url": "https://volocommerce.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "vortx.com",
+     "url": "https://vortx.com",
+     "vertical": "Retail"
+    },
+    {
+     "name": "windflite.com",
+     "url": "https://windflite.com",
+     "vertical": "Glass, Windows, and Doors"
+    },
+    {
+     "name": "winpro.be",
+     "url": "https://winpro.be",
+     "vertical": "Glass, Windows, and Doors"
+    },
+    {
+     "name": "xavannah.com",
+     "url": "https://xavannah.com",
+     "vertical": "Manufacturing"
+    },
+    {
+     "name": "xdata.com",
+     "url": "https://xdata.com",
+     "vertical": "ERP/Horizontal"
+    }
+   ]
+  },
+  "jonas": {
+   "updated": "2026-11-07",
+   "source": "https://jonassoftware.com/our-companies",
+   "companies": [
+    {
+     "name": "123Signup",
+     "url": "https://jonassoftware.com/companies/123signup"
+    },
+    {
+     "name": "4GL Solutions",
+     "url": "https://jonassoftware.com/companies/4gl-solutions"
+    },
+    {
+     "name": "97Display",
+     "url": "https://jonassoftware.com/companies/97display"
+    },
+    {
+     "name": "Aava Software",
+     "url": "https://jonassoftware.com/companies/aava-software"
+    },
+    {
+     "name": "Achiga",
+     "url": "https://jonassoftware.com/companies/achiga"
+    },
+    {
+     "name": "Amisoft",
+     "url": "https://jonassoftware.com/companies/amisoft"
+    },
+    {
+     "name": "AMT Sybex",
+     "url": "https://jonassoftware.com/companies/amt-sybex"
+    },
+    {
+     "name": "APESA Software",
+     "url": "https://jonassoftware.com/companies/apesa-software"
+    },
+    {
+     "name": "Aptech",
+     "url": "https://jonassoftware.com/companies/aptech"
+    },
+    {
+     "name": "Ariane Systems",
+     "url": "https://jonassoftware.com/companies/ariane-systems"
+    },
+    {
+     "name": "Ascente",
+     "url": "https://jonassoftware.com/companies/ascente"
+    },
+    {
+     "name": "ASF Payment Solutions",
+     "url": "https://jonassoftware.com/companies/asf-payment-solutions"
+    },
+    {
+     "name": "Automated Integration",
+     "url": "https://jonassoftware.com/companies/automated-integration"
+    },
+    {
+     "name": "B4Checkin",
+     "url": "https://jonassoftware.com/companies/b4checkin"
+    },
+    {
+     "name": "BEC Legal Systems",
+     "url": "https://jonassoftware.com/companies/bec-legal-systems"
+    },
+    {
+     "name": "Béker-Soft",
+     "url": "https://jonassoftware.com/companies/beker-soft"
+    },
+    {
+     "name": "Benbria",
+     "url": "https://jonassoftware.com/companies/benbria"
+    },
+    {
+     "name": "Blackbox Control",
+     "url": "https://jonassoftware.com/companies/blackbox-control"
+    },
+    {
+     "name": "Bluestar Software",
+     "url": "https://jonassoftware.com/companies/bluestar-software"
+    },
+    {
+     "name": "BookAssist",
+     "url": "https://jonassoftware.com/companies/bookassist"
+    },
+    {
+     "name": "Brainbase",
+     "url": "https://jonassoftware.com/companies/brainbase"
+    },
+    {
+     "name": "C-SAM",
+     "url": "https://jonassoftware.com/companies/c-sam"
+    },
+    {
+     "name": "C&R Software",
+     "url": "https://jonassoftware.com/companies/cr-software"
+    },
+    {
+     "name": "CampSite",
+     "url": "https://jonassoftware.com/companies/campsite"
+    },
+    {
+     "name": "CAP2",
+     "url": "https://jonassoftware.com/companies/cap2-solutions"
+    },
+    {
+     "name": "Carlson Marketing Solutions",
+     "url": "https://jonassoftware.com/companies/carlson-marketing-solutions"
+    },
+    {
+     "name": "CAST Group of Companies",
+     "url": "https://jonassoftware.com/companies/cast-group"
+    },
+    {
+     "name": "Centaman",
+     "url": "https://jonassoftware.com/companies/centaman-2"
+    },
+    {
+     "name": "Chameleon Software",
+     "url": "https://jonassoftware.com/companies/chameleon-software"
+    },
+    {
+     "name": "Club Caddie",
+     "url": "https://jonassoftware.com/companies/club-caddie"
+    },
+    {
+     "name": "Club OS",
+     "url": "https://jonassoftware.com/companies/club-os"
+    },
+    {
+     "name": "Club Systems Africa",
+     "url": "https://jonassoftware.com/companies/club-systems-africa"
+    },
+    {
+     "name": "ClubHouse Online",
+     "url": "https://jonassoftware.com/companies/clubhouse-online"
+    },
+    {
+     "name": "ClubMinder",
+     "url": "https://jonassoftware.com/companies/clubminder"
+    },
+    {
+     "name": "ClubPay",
+     "url": "https://jonassoftware.com/companies/clubpay"
+    },
+    {
+     "name": "Clubsystems Group",
+     "url": "https://jonassoftware.com/companies/clubsystems-group"
+    },
+    {
+     "name": "ClubWise",
+     "url": "https://jonassoftware.com/companies/clubwise"
+    },
+    {
+     "name": "Common CENTS Solutions",
+     "url": "https://jonassoftware.com/companies/common-cents-solutions"
+    },
+    {
+     "name": "CompuMove Systems Corporation",
+     "url": "https://jonassoftware.com/companies/compumove-systems-corporation"
+    },
+    {
+     "name": "Computrition",
+     "url": "https://jonassoftware.com/companies/computrition"
+    },
+    {
+     "name": "Constellation Payments",
+     "url": "https://jonassoftware.com/companies/constellation-payments"
+    },
+    {
+     "name": "Contronics",
+     "url": "https://jonassoftware.com/companies/contronics-ltd"
+    },
+    {
+     "name": "Cornerstone Billing Solutions",
+     "url": "https://jonassoftware.com/companies/cornerstone-billing-solutions"
+    },
+    {
+     "name": "Corum Health",
+     "url": "https://jonassoftware.com/companies/corum-health"
+    },
+    {
+     "name": "CRB Cunninghams",
+     "url": "https://jonassoftware.com/companies/crb-cunninghams"
+    },
+    {
+     "name": "Critical Impact",
+     "url": "https://jonassoftware.com/companies/critical-impact"
+    },
+    {
+     "name": "Cunninghams EPOS Group",
+     "url": "https://jonassoftware.com/companies/cunninghams-epos-group"
+    },
+    {
+     "name": "Data Basics Inc",
+     "url": "https://jonassoftware.com/companies/data-basics"
+    },
+    {
+     "name": "Dataflow Events",
+     "url": "https://jonassoftware.com/companies/dataflow-events"
+    },
+    {
+     "name": "Datalogic Software",
+     "url": "https://jonassoftware.com/companies/datalogic"
+    },
+    {
+     "name": "DFM",
+     "url": "https://jonassoftware.com/companies/dfm-offers"
+    },
+    {
+     "name": "Dynamiq",
+     "url": "https://jonassoftware.com/companies/dynamiq"
+    },
+    {
+     "name": "Easit AB",
+     "url": "https://jonassoftware.com/companies/easit-ab"
+    },
+    {
+     "name": "EasyTrace",
+     "url": "https://jonassoftware.com/companies/easytrace"
+    },
+    {
+     "name": "eFit Financial",
+     "url": "https://jonassoftware.com/companies/efit-financial"
+    },
+    {
+     "name": "ePOS Group Ltd",
+     "url": "https://jonassoftware.com/companies/epos-group-ltd"
+    },
+    {
+     "name": "EWS",
+     "url": "https://jonassoftware.com/companies/ews"
+    },
+    {
+     "name": "Ez-Runner",
+     "url": "https://jonassoftware.com/companies/ez-runners-leading-software-solution"
+    },
+    {
+     "name": "EZFacility",
+     "url": "https://jonassoftware.com/companies/ezfacility"
+    },
+    {
+     "name": "Ezy Systems",
+     "url": "https://jonassoftware.com/companies/ezy-systems"
+    },
+    {
+     "name": "Fashion Master",
+     "url": "https://jonassoftware.com/companies/fashion-master"
+    },
+    {
+     "name": "Frontline Solutions",
+     "url": "https://jonassoftware.com/companies/frontline"
+    },
+    {
+     "name": "GeneXus Consulting",
+     "url": "https://jonassoftware.com/companies/genexus-consulting"
+    },
+    {
+     "name": "GEOCOM",
+     "url": "https://jonassoftware.com/companies/geocom"
+    },
+    {
+     "name": "Gladstone Education",
+     "url": "https://jonassoftware.com/companies/gladstone-education"
+    },
+    {
+     "name": "Gladstone Health & Leisure",
+     "url": "https://jonassoftware.com/companies/gladstone"
+    },
+    {
+     "name": "Green 4",
+     "url": "https://jonassoftware.com/companies/green-4"
+    },
+    {
+     "name": "Greycon",
+     "url": "https://jonassoftware.com/companies/greycon"
+    },
+    {
+     "name": "GSoft",
+     "url": "https://jonassoftware.com/companies/gsoft"
+    },
+    {
+     "name": "GuestVision",
+     "url": "https://jonassoftware.com/companies/guestvision"
+    },
+    {
+     "name": "Halo Leisure Enterprise Ltd.",
+     "url": "https://jonassoftware.com/companies/halo-leisure-enterprise-ltd"
+    },
+    {
+     "name": "Happen",
+     "url": "https://jonassoftware.com/companies/happen"
+    },
+    {
+     "name": "HavenStar",
+     "url": "https://jonassoftware.com/companies/havenstar"
+    },
+    {
+     "name": "Healthpoint",
+     "url": "https://jonassoftware.com/companies/healthpoint"
+    },
+    {
+     "name": "Hellenic Systems Ltd.",
+     "url": "https://jonassoftware.com/companies/hellenic"
+    },
+    {
+     "name": "Hessel Group Ltd",
+     "url": "https://jonassoftware.com/companies/hessel-group"
+    },
+    {
+     "name": "Huntington Business Systems (\"HBS\")",
+     "url": "https://jonassoftware.com/companies/huntington-business-systems"
+    },
+    {
+     "name": "Imaginet Ltd",
+     "url": "https://jonassoftware.com/companies/imaginet-limited"
+    },
+    {
+     "name": "Impos",
+     "url": "https://jonassoftware.com/companies/impos"
+    },
+    {
+     "name": "Ineo",
+     "url": "https://jonassoftware.com/companies/ineo"
+    },
+    {
+     "name": "Infomax",
+     "url": "https://jonassoftware.com/companies/infomax"
+    },
+    {
+     "name": "Infoscience Limited",
+     "url": "https://jonassoftware.com/companies/infoscience-limited"
+    },
+    {
+     "name": "InnoSoft",
+     "url": "https://jonassoftware.com/companies/innosoft"
+    },
+    {
+     "name": "InReach LLC",
+     "url": "https://jonassoftware.com/companies/inreach-llc"
+    },
+    {
+     "name": "Intelligent Counting",
+     "url": "https://jonassoftware.com/companies/intelligent-counting"
+    },
+    {
+     "name": "Intersoft Systems",
+     "url": "https://jonassoftware.com/companies/intersoft-systems"
+    },
+    {
+     "name": "Invotech",
+     "url": "https://jonassoftware.com/companies/invotech"
+    },
+    {
+     "name": "iSalon",
+     "url": "https://jonassoftware.com/companies/isalon"
+    },
+    {
+     "name": "ITWERCS",
+     "url": "https://jonassoftware.com/companies/itwercs"
+    },
+    {
+     "name": "Jonas Chorum",
+     "url": "https://jonassoftware.com/companies/multi-systems"
+    },
+    {
+     "name": "Jonas Club Software",
+     "url": "https://jonassoftware.com/companies/jonas-club-software"
+    },
+    {
+     "name": "Jonas Construction",
+     "url": "https://jonassoftware.com/companies/jonas-construction"
+    },
+    {
+     "name": "Jonas Event Technology",
+     "url": "https://jonassoftware.com/companies/jonas-event-technology"
+    },
+    {
+     "name": "Jonas Fitness",
+     "url": "https://jonassoftware.com/companies/jonas-fitness"
+    },
+    {
+     "name": "Jonas Leisure",
+     "url": "https://jonassoftware.com/companies/jonas-leisure"
+    },
+    {
+     "name": "Jonas Metals USA",
+     "url": "https://jonassoftware.com/companies/compusource-2"
+    },
+    {
+     "name": "Jonas Premier",
+     "url": "https://jonassoftware.com/companies/jonas-premier"
+    },
+    {
+     "name": "K2B",
+     "url": "https://jonassoftware.com/companies/k2b"
+    },
+    {
+     "name": "Kahootz",
+     "url": "https://jonassoftware.com/companies/kahootz"
+    },
+    {
+     "name": "Kestral",
+     "url": "https://jonassoftware.com/companies/kestral"
+    },
+    {
+     "name": "Kitomba",
+     "url": "https://jonassoftware.com/companies/kitomba"
+    },
+    {
+     "name": "Kobas",
+     "url": "https://jonassoftware.com/companies/kobas-acquired-by-jonas-2025"
+    },
+    {
+     "name": "Lean Industries",
+     "url": "https://jonassoftware.com/companies/lean-industries"
+    },
+    {
+     "name": "Leonardo",
+     "url": "https://jonassoftware.com/companies/leonardo"
+    },
+    {
+     "name": "LilYPad POS",
+     "url": "https://jonassoftware.com/companies/lilypad-pos"
+    },
+    {
+     "name": "LRS Health",
+     "url": "https://jonassoftware.com/companies/lrs-health"
+    },
+    {
+     "name": "MachineMax",
+     "url": "https://jonassoftware.com/companies/machinemax"
+    },
+    {
+     "name": "McCarthys",
+     "url": "https://jonassoftware.com/companies/mccarthys"
+    },
+    {
+     "name": "MCR",
+     "url": "https://jonassoftware.com/companies/mcr"
+    },
+    {
+     "name": "MedAdvisor Solutions (ANZ Division)",
+     "url": "https://jonassoftware.com/companies/medadvisor-solutions-anz"
+    },
+    {
+     "name": "medQ Inc.",
+     "url": "https://jonassoftware.com/companies/medq-inc"
+    },
+    {
+     "name": "Member Solutions",
+     "url": "https://jonassoftware.com/companies/member-solutions"
+    },
+    {
+     "name": "MembersFirst",
+     "url": "https://jonassoftware.com/companies/membersfirst"
+    },
+    {
+     "name": "Metalogic",
+     "url": "https://jonassoftware.com/companies/metalogic"
+    },
+    {
+     "name": "MetricsFirst",
+     "url": "https://jonassoftware.com/companies/metricsfirst"
+    },
+    {
+     "name": "MiGym",
+     "url": "https://jonassoftware.com/companies/migym"
+    },
+    {
+     "name": "Mine Tech Services (’MTS’)",
+     "url": "https://jonassoftware.com/companies/mts"
+    },
+    {
+     "name": "MINTclass",
+     "url": "https://jonassoftware.com/companies/mintclass"
+    },
+    {
+     "name": "mJobTime",
+     "url": "https://jonassoftware.com/companies/mjobtime"
+    },
+    {
+     "name": "Monarq RC",
+     "url": "https://jonassoftware.com/companies/monarq-rc"
+    },
+    {
+     "name": "Motion Software",
+     "url": "https://jonassoftware.com/companies/motion-software"
+    },
+    {
+     "name": "MWC Partners",
+     "url": "https://jonassoftware.com/companies/mwc-partners"
+    },
+    {
+     "name": "My PT Hub",
+     "url": "https://jonassoftware.com/companies/my-pt-hub"
+    },
+    {
+     "name": "myCAMPapp",
+     "url": "https://jonassoftware.com/companies/mycampapp"
+    },
+    {
+     "name": "MyMediaBox",
+     "url": "https://jonassoftware.com/companies/mymediabox"
+    },
+    {
+     "name": "MySkillChart",
+     "url": "https://jonassoftware.com/companies/myskillchart"
+    },
+    {
+     "name": "Newline ASP",
+     "url": "https://jonassoftware.com/companies/newline"
+    },
+    {
+     "name": "Nodum Argentina",
+     "url": "https://jonassoftware.com/companies/nodum-argentina"
+    },
+    {
+     "name": "Nodum Software",
+     "url": "https://jonassoftware.com/companies/nodum-software"
+    },
+    {
+     "name": "Nutrition Complete",
+     "url": "https://jonassoftware.com/companies/nutrition-complete"
+    },
+    {
+     "name": "Omniterm",
+     "url": "https://jonassoftware.com/companies/omniterm"
+    },
+    {
+     "name": "OnTap Data",
+     "url": "https://jonassoftware.com/companies/ontap-data"
+    },
+    {
+     "name": "Orion",
+     "url": "https://jonassoftware.com/companies/orion"
+    },
+    {
+     "name": "Outbound Software",
+     "url": "https://jonassoftware.com/companies/outbound-software"
+    },
+    {
+     "name": "Pacsoft",
+     "url": "https://jonassoftware.com/companies/pacsoft"
+    },
+    {
+     "name": "PayGate",
+     "url": "https://jonassoftware.com/companies/paygate"
+    },
+    {
+     "name": "PCI Systems",
+     "url": "https://jonassoftware.com/companies/pci-systems"
+    },
+    {
+     "name": "Pike13",
+     "url": "https://jonassoftware.com/companies/pike13"
+    },
+    {
+     "name": "Power2SMS Limited",
+     "url": "https://jonassoftware.com/companies/power2sms-limited"
+    },
+    {
+     "name": "PowerTrack",
+     "url": "https://jonassoftware.com/companies/powertrack"
+    },
+    {
+     "name": "Private Club Network",
+     "url": "https://jonassoftware.com/companies/private-club-network"
+    },
+    {
+     "name": "ProviderSoft",
+     "url": "https://jonassoftware.com/companies/providersoft"
+    },
+    {
+     "name": "Pulse Club Computers",
+     "url": "https://jonassoftware.com/companies/pulse-club-computers"
+    },
+    {
+     "name": "PVX Plus Technologies Ltd.",
+     "url": "https://jonassoftware.com/companies/pvx-plus"
+    },
+    {
+     "name": "QuickQube",
+     "url": "https://jonassoftware.com/companies/quickqube"
+    },
+    {
+     "name": "Qwantec Ingenieria Limitada (“Qwantec”)",
+     "url": "https://jonassoftware.com/companies/qwantec"
+    },
+    {
+     "name": "RBRO Solutions Inc.",
+     "url": "https://jonassoftware.com/companies/rbro-solutions-inc"
+    },
+    {
+     "name": "Rental Car Manager",
+     "url": "https://jonassoftware.com/companies/rental-car-manager"
+    },
+    {
+     "name": "Resolve Software",
+     "url": "https://jonassoftware.com/companies/resolve-software-grou"
+    },
+    {
+     "name": "Retail & Sports Systems",
+     "url": "https://jonassoftware.com/companies/retail-sports-systems"
+    },
+    {
+     "name": "Retention Management",
+     "url": "https://jonassoftware.com/companies/retention-management"
+    },
+    {
+     "name": "RewardOps",
+     "url": "https://jonassoftware.com/companies/rewardops"
+    },
+    {
+     "name": "Rock Solid Knowledge",
+     "url": "https://jonassoftware.com/companies/rock-solid-knowledge"
+    },
+    {
+     "name": "SDA",
+     "url": "https://jonassoftware.com/companies/sda"
+    },
+    {
+     "name": "Seekom Limited",
+     "url": "https://jonassoftware.com/companies/seekom-limited"
+    },
+    {
+     "name": "Seiki Systems",
+     "url": "https://jonassoftware.com/companies/seiki-systems"
+    },
+    {
+     "name": "Shortcuts",
+     "url": "https://jonassoftware.com/companies/shortcuts"
+    },
+    {
+     "name": "SignMeUp",
+     "url": "https://jonassoftware.com/companies/signmeup-2"
+    },
+    {
+     "name": "Smyth Systems",
+     "url": "https://jonassoftware.com/companies/smyth-systems"
+    },
+    {
+     "name": "SpaSoft",
+     "url": "https://jonassoftware.com/companies/spasoft"
+    },
+    {
+     "name": "Springer Miller Systems",
+     "url": "https://jonassoftware.com/companies/springer-miller-systems"
+    },
+    {
+     "name": "SpringFour",
+     "url": "https://jonassoftware.com/companies/springfour"
+    },
+    {
+     "name": "SQiBLE",
+     "url": "https://jonassoftware.com/companies/sqible"
+    },
+    {
+     "name": "SupportAbility",
+     "url": "https://jonassoftware.com/companies/supportability"
+    },
+    {
+     "name": "Tangerine Global",
+     "url": "https://jonassoftware.com/companies/tangerine-global"
+    },
+    {
+     "name": "Teachworks",
+     "url": "https://jonassoftware.com/companies/teachwork"
+    },
+    {
+     "name": "TechMate International",
+     "url": "https://jonassoftware.com/companies/techmate-international"
+    },
+    {
+     "name": "The Retention People",
+     "url": "https://jonassoftware.com/companies/retention-people"
+    },
+    {
+     "name": "Theta Technologies Pty Ltd.",
+     "url": "https://jonassoftware.com/companies/theta-technologies"
+    },
+    {
+     "name": "Tracx Systems Ltd.",
+     "url": "https://jonassoftware.com/companies/tracx-systems-ltd"
+    },
+    {
+     "name": "Tucasi",
+     "url": "https://jonassoftware.com/companies/tucasi"
+    },
+    {
+     "name": "TurnPoint Software",
+     "url": "https://jonassoftware.com/companies/turnpoint-software"
+    },
+    {
+     "name": "UniOne",
+     "url": "https://jonassoftware.com/companies/unione"
+    },
+    {
+     "name": "Uniware",
+     "url": "https://jonassoftware.com/companies/uniware"
+    },
+    {
+     "name": "Uruware",
+     "url": "https://jonassoftware.com/companies/uruware"
+    },
+    {
+     "name": "Vans",
+     "url": "https://jonassoftware.com/companies/compusource-3"
+    },
+    {
+     "name": "Vanson Technology Services",
+     "url": "https://jonassoftware.com/companies/vanson-technology-services"
+    },
+    {
+     "name": "VetlinkPRO",
+     "url": "https://jonassoftware.com/companies/vetlinkpro"
+    },
+    {
+     "name": "Vizergy",
+     "url": "https://jonassoftware.com/companies/vizergy"
+    },
+    {
+     "name": "VMS",
+     "url": "https://jonassoftware.com/companies/vms"
+    },
+    {
+     "name": "Volanté",
+     "url": "https://jonassoftware.com/companies/volante"
+    },
+    {
+     "name": "Volo Innovations",
+     "url": "https://jonassoftware.com/companies/volo-innovations"
+    },
+    {
+     "name": "WebCreative UK",
+     "url": "https://jonassoftware.com/companies/webcreative-uk"
+    },
+    {
+     "name": "WebRecon",
+     "url": "https://jonassoftware.com/companies/webrecon"
+    },
+    {
+     "name": "WhatSalon",
+     "url": "https://jonassoftware.com/companies/whatsalon"
+    },
+    {
+     "name": "Wheatley Software Solutions",
+     "url": "https://jonassoftware.com/companies/wheatley-software-solutions"
+    },
+    {
+     "name": "Wine POS by ICS",
+     "url": "https://jonassoftware.com/companies/ics-computer-solutions"
+    },
+    {
+     "name": "WineFetch",
+     "url": "https://jonassoftware.com/companies/winefetch-2"
+    },
+    {
+     "name": "WM-data Deutschland GmbH",
+     "url": "https://jonassoftware.com/companies/wm-data-deutschland-gmbh"
+    },
+    {
+     "name": "XLerant",
+     "url": "https://jonassoftware.com/companies/xlerant"
+    },
+    {
+     "name": "Xn Leisure",
+     "url": "https://jonassoftware.com/companies/xn-leisure"
+    }
+   ]
+  },
+  "harris": {
+   "updated": "2026-11-07",
+   "source": "https://www.harriscomputer.com/",
+   "companies": [
+    {
+     "name": "Abilis Solutions",
+     "url": "https://www.harriscomputer.com/business-units/abilis-solutions"
+    },
+    {
+     "name": "Acceo",
+     "url": "https://www.harriscomputer.com/business-units/acceo"
+    },
+    {
+     "name": "ACCEO Retail",
+     "url": "https://www.harriscomputer.com/business-units/acceo-retail"
+    },
+    {
+     "name": "ACCEO SMB Solutions",
+     "url": "https://www.harriscomputer.com/business-units/acceo-smb-solutions"
+    },
+    {
+     "name": "ADL Data Systems",
+     "url": "https://www.harriscomputer.com/business-units/adl-data-systems"
+    },
+    {
+     "name": "Advanced Utility Systems",
+     "url": "https://www.harriscomputer.com/business-units/advanced-utility-systems"
+    },
+    {
+     "name": "Agency Software",
+     "url": "https://www.harriscomputer.com/business-units/agency-software"
+    },
+    {
+     "name": "AGO",
+     "url": "https://www.harriscomputer.com/business-units/ago"
+    },
+    {
+     "name": "AQS",
+     "url": "https://www.harriscomputer.com/business-units/aqs-2"
+    },
+    {
+     "name": "Aumentum Technologies",
+     "url": "https://www.harriscomputer.com/business-units/aumentum-technologies"
+    },
+    {
+     "name": "BobCAD-CAM",
+     "url": "https://www.harriscomputer.com/business-units/bobcad-cam"
+    },
+    {
+     "name": "Caliber Public Safety",
+     "url": "https://www.harriscomputer.com/business-units/caliber-public-safety"
+    },
+    {
+     "name": "Capitol Appraisal Group",
+     "url": "https://www.harriscomputer.com/business-units/capitol-appraisal-group"
+    },
+    {
+     "name": "Cayenta",
+     "url": "https://www.harriscomputer.com/business-units/cayenta"
+    },
+    {
+     "name": "CITSL",
+     "url": "https://www.harriscomputer.com/business-units/citsl"
+    },
+    {
+     "name": "CityView",
+     "url": "https://www.harriscomputer.com/business-units/cityview"
+    },
+    {
+     "name": "ClearDATA",
+     "url": "https://www.harriscomputer.com/business-units/cleardata"
+    },
+    {
+     "name": "Clinix",
+     "url": "https://www.harriscomputer.com/business-units/clinix"
+    },
+    {
+     "name": "COATS",
+     "url": "https://www.harriscomputer.com/business-units/coats"
+    },
+    {
+     "name": "Cognera",
+     "url": "https://www.harriscomputer.com/business-units/cognera"
+    },
+    {
+     "name": "Cogsdale",
+     "url": "https://www.harriscomputer.com/business-units/cogsdale"
+    },
+    {
+     "name": "Collain Healthcare",
+     "url": "https://www.harriscomputer.com/business-units/collain-healthcare"
+    },
+    {
+     "name": "Commerce Decisions",
+     "url": "https://www.harriscomputer.com/business-units/commerce-decisions"
+    },
+    {
+     "name": "Connecture",
+     "url": "https://www.harriscomputer.com/business-units/connecture"
+    },
+    {
+     "name": "Copernic",
+     "url": "https://www.harriscomputer.com/business-units/copernic"
+    },
+    {
+     "name": "Creditron",
+     "url": "https://www.harriscomputer.com/business-units/creditron"
+    },
+    {
+     "name": "Dakis",
+     "url": "https://www.harriscomputer.com/business-units/dakis"
+    },
+    {
+     "name": "DataVoice International",
+     "url": "https://www.harriscomputer.com/business-units/datavoice-international"
+    },
+    {
+     "name": "DigiChart",
+     "url": "https://www.harriscomputer.com/business-units/digichart"
+    },
+    {
+     "name": "Doc-tor",
+     "url": "https://www.harriscomputer.com/business-units/doc-tor"
+    },
+    {
+     "name": "DynaTouch",
+     "url": "https://www.harriscomputer.com/business-units/dynatouch"
+    },
+    {
+     "name": "Eagle Advantage Solutions",
+     "url": "https://www.harriscomputer.com/business-units/eagle-advantage-solutions"
+    },
+    {
+     "name": "ER Express",
+     "url": "https://www.harriscomputer.com/business-units/er-express"
+    },
+    {
+     "name": "Excelergy",
+     "url": "https://www.harriscomputer.com/business-units/excelergy"
+    },
+    {
+     "name": "Executive Information Services",
+     "url": "https://www.harriscomputer.com/business-units/executive-information-services"
+    },
+    {
+     "name": "Force Information Systems",
+     "url": "https://www.harriscomputer.com/business-units/force-information-systems"
+    },
+    {
+     "name": "Forensic Advantage Systems",
+     "url": "https://www.harriscomputer.com/business-units/forensic-advantage-systems"
+    },
+    {
+     "name": "FusionSoft",
+     "url": "https://www.harriscomputer.com/business-units/fusionsoft"
+    },
+    {
+     "name": "GEMMS",
+     "url": "https://www.harriscomputer.com/business-units/gemms"
+    },
+    {
+     "name": "Genial Genetics",
+     "url": "https://www.harriscomputer.com/business-units/genial-genetics"
+    },
+    {
+     "name": "Global Public Safety",
+     "url": "https://www.harriscomputer.com/business-units/global-public-safety"
+    },
+    {
+     "name": "GlobalMeet",
+     "url": "https://www.harriscomputer.com/business-units/globalmeet"
+    },
+    {
+     "name": "Globys",
+     "url": "https://www.harriscomputer.com/business-units/globys"
+    },
+    {
+     "name": "Gtechna",
+     "url": "https://www.harriscomputer.com/business-units/gtechna"
+    },
+    {
+     "name": "Harris Affinity",
+     "url": "https://www.harriscomputer.com/business-units/harris-affinity"
+    },
+    {
+     "name": "Harris Arc Health",
+     "url": "https://www.harriscomputer.com/business-units/harris-arc-health"
+    },
+    {
+     "name": "Harris CareTracker",
+     "url": "https://www.harriscomputer.com/business-units/harris-caretracker"
+    },
+    {
+     "name": "Harris Corrections",
+     "url": "https://www.harriscomputer.com/business-units/harris-corrections"
+    },
+    {
+     "name": "Harris Data Integrity Solutions",
+     "url": "https://www.harriscomputer.com/business-units/harris-data-integrity-solutions"
+    },
+    {
+     "name": "Harris Enterprise Resource Planning",
+     "url": "https://www.harriscomputer.com/business-units/harris-enterprise-resource-planning"
+    },
+    {
+     "name": "Harris Govern",
+     "url": "https://www.harriscomputer.com/business-units/harris-govern"
+    },
+    {
+     "name": "Harris Health Alliance",
+     "url": "https://www.harriscomputer.com/business-units/harris-health-alliance"
+    },
+    {
+     "name": "Harris Local Government",
+     "url": "https://www.harriscomputer.com/business-units/harris-local-government"
+    },
+    {
+     "name": "Harris OnPoint",
+     "url": "https://www.harriscomputer.com/business-units/harris-onpoint"
+    },
+    {
+     "name": "Harris Recording Solutions",
+     "url": "https://www.harriscomputer.com/business-units/harris-recording-solutions"
+    },
+    {
+     "name": "Harris School Solutions",
+     "url": "https://www.harriscomputer.com/business-units/harris-school-solutions"
+    },
+    {
+     "name": "Harris Secure Connect",
+     "url": "https://www.harriscomputer.com/business-units/harris-secure-connect"
+    },
+    {
+     "name": "Harris Utility Consumer Analytics",
+     "url": "https://www.harriscomputer.com/business-units/harris-utility-consumer-analytics"
+    },
+    {
+     "name": "HighRoads",
+     "url": "https://www.harriscomputer.com/business-units/highroads"
+    },
+    {
+     "name": "HOPEM",
+     "url": "https://www.harriscomputer.com/business-units/hopem"
+    },
+    {
+     "name": "I2",
+     "url": "https://www.harriscomputer.com/business-units/i2"
+    },
+    {
+     "name": "Iatric Systems",
+     "url": "https://www.harriscomputer.com/business-units/iatric-systems"
+    },
+    {
+     "name": "ICarol",
+     "url": "https://www.harriscomputer.com/business-units/icarol"
+    },
+    {
+     "name": "IMDsoft",
+     "url": "https://www.harriscomputer.com/business-units/imdsoft"
+    },
+    {
+     "name": "Informat",
+     "url": "https://www.harriscomputer.com/business-units/informat"
+    },
+    {
+     "name": "Ingenious Med",
+     "url": "https://www.harriscomputer.com/business-units/ingenious-med"
+    },
+    {
+     "name": "InHANCE",
+     "url": "https://www.harriscomputer.com/business-units/inhance"
+    },
+    {
+     "name": "Intedata",
+     "url": "https://www.harriscomputer.com/business-units/intedata"
+    },
+    {
+     "name": "Integrative",
+     "url": "https://www.harriscomputer.com/business-units/integrative"
+    },
+    {
+     "name": "Interfile",
+     "url": "https://www.harriscomputer.com/business-units/interfile"
+    },
+    {
+     "name": "Ivrnet",
+     "url": "https://www.harriscomputer.com/business-units/ivrnet"
+    },
+    {
+     "name": "Just Associates",
+     "url": "https://www.harriscomputer.com/business-units/just-associates"
+    },
+    {
+     "name": "K2 Medical Systems",
+     "url": "https://www.harriscomputer.com/business-units/k2-medical-systems"
+    },
+    {
+     "name": "MACC",
+     "url": "https://www.harriscomputer.com/business-units/macc"
+    },
+    {
+     "name": "MEDHOST",
+     "url": "https://www.harriscomputer.com/business-units/medhost"
+    },
+    {
+     "name": "MediSolution",
+     "url": "https://www.harriscomputer.com/business-units/medisolution"
+    },
+    {
+     "name": "Medstreaming",
+     "url": "https://www.harriscomputer.com/business-units/medstreaming"
+    },
+    {
+     "name": "MEDTEAM",
+     "url": "https://www.harriscomputer.com/business-units/medteam"
+    },
+    {
+     "name": "Modyo",
+     "url": "https://www.harriscomputer.com/business-units/modyo"
+    },
+    {
+     "name": "MorCare",
+     "url": "https://www.harriscomputer.com/business-units/morcare"
+    },
+    {
+     "name": "Mquadr.at",
+     "url": "https://www.harriscomputer.com/business-units/mquadr-at"
+    },
+    {
+     "name": "NorthStar Utilities Solutions",
+     "url": "https://www.harriscomputer.com/business-units/northstar"
+    },
+    {
+     "name": "Novum",
+     "url": "https://www.harriscomputer.com/business-units/novum"
+    },
+    {
+     "name": "OBIX Perinatal Data System",
+     "url": "https://www.harriscomputer.com/business-units/obix-perinatal-data-system"
+    },
+    {
+     "name": "Onefile",
+     "url": "https://www.harriscomputer.com/business-units/onefile"
+    },
+    {
+     "name": "Partner Software",
+     "url": "https://www.harriscomputer.com/business-units/partner-software"
+    },
+    {
+     "name": "PG Solutions",
+     "url": "https://www.harriscomputer.com/business-units/pg-solutions"
+    },
+    {
+     "name": "Picis",
+     "url": "https://www.harriscomputer.com/business-units/picis"
+    },
+    {
+     "name": "Prime Clinical Systems",
+     "url": "https://www.harriscomputer.com/business-units/prime-clinical-systems"
+    },
+    {
+     "name": "PrismRBS",
+     "url": "https://www.harriscomputer.com/business-units/prismrbs"
+    },
+    {
+     "name": "PrognoCIS by bizmatics",
+     "url": "https://www.harriscomputer.com/business-units/prognocis-by-bizmatics"
+    },
+    {
+     "name": "Pulse",
+     "url": "https://www.harriscomputer.com/business-units/pulse"
+    },
+    {
+     "name": "PulseCheck",
+     "url": "https://www.harriscomputer.com/business-units/pulsecheck"
+    },
+    {
+     "name": "QRS Healthcare Solutions",
+     "url": "https://www.harriscomputer.com/business-units/qrs-healthcare-solutions"
+    },
+    {
+     "name": "QuadraMed",
+     "url": "https://www.harriscomputer.com/business-units/quadramed"
+    },
+    {
+     "name": "Questline Digital",
+     "url": "https://www.harriscomputer.com/business-units/questline-digital"
+    },
+    {
+     "name": "Quicksilva",
+     "url": "https://www.harriscomputer.com/business-units/quicksilva"
+    },
+    {
+     "name": "QuoteBurst",
+     "url": "https://www.harriscomputer.com/business-units/quoteburst"
+    },
+    {
+     "name": "Resolv Healthcare",
+     "url": "https://www.harriscomputer.com/business-units/resolv-healthcare"
+    },
+    {
+     "name": "Rialtas",
+     "url": "https://www.harriscomputer.com/business-units/rialtas"
+    },
+    {
+     "name": "RJ Hedges & Associates",
+     "url": "https://www.harriscomputer.com/business-units/rj-hedges-associates"
+    },
+    {
+     "name": "ServiceLink",
+     "url": "https://www.harriscomputer.com/business-units/servicelink"
+    },
+    {
+     "name": "SilverBlaze",
+     "url": "https://www.harriscomputer.com/business-units/silverblaze"
+    },
+    {
+     "name": "SirsiDynix",
+     "url": "https://www.harriscomputer.com/business-units/sirsidynix"
+    },
+    {
+     "name": "SIV",
+     "url": "https://www.harriscomputer.com/business-units/siv"
+    },
+    {
+     "name": "SmartCOP",
+     "url": "https://www.harriscomputer.com/business-units/smartcop"
+    },
+    {
+     "name": "SmartWorks",
+     "url": "https://www.harriscomputer.com/business-units/smartworks"
+    },
+    {
+     "name": "SpecSoft",
+     "url": "https://www.harriscomputer.com/business-units/specsoft"
+    },
+    {
+     "name": "STC Heatlh",
+     "url": "https://www.harriscomputer.com/business-units/stc-heatlh"
+    },
+    {
+     "name": "Syscon Justice Systems",
+     "url": "https://www.harriscomputer.com/business-units/syscon-justice-systems"
+    },
+    {
+     "name": "System Innovators",
+     "url": "https://www.harriscomputer.com/business-units/system-innovators"
+    },
+    {
+     "name": "Systems & Software",
+     "url": "https://www.harriscomputer.com/business-units/systems-software"
+    },
+    {
+     "name": "Tecvia",
+     "url": "https://www.harriscomputer.com/business-units/tecvia"
+    },
+    {
+     "name": "Tender Retail",
+     "url": "https://www.harriscomputer.com/business-units/tender-retail"
+    },
+    {
+     "name": "TouchBistro",
+     "url": "https://www.harriscomputer.com/business-units/touchbistro"
+    },
+    {
+     "name": "Trancite Logic Systems",
+     "url": "https://www.harriscomputer.com/business-units/trancite-logic-systems"
+    },
+    {
+     "name": "Vantrix",
+     "url": "https://www.harriscomputer.com/business-units/vantrix"
+    },
+    {
+     "name": "VLN Partners",
+     "url": "https://www.harriscomputer.com/business-units/vln-partners"
+    },
+    {
+     "name": "WestCX",
+     "url": "https://www.harriscomputer.com/business-units/westcx"
+    },
+    {
+     "name": "Xanalys",
+     "url": "https://www.harriscomputer.com/business-units/xanalys"
+    }
+   ]
+  }
+ },
+ "failed": []
+}

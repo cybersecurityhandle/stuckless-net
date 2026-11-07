@@ -19,7 +19,8 @@
     "refresh-fivefactor": "tsx scripts/refresh-fivefactor.ts",
     "refresh-isolation": "tsx scripts/refresh-isolation.ts",
     "watch-13f": "tsx scripts/watch-13f.ts",
-    "refresh-tss": "tsx scripts/refresh-tss.ts"
+    "refresh-tss": "tsx scripts/refresh-tss.ts",
+    "refresh-csu": "tsx scripts/refresh-csu.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
