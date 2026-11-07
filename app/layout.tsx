@@ -19,6 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://stuckless.net"),
+  // Google Search Console ownership (URL-prefix property https://stuckless.net/)
+  verification: { google: "0yWJq4jznSgMsgz6mA6XYfvKePq6ILXORerFg9sXCMw" },
   title: "Stuckless",
   description: "Personal hub for cybersecurity intelligence and more",
 };
