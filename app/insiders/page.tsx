@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { InsiderFeed } from "@/components/insider-feed";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/insiders" },
   title: "Insider Buys | Stuckless",
   description: "Open-market insider purchases from SEC Form 4 filings",
 };

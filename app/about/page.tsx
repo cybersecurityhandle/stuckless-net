@@ -5,6 +5,7 @@ const DESCRIPTION =
   "Daniel Stuckless: security engineer and pentester, founder of CyberLegionnaire. Security monitoring and defence for regulated financial clients; open-source security tools.";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: "About | Stuckless",
   description: DESCRIPTION,
   openGraph: {

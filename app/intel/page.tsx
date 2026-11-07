@@ -9,6 +9,7 @@ import { threatActors, threatActorsUpdated } from "@/lib/mitre";
 import { formatUtc } from "@/lib/severity";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/intel" },
   title: "Threat Intel | Stuckless",
   description:
     "Live threat intelligence: newest CVEs, actively exploited vulnerabilities, exploit probability, and threat actor profiles.",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BerkshireWeb } from "@/components/berkshire-web";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/berkshire" },
   title: "Berkshire Hathaway | Stuckless",
   description: "Everything Berkshire Hathaway owns: operating businesses, US stocks, stakes outside the 13F, and cash",
 };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { TopicusWeb } from "@/components/topicus-web";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/topicus" },
   title: "Topicus.com | Stuckless",
   description: "Everything Topicus.com owns: Topicus (NL), every TSS acquisition since 2016, and its stakes in Sygnity and Asseco",
 };

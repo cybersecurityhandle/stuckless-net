@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://stuckless.net"),
   title: "Stuckless",
   description: "Personal hub for cybersecurity intelligence and more",
 };

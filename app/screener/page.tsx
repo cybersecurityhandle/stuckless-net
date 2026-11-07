@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StockScreener } from "@/components/stock-screener";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/screener" },
   title: "Screener | Stuckless",
   description: "Stock quality screener — compare ROCE, margins, earnings growth, and buybacks",
 };

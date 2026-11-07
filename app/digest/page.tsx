@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { WeeklyDigest } from "@/components/weekly-digest";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/digest" },
   title: "Weekly Digest | Stuckless",
   description: "The last seven days: new 13Fs, superinvestor trades and stakes, cluster and insider buys",
 };

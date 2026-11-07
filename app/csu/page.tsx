@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CsuWeb } from "@/components/csu-web";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/csu" },
   title: "Constellation Software | Stuckless",
   description: "Everything Constellation Software owns: its nine operating groups and every company they list",
 };
