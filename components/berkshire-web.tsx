@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { issuerKey, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
 import { holdingsOutside13F } from "@/lib/major-holders";
 import { ACQUIRED, BUSINESSES_SOURCE, CASH, LETTERS_URL, SEGMENTS, WIKIPEDIA_URL, type Acquisition } from "@/lib/berkshire";
@@ -15,7 +15,7 @@ import { fmtMoney, fmtPct, fmtQuarter } from "@/components/superinvestors";
 
 type Branch = "business" | "stock" | "outside" | "cash";
 
-const BRANCHES: { id: Branch; label: string; color: string }[] = [
+const BRANCHES: (BranchStyle & { id: Branch })[] = [
   { id: "business", label: "Owned businesses", color: "var(--color-emerald-600)" },
   { id: "stock", label: "US stocks (13F)", color: "var(--color-sky-600)" },
   { id: "outside", label: "Stakes outside 13F", color: "var(--color-amber-600)" },
@@ -23,79 +23,12 @@ const BRANCHES: { id: Branch; label: string; color: string }[] = [
 ];
 const COLOR = Object.fromEntries(BRANCHES.map((b) => [b.id, b.color])) as Record<Branch, string>;
 
-interface TreeNode {
-  id: string;
-  label: string;
-  branch?: Branch;
-  detail?: string[]; // tooltip lines
-  href?: string;
-  children?: TreeNode[];
-}
-
-interface Placed {
-  node: TreeNode;
-  parent?: Placed;
-  depth: number;
-  angle: number; // radians, clockwise from 12 o'clock
-  r: number;
-  leaf: boolean;
-}
-
 interface StockRow {
   key: string;
   ticker: string | null;
   name: string;
   value: number;
   w: number;
-}
-
-const R_LEAF = 360;
-const RADII = [0, 105, 190, 270];
-const GAP_SLOTS = 2.5; // empty leaf slots between branches
-const PAD = 175; // room for leaf labels
-const SIZE = 2 * (R_LEAF + PAD);
-
-function polar(angle: number, r: number): [number, number] {
-  return [r * Math.sin(angle), -r * Math.cos(angle)];
-}
-
-// Leaves evenly round the circle, a gap between branches; each parent at the
-// middle of its children
-function layout(root: TreeNode): Placed[] {
-  const leaves: TreeNode[] = [];
-  const count = (n: TreeNode): number => (n.children?.length ? n.children.reduce((s, c) => s + count(c), 0) : 1);
-  const slots = count(root) + GAP_SLOTS * (root.children?.length ?? 0);
-  const step = (2 * Math.PI) / slots;
-  let cursor = GAP_SLOTS / 2;
-  const out: Placed[] = [];
-  const walk = (n: TreeNode, depth: number, parent?: Placed): Placed => {
-    const p: Placed = { node: n, parent, depth, angle: 0, r: 0, leaf: !n.children?.length };
-    out.push(p);
-    if (p.leaf) {
-      p.angle = (cursor + 0.5) * step;
-      cursor += 1;
-      p.r = R_LEAF;
-      leaves.push(n);
-    } else {
-      const kids = n.children!.map((c) => walk(c, depth + 1, p));
-      p.angle = (kids[0].angle + kids[kids.length - 1].angle) / 2;
-      p.r = RADII[Math.min(depth, RADII.length - 1)];
-    }
-    if (depth === 1) cursor += GAP_SLOTS;
-    return p;
-  };
-  walk(root, 0);
-  return out;
-}
-
-// Curved link: leave the parent radially, arrive at the child radially
-function linkPath(a: Placed, b: Placed) {
-  const mid = (a.r + b.r) / 2;
-  const [x0, y0] = polar(a.angle, a.r);
-  const [x1, y1] = polar(a.angle, mid);
-  const [x2, y2] = polar(b.angle, mid);
-  const [x3, y3] = polar(b.angle, b.r);
-  return `M${x0},${y0}C${x1},${y1} ${x2},${y2} ${x3},${y3}`;
 }
 
 function useBuffett() {
@@ -197,6 +130,7 @@ function buildTree(stocks: StockRow[], period: string, total: number): TreeNode 
           branch: "stock" as const,
           detail: [s.name, `${fmtMoney(s.value)} · ${fmtPct(s.w, 2)} of the 13F`],
           href: s.ticker ? `/finance?ticker=${encodeURIComponent(s.ticker)}` : undefined,
+          hint: "Click for the stock page",
         })),
       },
       {
@@ -210,6 +144,7 @@ function buildTree(stocks: StockRow[], period: string, total: number): TreeNode 
           branch: "outside" as const,
           detail: [`${h.ticker} · ${fmtPct(h.pct, 2)} of the company`, `as of ${h.asOf}`],
           href: `/finance?ticker=${encodeURIComponent(h.ticker)}`,
+          hint: "Click for the stock page",
         })),
       },
       {
@@ -233,139 +168,13 @@ export function BerkshireWeb() {
   const tree = buildTree(stocks, summary.period, summary.totalValue);
   return (
     <>
-      <Legend />
+      <Legend branches={BRANCHES} />
       <div className="hidden md:block">
-        <Web tree={tree} />
+        <HoldingsWeb tree={tree} branches={BRANCHES} label="Everything Berkshire Hathaway owns" />
       </div>
       <p className="mt-4 text-sm text-muted-foreground md:hidden">The web needs a wider screen; everything is listed below.</p>
       <Lists stocks={stocks} period={summary.period} total={summary.totalValue} />
     </>
-  );
-}
-
-function Legend() {
-  return (
-    <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
-      {BRANCHES.map((b) => (
-        <li key={b.id} className="flex items-center gap-1.5">
-          <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: b.color }} />
-          {b.label}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Web({ tree }: { tree: TreeNode }) {
-  const router = useRouter();
-  const placed = useMemo(() => layout(tree), [tree]);
-  const box = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState<{ p: Placed; x: number; y: number } | null>(null);
-
-  // Hovered node's ancestors and descendants stay lit
-  const lit = useMemo(() => {
-    if (!hover) return null;
-    const ids = new Set<string>();
-    for (let p: Placed | undefined = hover.p; p; p = p.parent) ids.add(p.node.id);
-    const down = (n: TreeNode) => {
-      ids.add(n.id);
-      n.children?.forEach(down);
-    };
-    down(hover.p.node);
-    return ids;
-  }, [hover]);
-
-  const enter = (p: Placed) => (e: React.MouseEvent | React.FocusEvent) => {
-    const rect = box.current!.getBoundingClientRect();
-    const target = (e.currentTarget as SVGGElement).getBoundingClientRect();
-    setHover({ p, x: target.left + target.width / 2 - rect.left, y: target.top - rect.top });
-  };
-
-  return (
-    <div ref={box} className="relative mx-auto mt-2 max-w-[1100px]" onMouseLeave={() => setHover(null)}>
-      <svg viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`} className="h-auto w-full" role="img" aria-label="Everything Berkshire Hathaway owns">
-        <g fill="none" strokeWidth={1.5}>
-          {placed
-            .filter((p) => p.parent)
-            .map((p) => (
-              <path
-                key={`l-${p.node.id}`}
-                d={linkPath(p.parent!, p)}
-                stroke={p.node.branch ? COLOR[p.node.branch] : "var(--muted-foreground)"}
-                strokeOpacity={lit ? (lit.has(p.node.id) && lit.has(p.parent!.node.id) ? 0.9 : 0.12) : 0.45}
-              />
-            ))}
-        </g>
-        {placed.map((p) => {
-          const [x, y] = polar(p.angle, p.r);
-          const deg = (p.angle * 180) / Math.PI;
-          const flip = deg > 180;
-          const color = p.node.branch ? COLOR[p.node.branch] : "var(--foreground)";
-          const dim = lit && !lit.has(p.node.id);
-          const size = p.depth === 0 ? 9 : p.leaf ? 4 : p.depth === 1 ? 7 : 5;
-          const go = p.node.href ? () => router.push(p.node.href!) : undefined;
-          return (
-            <g
-              key={p.node.id}
-              transform={`translate(${x},${y})`}
-              opacity={dim ? 0.25 : 1}
-              onMouseEnter={enter(p)}
-              onFocus={enter(p)}
-              onBlur={() => setHover(null)}
-              onClick={go}
-              onKeyDown={go ? (e) => e.key === "Enter" && go() : undefined}
-              tabIndex={go ? 0 : undefined}
-              role={go ? "link" : undefined}
-              aria-label={go ? p.node.label : undefined}
-              className={go ? "cursor-pointer outline-none" : undefined}
-            >
-              <circle r={12} fill="transparent" />
-              <circle r={size} fill={color} stroke="var(--background)" strokeWidth={2} />
-              {p.leaf ? (
-                <text
-                  transform={`rotate(${flip ? deg + 90 : deg - 90})`}
-                  x={flip ? -9 : 9}
-                  dy="0.32em"
-                  textAnchor={flip ? "end" : "start"}
-                  fontSize={11}
-                  fill="var(--foreground)"
-                >
-                  {p.node.label}
-                </text>
-              ) : (
-                <text
-                  y={p.depth === 0 ? 24 : -11}
-                  textAnchor="middle"
-                  fontSize={p.depth === 0 ? 15 : p.depth === 1 ? 13 : 11.5}
-                  fontWeight={p.depth <= 1 ? 600 : 500}
-                  fill="var(--foreground)"
-                  stroke="var(--background)"
-                  strokeWidth={4}
-                  strokeLinejoin="round"
-                  paintOrder="stroke"
-                >
-                  {p.node.label}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-      {hover && (
-        <div
-          className="pointer-events-none absolute z-10 w-max max-w-64 -translate-x-1/2 -translate-y-full rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-md"
-          style={{ left: hover.x, top: hover.y - 8 }}
-        >
-          <p className="font-medium text-foreground">{hover.p.node.label}</p>
-          {hover.p.node.detail?.map((line) => (
-            <p key={line} className="text-muted-foreground">
-              {line}
-            </p>
-          ))}
-          {hover.p.node.href && <p className="mt-1 text-muted-foreground">Click for the stock page</p>}
-        </div>
-      )}
-    </div>
   );
 }
 

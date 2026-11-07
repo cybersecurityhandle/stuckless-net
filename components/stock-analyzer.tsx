@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { StockSnapshot } from "@/components/stock-snapshot";
@@ -21,6 +22,13 @@ import {
   Cell,
   ReferenceLine,
 } from "recharts";
+
+// Companies with a page of everything they own
+const HOLDINGS_PAGES: Record<string, { href: string; label: string }> = {
+  "TOI.V": { href: "/topicus", label: "Everything Topicus owns" },
+  "BRK-A": { href: "/berkshire", label: "Everything Berkshire owns" },
+  "BRK-B": { href: "/berkshire", label: "Everything Berkshire owns" },
+};
 
 /* ── Types ─────────────────────────────────────── */
 
@@ -582,6 +590,14 @@ export function StockAnalyzer({
           )}
         </CardContent>
       </Card>
+
+      {stockData && HOLDINGS_PAGES[stockData.ticker.toUpperCase()] && (
+        <p className="text-sm">
+          <Link href={HOLDINGS_PAGES[stockData.ticker.toUpperCase()].href} className="text-emerald-400 hover:underline">
+            {HOLDINGS_PAGES[stockData.ticker.toUpperCase()].label} →
+          </Link>
+        </p>
+      )}
 
       {stockData && <StockSnapshot key={`snapshot-${stockData.ticker}`} ticker={stockData.ticker} />}
 
