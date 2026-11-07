@@ -5,7 +5,7 @@
  *
  * Refresh once a year from the 10-K (out late Feb): Item 1 names the
  * operating businesses, the business-segment note gives each segment's
- * pre-tax earnings. Cash comes from the latest 10-Q balance sheet. Names
+ * after-tax earnings (see Segment.earnings). Cash comes from the latest 10-Q balance sheet. Names
  * follow the 10-K; brands sold by a business (Ace stores for Benjamin Moore)
  * or contracts (the IAG quota share) aren't Berkshire companies and stay out.
  */
@@ -19,7 +19,13 @@ export const BUSINESSES_SOURCE = {
 export interface Segment {
   id: string;
   name: string;
-  pretax: number; // USD, 2025 earnings before income taxes (insurance: underwriting + investment income)
+  // USD, 2025 earnings after income taxes. Insurance, BNSF and BHE: MD&A's net
+  // earnings attributable to Berkshire (insurance = underwriting + investment
+  // income). The other four: segment-note pre-tax earnings less segment income
+  // tax — the MD&A only reports them combined ($13,647M attributable, about
+  // $0.1B below their sum after minority interests). Pre-tax would misstate BHE,
+  // whose wind and solar tax credits make its tax line a benefit (−$1,785M).
+  earnings: number;
   // Segments with one business have no groups
   groups?: { name: string; businesses: string[] }[];
   businesses?: string[];
@@ -29,7 +35,7 @@ export const SEGMENTS: Segment[] = [
   {
     id: "insurance",
     name: "Insurance",
-    pretax: 24_721e6,
+    earnings: 19_771e6,
     groups: [
       { name: "GEICO", businesses: ["GEICO"] },
       {
@@ -52,11 +58,11 @@ export const SEGMENTS: Segment[] = [
       },
     ],
   },
-  { id: "bnsf", name: "BNSF", pretax: 7_175e6, businesses: ["BNSF Railway"] },
+  { id: "bnsf", name: "BNSF", earnings: 5_476e6, businesses: ["BNSF Railway"] },
   {
     id: "bhe",
     name: "Berkshire Hathaway Energy",
-    pretax: 2_342e6,
+    earnings: 3_979e6,
     businesses: [
       "PacifiCorp",
       "MidAmerican Energy",
@@ -72,7 +78,7 @@ export const SEGMENTS: Segment[] = [
   {
     id: "manufacturing",
     name: "Manufacturing",
-    pretax: 12_571e6,
+    earnings: 10_042e6,
     groups: [
       {
         name: "Industrial",
@@ -120,7 +126,7 @@ export const SEGMENTS: Segment[] = [
   {
     id: "service-retail",
     name: "Service & retailing",
-    pretax: 4_039e6,
+    earnings: 3_057e6,
     groups: [
       {
         name: "Service",
@@ -156,8 +162,8 @@ export const SEGMENTS: Segment[] = [
       },
     ],
   },
-  { id: "mclane", name: "McLane", pretax: 676e6, businesses: ["McLane"] },
-  { id: "pilot", name: "Pilot", pretax: 190e6, businesses: ["Pilot Travel Centers"] },
+  { id: "mclane", name: "McLane", earnings: 505e6, businesses: ["McLane"] },
+  { id: "pilot", name: "Pilot", earnings: 163e6, businesses: ["Pilot Travel Centers"] },
 ];
 
 /**

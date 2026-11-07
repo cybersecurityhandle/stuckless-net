@@ -137,7 +137,7 @@ function since(a: Acquisition | undefined) {
 
 function buildTree(stocks: StockRow[], period: string, total: number): TreeNode {
   const outside = holdingsOutside13F("buffett");
-  const operating = SEGMENTS.reduce((s, g) => s + g.pretax, 0);
+  const operating = SEGMENTS.reduce((s, g) => s + g.earnings, 0);
   const biz = (name: string, segment: string): TreeNode => {
     const a = ACQUIRED[name];
     const year = since(a);
@@ -152,7 +152,7 @@ function buildTree(stocks: StockRow[], period: string, total: number): TreeNode 
     id: "root",
     label: "Berkshire Hathaway",
     detail: [
-      `Operating businesses: ${fmtMoney(operating)} pre-tax earnings (2025)`,
+      `Operating businesses: ${fmtMoney(operating)} after-tax earnings (2025)`,
       `US stocks: ${fmtMoney(total)} (13F, ${fmtQuarter(period)})`,
       `Cash & T-bills: ${fmtMoney(CASH.value)}`,
     ],
@@ -161,14 +161,14 @@ function buildTree(stocks: StockRow[], period: string, total: number): TreeNode 
         id: "business",
         label: "Owned businesses",
         branch: "business",
-        detail: [`${fmtMoney(operating)} pre-tax earnings in 2025`, `${SEGMENTS.length} segments`],
+        detail: [`${fmtMoney(operating)} after-tax earnings in 2025`, `${SEGMENTS.length} segments`],
         // A one-business segment (BNSF, McLane, Pilot) is a leaf itself
         children: SEGMENTS.map((s) => ({
           id: `s:${s.id}`,
           label: s.name,
           branch: "business" as const,
           detail: [
-            `${fmtMoney(s.pretax)} pre-tax earnings in 2025`,
+            `${fmtMoney(s.earnings)} after-tax earnings in 2025`,
             ...(s.businesses?.length === 1 ? biz(s.businesses[0], s.name).detail!.slice(1) : []),
           ],
           children: s.businesses?.length === 1 ? undefined : s.groups
@@ -382,7 +382,7 @@ function Lists({ stocks, period, total }: { stocks: StockRow[]; period: string; 
       <section>
         {heading("business", "Owned businesses")}
         <p className="mt-1 text-xs text-muted-foreground">
-          Pre-tax earnings for 2025 by 10-K segment ·{" "}
+          After-tax earnings for 2025 by 10-K segment ·{" "}
           <a href={BUSINESSES_SOURCE.url} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
             {BUSINESSES_SOURCE.label}
           </a>
@@ -392,7 +392,7 @@ function Lists({ stocks, period, total }: { stocks: StockRow[]; period: string; 
             <div key={s.id}>
               <dt className="flex justify-between gap-4 font-medium">
                 <span>{s.name}</span>
-                <span className="tabular-nums text-muted-foreground">{fmtMoney(s.pretax)}</span>
+                <span className="tabular-nums text-muted-foreground">{fmtMoney(s.earnings)}</span>
               </dt>
               <dd className="mt-0.5 text-muted-foreground">
                 {s.groups
