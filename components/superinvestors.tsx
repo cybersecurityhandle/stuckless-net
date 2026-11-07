@@ -1006,7 +1006,14 @@ function OutsideHoldings({ id, today }: { id: string; today: string }) {
   if (!rows.length) return null;
   return (
     <section className="mt-8">
-      <h3 className="text-base font-semibold">Holdings outside 13F</h3>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-base font-semibold">Holdings outside 13F</h3>
+        {id === "buffett" && (
+          <Link href="/berkshire" className="text-xs text-muted-foreground hover:text-foreground hover:underline">
+            Everything Berkshire owns →
+          </Link>
+        )}
+      </div>
       <p className="mt-1 text-sm text-muted-foreground">
         Known stakes from company and regulatory filings, updated by hand. Not included in the portfolio figures
         above, and not a complete list.

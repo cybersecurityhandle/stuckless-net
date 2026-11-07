@@ -1,0 +1,546 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { issuerKey, type LatestHoldingsJson, type SuperinvestorsJson } from "@/lib/superinvestors";
+import { holdingsOutside13F } from "@/lib/major-holders";
+import { ACQUIRED, BUSINESSES_SOURCE, CASH, LETTERS_URL, SEGMENTS, WIKIPEDIA_URL, type Acquisition } from "@/lib/berkshire";
+import { fmtMoney, fmtPct, fmtQuarter } from "@/components/superinvestors";
+
+// Everything Berkshire owns as a radial tree: owned businesses by 10-K
+// segment, US stocks from the 13F, stakes outside 13F, cash. Branch hues are
+// Tailwind 600 steps, validated as a categorical set on both themes; every
+// node is also direct-labeled, and the list below is the table view.
+
+type Branch = "business" | "stock" | "outside" | "cash";
+
+const BRANCHES: { id: Branch; label: string; color: string }[] = [
+  { id: "business", label: "Owned businesses", color: "var(--color-emerald-600)" },
+  { id: "stock", label: "US stocks (13F)", color: "var(--color-sky-600)" },
+  { id: "outside", label: "Stakes outside 13F", color: "var(--color-amber-600)" },
+  { id: "cash", label: "Cash & T-bills", color: "var(--color-violet-600)" },
+];
+const COLOR = Object.fromEntries(BRANCHES.map((b) => [b.id, b.color])) as Record<Branch, string>;
+
+interface TreeNode {
+  id: string;
+  label: string;
+  branch?: Branch;
+  detail?: string[]; // tooltip lines
+  href?: string;
+  children?: TreeNode[];
+}
+
+interface Placed {
+  node: TreeNode;
+  parent?: Placed;
+  depth: number;
+  angle: number; // radians, clockwise from 12 o'clock
+  r: number;
+  leaf: boolean;
+}
+
+interface StockRow {
+  key: string;
+  ticker: string | null;
+  name: string;
+  value: number;
+  w: number;
+}
+
+const R_LEAF = 360;
+const RADII = [0, 105, 190, 270];
+const GAP_SLOTS = 2.5; // empty leaf slots between branches
+const PAD = 175; // room for leaf labels
+const SIZE = 2 * (R_LEAF + PAD);
+
+function polar(angle: number, r: number): [number, number] {
+  return [r * Math.sin(angle), -r * Math.cos(angle)];
+}
+
+// Leaves evenly round the circle, a gap between branches; each parent at the
+// middle of its children
+function layout(root: TreeNode): Placed[] {
+  const leaves: TreeNode[] = [];
+  const count = (n: TreeNode): number => (n.children?.length ? n.children.reduce((s, c) => s + count(c), 0) : 1);
+  const slots = count(root) + GAP_SLOTS * (root.children?.length ?? 0);
+  const step = (2 * Math.PI) / slots;
+  let cursor = GAP_SLOTS / 2;
+  const out: Placed[] = [];
+  const walk = (n: TreeNode, depth: number, parent?: Placed): Placed => {
+    const p: Placed = { node: n, parent, depth, angle: 0, r: 0, leaf: !n.children?.length };
+    out.push(p);
+    if (p.leaf) {
+      p.angle = (cursor + 0.5) * step;
+      cursor += 1;
+      p.r = R_LEAF;
+      leaves.push(n);
+    } else {
+      const kids = n.children!.map((c) => walk(c, depth + 1, p));
+      p.angle = (kids[0].angle + kids[kids.length - 1].angle) / 2;
+      p.r = RADII[Math.min(depth, RADII.length - 1)];
+    }
+    if (depth === 1) cursor += GAP_SLOTS;
+    return p;
+  };
+  walk(root, 0);
+  return out;
+}
+
+// Curved link: leave the parent radially, arrive at the child radially
+function linkPath(a: Placed, b: Placed) {
+  const mid = (a.r + b.r) / 2;
+  const [x0, y0] = polar(a.angle, a.r);
+  const [x1, y1] = polar(a.angle, mid);
+  const [x2, y2] = polar(b.angle, mid);
+  const [x3, y3] = polar(b.angle, b.r);
+  return `M${x0},${y0}C${x1},${y1} ${x2},${y2} ${x3},${y3}`;
+}
+
+function useBuffett() {
+  const [data, setData] = useState<{ index: SuperinvestorsJson; latest: LatestHoldingsJson } | null>(null);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    Promise.all([
+      fetch("/superinvestors.json").then((r) => (r.ok ? r.json() : Promise.reject())),
+      fetch("/superinvestors/latest.json").then((r) => (r.ok ? r.json() : Promise.reject())),
+    ])
+      .then(([index, latest]) => setData({ index, latest }))
+      .catch(() => setError(true));
+  }, []);
+  return { data, error };
+}
+
+// Buffett's 13F by company, share classes combined, labelled by the larger class
+function stockRows(latest: LatestHoldingsJson): StockRow[] {
+  const byIssuer = new Map<string, StockRow & { classV: number }>();
+  for (const p of latest.holdings.buffett ?? []) {
+    const sec = latest.securities[p.k];
+    const key = issuerKey(p.k, sec);
+    const cur = byIssuer.get(key);
+    if (!cur) byIssuer.set(key, { key, ticker: sec?.t ?? null, name: sec?.d ?? p.k, value: p.v, w: p.w, classV: p.v });
+    else {
+      cur.value += p.v;
+      cur.w += p.w;
+      if (p.v > cur.classV) Object.assign(cur, { ticker: sec?.t ?? null, classV: p.v });
+    }
+  }
+  return [...byIssuer.values()].sort((a, b) => b.value - a.value);
+}
+
+// "Since 2022 (with Alleghany)†" — † when the year isn't from Berkshire's documents
+function since(a: Acquisition | undefined) {
+  if (!a?.year) return null;
+  return `${a.year}${a.via ? ` (with ${a.via})` : ""}${a.checked ? "" : "†"}`;
+}
+
+function buildTree(stocks: StockRow[], period: string, total: number): TreeNode {
+  const outside = holdingsOutside13F("buffett");
+  const operating = SEGMENTS.reduce((s, g) => s + g.pretax, 0);
+  const biz = (name: string, segment: string): TreeNode => {
+    const a = ACQUIRED[name];
+    const year = since(a);
+    return {
+      id: `b:${name}`,
+      label: name,
+      branch: "business",
+      detail: [segment, ...(year ? [`Since ${year}`] : []), ...(a?.price ? [a.price] : []), ...(a?.note ? [a.note] : [])],
+    };
+  };
+  return {
+    id: "root",
+    label: "Berkshire Hathaway",
+    detail: [
+      `Operating businesses: ${fmtMoney(operating)} pre-tax earnings (2025)`,
+      `US stocks: ${fmtMoney(total)} (13F, ${fmtQuarter(period)})`,
+      `Cash & T-bills: ${fmtMoney(CASH.value)}`,
+    ],
+    children: [
+      {
+        id: "business",
+        label: "Owned businesses",
+        branch: "business",
+        detail: [`${fmtMoney(operating)} pre-tax earnings in 2025`, `${SEGMENTS.length} segments`],
+        // A one-business segment (BNSF, McLane, Pilot) is a leaf itself
+        children: SEGMENTS.map((s) => ({
+          id: `s:${s.id}`,
+          label: s.name,
+          branch: "business" as const,
+          detail: [
+            `${fmtMoney(s.pretax)} pre-tax earnings in 2025`,
+            ...(s.businesses?.length === 1 ? biz(s.businesses[0], s.name).detail!.slice(1) : []),
+          ],
+          children: s.businesses?.length === 1 ? undefined : s.groups
+            ? s.groups.map((g) =>
+                g.businesses.length === 1
+                  ? biz(g.businesses[0], s.name)
+                  : {
+                      id: `g:${s.id}:${g.name}`,
+                      label: g.name,
+                      branch: "business" as const,
+                      detail: [`${s.name} · ${g.businesses.length} businesses`],
+                      children: g.businesses.map((b) => biz(b, `${s.name} · ${g.name}`)),
+                    }
+              )
+            : s.businesses!.map((b) => biz(b, s.name)),
+        })),
+      },
+      {
+        id: "stock",
+        label: "US stocks",
+        branch: "stock",
+        detail: [`${fmtMoney(total)} across ${stocks.length} companies`, `13F for ${fmtQuarter(period)}`],
+        children: stocks.map((s) => ({
+          id: `t:${s.key}`,
+          label: s.ticker ?? s.name,
+          branch: "stock" as const,
+          detail: [s.name, `${fmtMoney(s.value)} · ${fmtPct(s.w, 2)} of the 13F`],
+          href: s.ticker ? `/finance?ticker=${encodeURIComponent(s.ticker)}` : undefined,
+        })),
+      },
+      {
+        id: "outside",
+        label: "Outside 13F",
+        branch: "outside",
+        detail: ["Stakes from company and regulatory filings"],
+        children: outside.map((h) => ({
+          id: `o:${h.ticker}`,
+          label: h.company ?? h.ticker,
+          branch: "outside" as const,
+          detail: [`${h.ticker} · ${fmtPct(h.pct, 2)} of the company`, `as of ${h.asOf}`],
+          href: `/finance?ticker=${encodeURIComponent(h.ticker)}`,
+        })),
+      },
+      {
+        id: "cash",
+        label: `Cash & T-bills ${fmtMoney(CASH.value)}`,
+        branch: "cash",
+        detail: [`as of ${CASH.asOf}, net of unsettled T-bill purchases`, CASH.label],
+      },
+    ],
+  };
+}
+
+export function BerkshireWeb() {
+  const { data, error } = useBuffett();
+  const summary = data?.index.managers.find((m) => m.id === "buffett");
+  const stocks = useMemo(() => (data ? stockRows(data.latest) : []), [data]);
+
+  if (error) return <p className="text-red-400">Couldn&apos;t load holdings data.</p>;
+  if (!data || !summary) return <p className="text-muted-foreground">Loading…</p>;
+
+  const tree = buildTree(stocks, summary.period, summary.totalValue);
+  return (
+    <>
+      <Legend />
+      <div className="hidden md:block">
+        <Web tree={tree} />
+      </div>
+      <p className="mt-4 text-sm text-muted-foreground md:hidden">The web needs a wider screen; everything is listed below.</p>
+      <Lists stocks={stocks} period={summary.period} total={summary.totalValue} />
+    </>
+  );
+}
+
+function Legend() {
+  return (
+    <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
+      {BRANCHES.map((b) => (
+        <li key={b.id} className="flex items-center gap-1.5">
+          <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: b.color }} />
+          {b.label}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Web({ tree }: { tree: TreeNode }) {
+  const router = useRouter();
+  const placed = useMemo(() => layout(tree), [tree]);
+  const box = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<{ p: Placed; x: number; y: number } | null>(null);
+
+  // Hovered node's ancestors and descendants stay lit
+  const lit = useMemo(() => {
+    if (!hover) return null;
+    const ids = new Set<string>();
+    for (let p: Placed | undefined = hover.p; p; p = p.parent) ids.add(p.node.id);
+    const down = (n: TreeNode) => {
+      ids.add(n.id);
+      n.children?.forEach(down);
+    };
+    down(hover.p.node);
+    return ids;
+  }, [hover]);
+
+  const enter = (p: Placed) => (e: React.MouseEvent | React.FocusEvent) => {
+    const rect = box.current!.getBoundingClientRect();
+    const target = (e.currentTarget as SVGGElement).getBoundingClientRect();
+    setHover({ p, x: target.left + target.width / 2 - rect.left, y: target.top - rect.top });
+  };
+
+  return (
+    <div ref={box} className="relative mx-auto mt-2 max-w-[1100px]" onMouseLeave={() => setHover(null)}>
+      <svg viewBox={`${-SIZE / 2} ${-SIZE / 2} ${SIZE} ${SIZE}`} className="h-auto w-full" role="img" aria-label="Everything Berkshire Hathaway owns">
+        <g fill="none" strokeWidth={1.5}>
+          {placed
+            .filter((p) => p.parent)
+            .map((p) => (
+              <path
+                key={`l-${p.node.id}`}
+                d={linkPath(p.parent!, p)}
+                stroke={p.node.branch ? COLOR[p.node.branch] : "var(--muted-foreground)"}
+                strokeOpacity={lit ? (lit.has(p.node.id) && lit.has(p.parent!.node.id) ? 0.9 : 0.12) : 0.45}
+              />
+            ))}
+        </g>
+        {placed.map((p) => {
+          const [x, y] = polar(p.angle, p.r);
+          const deg = (p.angle * 180) / Math.PI;
+          const flip = deg > 180;
+          const color = p.node.branch ? COLOR[p.node.branch] : "var(--foreground)";
+          const dim = lit && !lit.has(p.node.id);
+          const size = p.depth === 0 ? 9 : p.leaf ? 4 : p.depth === 1 ? 7 : 5;
+          const go = p.node.href ? () => router.push(p.node.href!) : undefined;
+          return (
+            <g
+              key={p.node.id}
+              transform={`translate(${x},${y})`}
+              opacity={dim ? 0.25 : 1}
+              onMouseEnter={enter(p)}
+              onFocus={enter(p)}
+              onBlur={() => setHover(null)}
+              onClick={go}
+              onKeyDown={go ? (e) => e.key === "Enter" && go() : undefined}
+              tabIndex={go ? 0 : undefined}
+              role={go ? "link" : undefined}
+              aria-label={go ? p.node.label : undefined}
+              className={go ? "cursor-pointer outline-none" : undefined}
+            >
+              <circle r={12} fill="transparent" />
+              <circle r={size} fill={color} stroke="var(--background)" strokeWidth={2} />
+              {p.leaf ? (
+                <text
+                  transform={`rotate(${flip ? deg + 90 : deg - 90})`}
+                  x={flip ? -9 : 9}
+                  dy="0.32em"
+                  textAnchor={flip ? "end" : "start"}
+                  fontSize={11}
+                  fill="var(--foreground)"
+                >
+                  {p.node.label}
+                </text>
+              ) : (
+                <text
+                  y={p.depth === 0 ? 24 : -11}
+                  textAnchor="middle"
+                  fontSize={p.depth === 0 ? 15 : p.depth === 1 ? 13 : 11.5}
+                  fontWeight={p.depth <= 1 ? 600 : 500}
+                  fill="var(--foreground)"
+                  stroke="var(--background)"
+                  strokeWidth={4}
+                  strokeLinejoin="round"
+                  paintOrder="stroke"
+                >
+                  {p.node.label}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      {hover && (
+        <div
+          className="pointer-events-none absolute z-10 w-max max-w-64 -translate-x-1/2 -translate-y-full rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-md"
+          style={{ left: hover.x, top: hover.y - 8 }}
+        >
+          <p className="font-medium text-foreground">{hover.p.node.label}</p>
+          {hover.p.node.detail?.map((line) => (
+            <p key={line} className="text-muted-foreground">
+              {line}
+            </p>
+          ))}
+          {hover.p.node.href && <p className="mt-1 text-muted-foreground">Click for the stock page</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Lists({ stocks, period, total }: { stocks: StockRow[]; period: string; total: number }) {
+  const outside = holdingsOutside13F("buffett");
+  const heading = (b: Branch, text: string) => (
+    <h2 className="flex items-center gap-2 text-lg font-semibold">
+      <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: COLOR[b] }} />
+      {text}
+    </h2>
+  );
+  return (
+    <div className="mt-10 grid gap-10 lg:grid-cols-2">
+      <section>
+        {heading("business", "Owned businesses")}
+        <p className="mt-1 text-xs text-muted-foreground">
+          Pre-tax earnings for 2025 by 10-K segment ·{" "}
+          <a href={BUSINESSES_SOURCE.url} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
+            {BUSINESSES_SOURCE.label}
+          </a>
+        </p>
+        <dl className="mt-3 space-y-3 text-sm">
+          {SEGMENTS.map((s) => (
+            <div key={s.id}>
+              <dt className="flex justify-between gap-4 font-medium">
+                <span>{s.name}</span>
+                <span className="tabular-nums text-muted-foreground">{fmtMoney(s.pretax)}</span>
+              </dt>
+              <dd className="mt-0.5 text-muted-foreground">
+                {s.groups
+                  ? s.groups.map((g) => (
+                      <span key={g.name} className="block">
+                        <span className="text-foreground/80">{g.name}:</span> {withYears(g.businesses)}
+                      </span>
+                    ))
+                  : withYears(s.businesses!)}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <div className="space-y-10">
+        <section>
+          {heading("stock", "US stocks")}
+          <p className="mt-1 text-xs text-muted-foreground">
+            {fmtMoney(total)} in {stocks.length} companies, 13F for {fmtQuarter(period)} ·{" "}
+            <Link href="/superinvestors?m=buffett" className="hover:text-foreground hover:underline">
+              full holdings
+            </Link>
+          </p>
+          <ol className="mt-3 columns-2 gap-6 text-sm sm:columns-3">
+            {stocks.map((s) => (
+              <li key={s.key} className="flex justify-between gap-2 break-inside-avoid py-0.5">
+                {s.ticker ? (
+                  <Link href={`/finance?ticker=${encodeURIComponent(s.ticker)}`} className="font-medium text-emerald-400 hover:underline" title={s.name}>
+                    {s.ticker}
+                  </Link>
+                ) : (
+                  <span className="truncate" title={s.name}>
+                    {s.name}
+                  </span>
+                )}
+                <span className="tabular-nums text-muted-foreground">{fmtMoney(s.value)}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section>
+          {heading("outside", "Stakes outside 13F")}
+          <p className="mt-1 text-xs text-muted-foreground">Share of each company, from its own or regulatory filings</p>
+          <ul className="mt-3 space-y-1 text-sm">
+            {outside.map((h) => (
+              <li key={h.ticker} className="flex justify-between gap-4">
+                <span>
+                  <Link href={`/finance?ticker=${encodeURIComponent(h.ticker)}`} className="font-medium text-emerald-400 hover:underline">
+                    {h.ticker}
+                  </Link>
+                  <span className="text-muted-foreground"> - {h.company}</span>
+                </span>
+                <span className="tabular-nums text-muted-foreground">
+                  {fmtPct(h.pct, 2)} · {h.asOf}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section>
+          {heading("cash", "Cash & T-bills")}
+          <p className="mt-2 text-sm">
+            <span className="font-medium">{fmtMoney(CASH.value)}</span>{" "}
+            <span className="text-muted-foreground">
+              as of {CASH.asOf}, net of unsettled T-bill purchases ·{" "}
+              <a href={CASH.url} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
+                {CASH.label}
+              </a>
+            </span>
+          </p>
+        </section>
+
+        <p className="text-xs text-muted-foreground">
+          Not shown: Occidental preferred stock and warrants, bonds, and businesses the 10-K doesn&apos;t name. Kraft Heinz and
+          Occidental common are in the 13F list.
+        </p>
+      </div>
+
+      <AcquisitionHistory />
+    </div>
+  );
+}
+
+// "GEICO (1996), General Re (1998)"
+function withYears(names: string[]) {
+  return names.map((n) => (ACQUIRED[n]?.year ? `${n} (${ACQUIRED[n].year})` : n)).join(", ");
+}
+
+function AcquisitionHistory() {
+  const rows = SEGMENTS.flatMap((s) =>
+    (s.groups ? s.groups.flatMap((g) => g.businesses.map((b) => [b, s.groups!.length > 1 ? `${s.name} · ${g.name}` : s.name])) : s.businesses!.map((b) => [b, s.name])).map(
+      ([name, segment]) => ({ name, segment, a: ACQUIRED[name] })
+    )
+  ).sort((x, y) => (x.a?.year ?? 9999) - (y.a?.year ?? 9999) || x.name.localeCompare(y.name));
+  return (
+    <section className="lg:col-span-2">
+      <h2 className="flex items-center gap-2 text-lg font-semibold">
+        <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: COLOR.business }} />
+        Acquisition history
+      </h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        The year each business joined Berkshire (when the deal closed), and the price where Berkshire states one, from{" "}
+        <a href={LETTERS_URL} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
+          Buffett&apos;s letters
+        </a>{" "}
+        and Berkshire&apos;s 10-K and 10-Q. † = year from{" "}
+        <a href={WIKIPEDIA_URL} target="_blank" rel="noopener noreferrer" className="hover:text-foreground hover:underline">
+          Wikipedia&apos;s list
+        </a>
+        , not found in Berkshire&apos;s documents.
+      </p>
+      <div className="mt-3 overflow-x-auto rounded-md border border-border">
+        <table className="w-full min-w-[720px] text-sm tabular-nums">
+          <thead>
+            <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-2 font-medium">Year</th>
+              <th className="px-3 py-2 font-medium">Business</th>
+              <th className="px-3 py-2 font-medium">Segment</th>
+              <th className="px-3 py-2 font-medium">Price (as Berkshire states it)</th>
+              <th className="px-3 py-2 font-medium">Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ name, segment, a }) => (
+              <tr key={name} className="border-b border-border/30 even:bg-muted/20">
+                <td className="px-3 py-1.5 text-muted-foreground">
+                  {a?.year ?? "—"}
+                  {a && !a.checked && a.year ? "†" : ""}
+                </td>
+                <td className="px-3 py-1.5">
+                  <span className="font-medium">{name}</span>
+                  {a?.via && <span className="text-muted-foreground"> · with {a.via}</span>}
+                </td>
+                <td className="px-3 py-1.5 text-muted-foreground">{segment}</td>
+                <td className="px-3 py-1.5">
+                  {a?.price}
+                  {a?.note && <span className="text-muted-foreground">{a.price ? " · " : ""}{a.note}</span>}
+                  {!a?.price && !a?.note && <span className="text-muted-foreground">—</span>}
+                </td>
+                <td className="px-3 py-1.5 text-muted-foreground">{a?.checked ? a.src : "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
