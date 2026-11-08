@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { fmtPct } from "@/components/superinvestors";
@@ -9,8 +9,8 @@ import type { TssJson } from "@/lib/topicus";
 
 // Everything Constellation Software owns. The web starts at the operating
 // groups (with company counts); tick a group to open it into its companies,
-// drawn full size in a scrolling box since ~950 leaves can't fit the page
-// width. The directory below lists every name the groups publish. Colors show
+// in a zoomable frame (wheel zoom, drag to pan) since ~860 leaves can't be
+// read at page width. The directory below lists every name the groups publish. Colors show
 // how Constellation owns each group; same validated 600-step hues as /berkshire.
 
 const BRANCHES: (BranchStyle & { id: Ownership })[] = [
@@ -19,6 +19,9 @@ const BRANCHES: (BranchStyle & { id: Ownership })[] = [
   { id: "lumine", label: `Lumine (${fmtPct(LISTED.lumine.equity)} owned)`, color: "var(--color-amber-600)" },
 ];
 const COLOR = Object.fromEntries(BRANCHES.map((b) => [b.id, b.color])) as Record<Ownership, string>;
+
+// Opened groups sit out toward the rim so company links run short
+const OPEN_RINGS = [0, 0.4, 0.74, 0.86];
 
 const usd = (m: number) => `$${m.toLocaleString()}M`;
 
@@ -82,29 +85,83 @@ function allRows(portfolio: PortfolioJson, tss: TssJson): Row[] {
   return rows.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
-// A ticked group's companies as leaves: hover for details, click for the site
-function companyLeaves(groupId: string, rows: Row[], branch: Ownership): TreeNode[] {
+// A ticked group's companies: hover for details, click for the site. Big
+// groups split into sub-branches so their links fan out from nearby hubs:
+// by vertical or country where the group's site gives one, otherwise into
+// alphabetical ranges. Sub-branches under 3 companies fold into "Other".
+const SPLIT_BY: Record<string, { key: (r: Row) => string | undefined; other: string }> = {
+  volaris: { key: (r) => r.vertical, other: "Other verticals" },
+  vela: { key: (r) => r.vertical, other: "Other verticals" },
+  topicus: { key: (r) => r.hq, other: "Other countries" },
+};
+const ALPHA_OVER = 60; // groups with no metadata and more companies than this go into A–Z ranges
+
+function companyChildren(groupId: string, rows: Row[], branch: Ownership): TreeNode[] {
   const topicus = groupId === "topicus";
-  return rows
-    .filter((r) => r.group === groupId)
-    .map((r, i) => ({
-      id: `${groupId}:${i}`,
-      label: r.name,
-      branch,
-      detail: [
-        r.vertical,
-        r.year ? `${topicus ? "Announced" : "Acquired"} ${r.year}` : undefined,
-        r.hq,
-      ].filter((x): x is string => Boolean(x)),
-      href: r.url,
-      hint: topicus ? "Click for the announcement" : "Click for its website",
-    }));
+  const mine = rows.filter((r) => r.group === groupId);
+  const leaf = (r: Row, i: number): TreeNode => ({
+    id: `${groupId}:${i}:${r.name}`,
+    label: r.name,
+    branch,
+    detail: [r.vertical, r.year ? `${topicus ? "Announced" : "Acquired"} ${r.year}` : undefined, r.hq].filter(
+      (x): x is string => Boolean(x)
+    ),
+    href: r.url,
+    hint: topicus ? "Click for the announcement" : "Click for its website",
+  });
+  const hub = (name: string, list: Row[]): TreeNode => ({
+    id: `${groupId}/${name}`,
+    label: name,
+    branch,
+    detail: [`${list.length} compan${list.length === 1 ? "y" : "ies"}`],
+    children: list.map(leaf),
+  });
+
+  const split = SPLIT_BY[groupId];
+  if (split) {
+    const by = new Map<string, Row[]>();
+    for (const r of mine) {
+      const k = split.key(r) ?? split.other;
+      by.set(k, [...(by.get(k) ?? []), r]);
+    }
+    const other: Row[] = [];
+    const hubs: [string, Row[]][] = [];
+    for (const [k, list] of by) {
+      if (k !== split.other && list.length >= 3) hubs.push([k, list]);
+      else other.push(...list);
+    }
+    hubs.sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+    return [...hubs.map(([k, list]) => hub(k, list)), ...(other.length ? [hub(split.other, other)] : [])];
+  }
+  if (mine.length > ALPHA_OVER) {
+    const chunks = Math.ceil(mine.length / 32);
+    const per = Math.ceil(mine.length / chunks);
+    const out: TreeNode[] = [];
+    for (let i = 0; i < mine.length; i += per) {
+      const part = mine.slice(i, i + per);
+      const a = part[0].name[0].toUpperCase();
+      const z = part[part.length - 1].name[0].toUpperCase();
+      out.push(hub(a === z ? a : `${a}–${z}`, part));
+    }
+    return out;
+  }
+  return mine.map(leaf);
+}
+
+function alternateBySize<T extends { id: string }>(list: readonly T[], counts: Record<string, number>): T[] {
+  const bySize = [...list].sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0));
+  const out: T[] = [];
+  while (bySize.length) {
+    out.push(bySize.shift()!);
+    if (bySize.length) out.push(bySize.pop()!);
+  }
+  return out;
 }
 
 function buildTree(counts: Record<string, number>, total: number, open: Set<string>, rows: Row[]): TreeNode {
   const node = (g: (typeof GROUPS)[number]): TreeNode => ({
     id: g.id,
-    children: open.has(g.id) ? companyLeaves(g.id, rows, g.ownership) : undefined,
+    children: open.has(g.id) ? companyChildren(g.id, rows, g.ownership) : undefined,
     label: `${g.name} · ${counts[g.id] ?? 0}`,
     branch: g.ownership,
     detail: [
@@ -129,8 +186,9 @@ function buildTree(counts: Record<string, number>, total: number, open: Set<stri
       `Net income to shareholders ${usd(RESULTS.netIncome)}, FCFA2S ${usd(RESULTS.fcfa2s)}`,
       `${total.toLocaleString()} companies named by its groups`,
     ],
-    // Groups straight off the root, colored by ownership
-    children: GROUPS.map(node),
+    // Groups straight off the root, colored by ownership, big and small
+    // alternating so the small groups' labels don't crowd each other
+    children: alternateBySize(GROUPS, counts).map(node),
   };
 }
 
@@ -145,16 +203,9 @@ export function CsuWeb() {
 
   const [open, setOpen] = useState<Set<string>>(new Set());
   const tree = useMemo(() => buildTree(counts, rows.length, open, rows), [counts, rows, open]);
-  // Leaf ring big enough for ~13px per leaf once companies are shown
+  // Leaf ring big enough for ~14 units per leaf once companies are shown
   const leaves = GROUPS.reduce((s, g) => s + (open.has(g.id) ? (counts[g.id] ?? 0) : 1), 0);
-  const rLeaf = open.size ? Math.max(360, Math.round(((leaves + 2.5 * GROUPS.length) * 13) / (2 * Math.PI))) : 260;
-  const scroller = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
-    el.scrollTop = (el.scrollHeight - el.clientHeight) / 2;
-  }, [rLeaf]);
+  const rLeaf = open.size ? Math.max(360, Math.round(((leaves + 2.5 * GROUPS.length) * 14) / (2 * Math.PI))) : 260;
 
   return (
     <>
@@ -166,8 +217,18 @@ export function CsuWeb() {
           <Legend branches={BRANCHES} />
           <ShowCompanies open={open} setOpen={setOpen} counts={counts} total={rows.length} />
           {open.size ? (
-            <div ref={scroller} className="mt-3 hidden max-h-[85vh] overflow-auto rounded-md border border-border md:block">
-              <HoldingsWeb tree={tree} branches={BRANCHES} label="Constellation Software's operating groups and their companies" rLeaf={rLeaf} natural />
+            <div className="hidden md:block">
+              {/* keyed by size so each new selection opens fitted */}
+              <HoldingsWeb
+                key={rLeaf}
+                tree={tree}
+                branches={BRANCHES}
+                label="Constellation Software's operating groups and their companies"
+                rLeaf={rLeaf}
+                rings={OPEN_RINGS}
+                linkOpacity={0.35}
+                zoomable
+              />
             </div>
           ) : (
             <div className="mx-auto hidden max-w-[820px] md:block">
@@ -207,7 +268,7 @@ function ShowCompanies({
   return (
     <fieldset className="mt-4 hidden md:block">
       <legend className="text-xs text-muted-foreground">
-        Show each group&apos;s companies in the web{open.size ? " · scroll the drawing to explore, hover a company for details" : ""}
+        Show each group&apos;s companies in the web{open.size ? " · zoom in to read names; hover a company for details, click for its site" : ""}
       </legend>
       <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
         <label className="flex cursor-pointer items-center gap-1.5">

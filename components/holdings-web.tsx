@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 // A radial tree of what a company owns (/berkshire, /topicus): root in the
@@ -37,6 +37,8 @@ interface Placed {
 const GAP_SLOTS = 2.5; // empty leaf slots between branches
 const PAD = 175; // room for leaf labels
 const LABEL_MAX = 28; // longer leaf labels are cut; the tooltip has the full name
+const DEFAULT_RINGS = [0, 0.29, 0.53, 0.75]; // radius of each depth, as a share of the leaf ring
+const MAX_ZOOM = 14;
 
 // Rounded: a server-rendered web must produce the same path strings in the
 // browser, and sin/cos can differ in the last digits between the two
@@ -48,8 +50,8 @@ function polar(angle: number, r: number): [number, number] {
 
 // Leaves evenly round the circle, a gap between branches; each parent at the
 // middle of its children. Inner rings scale with the leaf radius.
-function layout(root: TreeNode, rLeaf: number): Placed[] {
-  const radii = [0, 0.29, 0.53, 0.75].map((f) => f * rLeaf);
+function layout(root: TreeNode, rLeaf: number, rings: number[]): Placed[] {
+  const radii = rings.map((f) => f * rLeaf);
   const count = (n: TreeNode): number => (n.children?.length ? n.children.reduce((s, c) => s + count(c), 0) : 1);
   const slots = count(root) + GAP_SLOTS * (root.children?.length ?? 0);
   const step = (2 * Math.PI) / slots;
@@ -84,6 +86,26 @@ function linkPath(a: Placed, b: Placed) {
   return `M${x0},${y0}C${x1},${y1} ${x2},${y2} ${x3},${y3}`;
 }
 
+// Zoomable view: center (x, y) in drawing units and zoom s (1 = whole web).
+// The center may only move as far as keeps the drawing filling the frame.
+interface View {
+  x: number;
+  y: number;
+  s: number;
+}
+function clampView(v: View, size: number): View {
+  const s = Math.min(MAX_ZOOM, Math.max(1, v.s));
+  const lim = size / 2 - size / (2 * s);
+  const c = (n: number) => Math.min(lim, Math.max(-lim, n));
+  return { x: c(v.x), y: c(v.y), s };
+}
+// Zoom by f keeping drawing point p where it is on screen
+function zoomAt(v: View, p: { x: number; y: number }, f: number, size: number): View {
+  const s = Math.min(MAX_ZOOM, Math.max(1, v.s * f));
+  const k = v.s / s;
+  return clampView({ x: p.x + (v.x - p.x) * k, y: p.y + (v.y - p.y) * k, s }, size);
+}
+
 export function Legend({ branches }: { branches: BranchStyle[] }) {
   return (
     <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
@@ -103,21 +125,56 @@ export function HoldingsWeb({
   label,
   rLeaf = 360,
   leafFont = 11,
-  natural = false,
+  rings = DEFAULT_RINGS,
+  linkOpacity = 0.45,
+  zoomable = false,
 }: {
   tree: TreeNode;
   branches: BranchStyle[];
   label: string; // accessible name of the drawing
   rLeaf?: number; // leaf ring radius; raise it for more leaves
   leafFont?: number;
-  natural?: boolean; // draw at 1 unit = 1px instead of fitting the width; the parent scrolls
+  rings?: number[]; // radius of each depth as a share of rLeaf, root first
+  linkOpacity?: number;
+  zoomable?: boolean; // fixed-height frame with wheel zoom and drag to pan, for big webs
 }) {
   const router = useRouter();
   const color = useMemo(() => Object.fromEntries(branches.map((b) => [b.id, b.color])), [branches]);
-  const placed = useMemo(() => layout(tree, rLeaf), [tree, rLeaf]);
+  const placed = useMemo(() => layout(tree, rLeaf, rings), [tree, rLeaf, rings]);
   const size = 2 * (rLeaf + PAD);
   const box = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ p: Placed; x: number; y: number } | null>(null);
+
+  // Zoom and pan (zoomable only). Group labels and dots keep a readable screen
+  // size when zoomed out; leaf labels scale with the drawing, so they read
+  // once zoomed in.
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [view, setView] = useState<View>({ x: 0, y: 0, s: 1 });
+  const [framePx, setFramePx] = useState(0);
+  const drag = useRef<{ x: number; y: number; vx: number; vy: number; moved: boolean } | null>(null);
+  const [dragged, setDragged] = useState(false); // the last press became a drag
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!zoomable || !svg) return;
+    const ro = new ResizeObserver(([e]) => setFramePx(Math.min(e.contentRect.width, e.contentRect.height)));
+    ro.observe(svg);
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const m = svg.getScreenCTM();
+      if (!m) return;
+      const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+      setHover(null);
+      setView((v) => zoomAt(v, p, Math.exp(-e.deltaY * 0.0015), size));
+    };
+    svg.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      ro.disconnect();
+      svg.removeEventListener("wheel", onWheel);
+    };
+  }, [zoomable, size]);
+  const side = zoomable ? size / view.s : size;
+  const unitsPerPx = zoomable && framePx ? side / framePx : 1;
+  const keep = Math.max(1, unitsPerPx); // scale for labels that keep their screen size
 
   // Hovered node's ancestors and descendants stay lit
   const lit = useMemo(() => {
@@ -133,27 +190,58 @@ export function HoldingsWeb({
   }, [hover]);
 
   const enter = (p: Placed) => (e: React.MouseEvent | React.FocusEvent) => {
+    if (drag.current?.moved) return;
     const rect = box.current!.getBoundingClientRect();
     const target = (e.currentTarget as SVGGElement).getBoundingClientRect();
     setHover({ p, x: target.left + target.width / 2 - rect.left, y: target.top - rect.top });
   };
   const open = (href: string) =>
     /^https?:/.test(href) ? window.open(href, "_blank", "noopener,noreferrer") : router.push(href);
+  // A click that ends a drag isn't a click on the node under it
+  const follow = (href: string) => () => {
+    if (!dragged) open(href);
+  };
 
   return (
     <div
       ref={box}
-      className={natural ? "relative" : "relative mx-auto mt-2 max-w-[1100px]"}
-      style={natural ? { width: size } : undefined}
+      className={zoomable ? "relative mt-3 h-[78vh] rounded-md border border-border" : "relative mx-auto mt-2 max-w-[1100px]"}
       onMouseLeave={() => setHover(null)}
     >
       <svg
-        viewBox={`${-size / 2} ${-size / 2} ${size} ${size}`}
-        className={natural ? "block" : "h-auto w-full"}
-        width={natural ? size : undefined}
-        height={natural ? size : undefined}
+        ref={svgRef}
+        viewBox={zoomable ? `${view.x - side / 2} ${view.y - side / 2} ${side} ${side}` : `${-size / 2} ${-size / 2} ${size} ${size}`}
+        className={zoomable ? "h-full w-full cursor-grab touch-none select-none active:cursor-grabbing" : "h-auto w-full"}
         role="img"
         aria-label={label}
+        onPointerDown={
+          zoomable
+            ? (e) => {
+                if (e.button !== 0) return;
+                drag.current = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y, moved: false };
+                setDragged(false);
+              }
+            : undefined
+        }
+        onPointerMove={
+          zoomable
+            ? (e) => {
+                const d = drag.current;
+                if (!d) return;
+                const dx = e.clientX - d.x;
+                const dy = e.clientY - d.y;
+                if (!d.moved) {
+                  if (Math.hypot(dx, dy) < 4) return;
+                  d.moved = true;
+                  setDragged(true);
+                  setHover(null);
+                }
+                setView((v) => clampView({ ...v, x: d.vx - dx * unitsPerPx, y: d.vy - dy * unitsPerPx }, size));
+              }
+            : undefined
+        }
+        onPointerUp={zoomable ? () => (drag.current = null) : undefined}
+        onPointerLeave={zoomable ? () => (drag.current = null) : undefined}
       >
         <g fill="none" strokeWidth={1.5}>
           {placed
@@ -163,7 +251,7 @@ export function HoldingsWeb({
                 key={`l-${p.node.id}`}
                 d={linkPath(p.parent!, p)}
                 stroke={p.node.branch ? color[p.node.branch] : "var(--muted-foreground)"}
-                strokeOpacity={lit ? (lit.has(p.node.id) && lit.has(p.parent!.node.id) ? 0.9 : 0.12) : 0.45}
+                strokeOpacity={lit ? (lit.has(p.node.id) && lit.has(p.parent!.node.id) ? 0.9 : 0.12) : linkOpacity}
               />
             ))}
         </g>
@@ -173,8 +261,10 @@ export function HoldingsWeb({
           const flip = deg > 180;
           const fill = p.node.branch ? color[p.node.branch] : "var(--foreground)";
           const dim = lit && !lit.has(p.node.id);
-          const dot = p.depth === 0 ? 9 : p.leaf ? 4 : p.depth === 1 ? 7 : 5;
-          const go = p.node.href ? () => open(p.node.href!) : undefined;
+          const dot = (p.depth === 0 ? 9 : p.leaf ? 4 : p.depth === 1 ? 7 : 5) * (p.depth <= 1 ? keep : 1);
+          const go = p.node.href ? follow(p.node.href) : undefined;
+          // Sub-branch labels wait until they're big enough to read
+          const hubLabel = p.depth <= 1 || 11.5 / unitsPerPx >= 7;
           const text = p.leaf && p.node.label.length > LABEL_MAX ? `${p.node.label.slice(0, LABEL_MAX - 1)}…` : p.node.label;
           return (
             <g
@@ -205,24 +295,60 @@ export function HoldingsWeb({
                   {text}
                 </text>
               ) : (
-                <text
-                  y={p.depth === 0 ? -16 : -11}
-                  textAnchor="middle"
-                  fontSize={p.depth === 0 ? 15 : p.depth === 1 ? 13 : 11.5}
-                  fontWeight={p.depth <= 1 ? 600 : 500}
-                  fill="var(--foreground)"
-                  stroke="var(--background)"
-                  strokeWidth={4}
-                  strokeLinejoin="round"
-                  paintOrder="stroke"
-                >
-                  {p.node.label}
-                </text>
+                hubLabel && (
+                  <text
+                    y={(p.depth === 0 ? -16 : -11) * (p.depth <= 1 ? keep : 1)}
+                    textAnchor="middle"
+                    fontSize={(p.depth === 0 ? 15 : p.depth === 1 ? 13 : 11.5) * (p.depth <= 1 ? keep : 1)}
+                    fontWeight={p.depth <= 1 ? 600 : 500}
+                    fill="var(--foreground)"
+                    stroke="var(--background)"
+                    strokeWidth={4 * (p.depth <= 1 ? keep : 1)}
+                    strokeLinejoin="round"
+                    paintOrder="stroke"
+                  >
+                    {p.node.label}
+                  </text>
+                )
               )}
             </g>
           );
         })}
       </svg>
+      {zoomable && (
+        <>
+          <div className="absolute right-2 top-2 flex gap-1">
+            {[
+              { label: "+", aria: "Zoom in", f: 1.6 },
+              { label: "−", aria: "Zoom out", f: 1 / 1.6 },
+            ].map((b) => (
+              <button
+                key={b.aria}
+                aria-label={b.aria}
+                onClick={() => {
+                  setHover(null);
+                  setView((v) => zoomAt(v, v, b.f, size));
+                }}
+                className="h-7 w-7 rounded-md border border-border bg-background/90 text-sm hover:bg-muted"
+              >
+                {b.label}
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                setHover(null);
+                setView({ x: 0, y: 0, s: 1 });
+              }}
+              className="h-7 rounded-md border border-border bg-background/90 px-2 text-xs hover:bg-muted"
+            >
+              Fit
+            </button>
+          </div>
+          <p className="pointer-events-none absolute bottom-2 left-3 text-xs text-muted-foreground">
+            Scroll to zoom · drag to pan · {Math.round(view.s * 10) / 10}×
+          </p>
+        </>
+      )}
       {hover && (
         <div
           className="pointer-events-none absolute z-10 w-max max-w-64 -translate-x-1/2 -translate-y-full rounded-md border border-border bg-popover px-3 py-2 text-xs shadow-md"
