@@ -59,3 +59,23 @@ export const BRANCH_COLORS = {
 };
 
 export const branchItems = (b: HoldingBranch) => [...(b.items ?? []), ...(b.groups ?? []).flatMap((g) => g.items)];
+
+/**
+ * For serial acquirers whose filings don't say which segment each purchase
+ * joined: a branch of every acquisition grouped by decade, from the
+ * acquisitions list itself.
+ */
+export function acquisitionsByDecade(list: Acquisition[], label: string, color: string): HoldingBranch {
+  const decades = new Map<string, HoldingItem[]>();
+  for (const a of [...list].sort((x, y) => x.date.localeCompare(y.date))) {
+    const d = `${a.date.slice(0, 3)}0s`;
+    decades.set(d, [...(decades.get(d) ?? []), { name: a.name, year: Number(a.date.slice(0, 4)), note: a.deal, src: a.src }]);
+  }
+  return {
+    id: "acquired",
+    label,
+    color,
+    detail: `${list.length} deals named in the filings`,
+    groups: [...decades].map(([name, items]) => ({ name, items })),
+  };
+}
