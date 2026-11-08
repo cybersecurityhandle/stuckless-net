@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { fmtPct } from "@/components/superinvestors";
 import { ACQUISITION_SPEND, GROUPS, LISTED, NAMED_DEALS, RESULTS, SOURCES, type Ownership, type PortfolioJson } from "@/lib/csu";
 import type { TssJson } from "@/lib/topicus";
 
-// Everything Constellation Software owns. 1,100+ businesses won't fit round a
-// circle, so the web stops at the operating groups (with company counts) and
-// the directory below lists every name the groups publish. Colors show how
-// Constellation owns each group; same validated 600-step hues as /berkshire.
+// Everything Constellation Software owns. The web starts at the operating
+// groups (with company counts); tick a group to open it into its companies,
+// drawn full size in a scrolling box since ~950 leaves can't fit the page
+// width. The directory below lists every name the groups publish. Colors show
+// how Constellation owns each group; same validated 600-step hues as /berkshire.
 
 const BRANCHES: (BranchStyle & { id: Ownership })[] = [
   { id: "wholly", label: "Wholly owned groups", color: "var(--color-emerald-600)" },
@@ -81,9 +82,29 @@ function allRows(portfolio: PortfolioJson, tss: TssJson): Row[] {
   return rows.sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 }
 
-function buildTree(counts: Record<string, number>, total: number): TreeNode {
+// A ticked group's companies as leaves: hover for details, click for the site
+function companyLeaves(groupId: string, rows: Row[], branch: Ownership): TreeNode[] {
+  const topicus = groupId === "topicus";
+  return rows
+    .filter((r) => r.group === groupId)
+    .map((r, i) => ({
+      id: `${groupId}:${i}`,
+      label: r.name,
+      branch,
+      detail: [
+        r.vertical,
+        r.year ? `${topicus ? "Announced" : "Acquired"} ${r.year}` : undefined,
+        r.hq,
+      ].filter((x): x is string => Boolean(x)),
+      href: r.url,
+      hint: topicus ? "Click for the announcement" : "Click for its website",
+    }));
+}
+
+function buildTree(counts: Record<string, number>, total: number, open: Set<string>, rows: Row[]): TreeNode {
   const node = (g: (typeof GROUPS)[number]): TreeNode => ({
     id: g.id,
+    children: open.has(g.id) ? companyLeaves(g.id, rows, g.ownership) : undefined,
     label: `${g.name} · ${counts[g.id] ?? 0}`,
     branch: g.ownership,
     detail: [
@@ -96,7 +117,8 @@ function buildTree(counts: Record<string, number>, total: number): TreeNode {
           ? [`Constellation: ${fmtPct(LISTED.lumine.equity)} of equity, ${fmtPct(LISTED.lumine.votes)} of votes`]
           : []),
     ],
-    href: g.page ?? g.site,
+    // An expanded group isn't a link: its leaves are
+    href: open.has(g.id) ? undefined : (g.page ?? g.site),
     hint: g.page ? "Click for its page here" : "Click for the group's portfolio",
   });
   return {
@@ -121,6 +143,19 @@ export function CsuWeb() {
     return c;
   }, [rows]);
 
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const tree = useMemo(() => buildTree(counts, rows.length, open, rows), [counts, rows, open]);
+  // Leaf ring big enough for ~13px per leaf once companies are shown
+  const leaves = GROUPS.reduce((s, g) => s + (open.has(g.id) ? (counts[g.id] ?? 0) : 1), 0);
+  const rLeaf = open.size ? Math.max(360, Math.round(((leaves + 2.5 * GROUPS.length) * 13) / (2 * Math.PI))) : 260;
+  const scroller = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+    el.scrollTop = (el.scrollHeight - el.clientHeight) / 2;
+  }, [rLeaf]);
+
   return (
     <>
       <Results />
@@ -129,9 +164,16 @@ export function CsuWeb() {
       {data && (
         <>
           <Legend branches={BRANCHES} />
-          <div className="mx-auto hidden max-w-[820px] md:block">
-            <HoldingsWeb tree={buildTree(counts, rows.length)} branches={BRANCHES} label="Constellation Software's operating groups" rLeaf={260} leafFont={13} />
-          </div>
+          <ShowCompanies open={open} setOpen={setOpen} counts={counts} total={rows.length} />
+          {open.size ? (
+            <div ref={scroller} className="mt-3 hidden max-h-[85vh] overflow-auto rounded-md border border-border md:block">
+              <HoldingsWeb tree={tree} branches={BRANCHES} label="Constellation Software's operating groups and their companies" rLeaf={rLeaf} natural />
+            </div>
+          ) : (
+            <div className="mx-auto hidden max-w-[820px] md:block">
+              <HoldingsWeb tree={tree} branches={BRANCHES} label="Constellation Software's operating groups" rLeaf={260} leafFont={13} />
+            </div>
+          )}
           <Directory rows={rows} counts={counts} portfolio={data.portfolio} />
           <div className="mt-10 grid gap-10 lg:grid-cols-2">
             <Spend />
@@ -140,6 +182,55 @@ export function CsuWeb() {
         </>
       )}
     </>
+  );
+}
+
+// One tick box per group; ticked groups open into their companies in the web
+function ShowCompanies({
+  open,
+  setOpen,
+  counts,
+  total,
+}: {
+  open: Set<string>;
+  setOpen: (s: Set<string>) => void;
+  counts: Record<string, number>;
+  total: number;
+}) {
+  const all = open.size === GROUPS.length;
+  const toggle = (id: string) => {
+    const next = new Set(open);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setOpen(next);
+  };
+  return (
+    <fieldset className="mt-4 hidden md:block">
+      <legend className="text-xs text-muted-foreground">
+        Show each group&apos;s companies in the web{open.size ? " · scroll the drawing to explore, hover a company for details" : ""}
+      </legend>
+      <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
+        <label className="flex cursor-pointer items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={all}
+            ref={(el) => {
+              if (el) el.indeterminate = open.size > 0 && !all;
+            }}
+            onChange={() => setOpen(all ? new Set() : new Set(GROUPS.map((g) => g.id)))}
+            className="accent-emerald-600"
+          />
+          All {total.toLocaleString()}
+        </label>
+        {GROUPS.map((g) => (
+          <label key={g.id} className="flex cursor-pointer items-center gap-1.5">
+            <input type="checkbox" checked={open.has(g.id)} onChange={() => toggle(g.id)} className="accent-emerald-600" />
+            <span aria-hidden className="inline-block h-2 w-2 rounded-full" style={{ background: COLOR[g.ownership] }} />
+            {g.name} <span className="text-muted-foreground">{counts[g.id] ?? 0}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 

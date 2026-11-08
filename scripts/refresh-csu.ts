@@ -164,8 +164,12 @@ const READERS: Record<string, { source: string; read: () => Promise<Company[]> }
         .slice(1)
         .map((item) => {
           const file = item.match(/data-image="([^"]+)"/)?.[1]?.split("/").pop() ?? "";
-          const name = decodeURIComponent(decodeURIComponent(file)).replace(/\+/g, " ").replace(/\.(png|jpe?g|svg|webp)$/i, "").trim();
-          return { name, url: item.match(/href="(https?:\/\/[^"]+)"/)?.[1] };
+          const fromFile = decodeURIComponent(decodeURIComponent(file)).replace(/\+/g, " ").replace(/\.(png|jpe?g|svg|webp)$/i, "").trim();
+          const url = item.match(/href="(https?:\/\/[^"]+)"/)?.[1];
+          // Some logos keep their design tool's file name ("Untitled design (42)"): use the site instead
+          const generic = /^(untitled|image|logo|design)\b/i.test(fromFile);
+          const name = generic && url ? new URL(url).hostname.replace(/^www\./, "") : fromFile;
+          return { name, url };
         })
         // The gallery opens with Andromeda's own banner
         .filter((c) => c.name && !/^Andromeda\b/i.test(c.name));

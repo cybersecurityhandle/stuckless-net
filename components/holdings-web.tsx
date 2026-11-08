@@ -103,12 +103,14 @@ export function HoldingsWeb({
   label,
   rLeaf = 360,
   leafFont = 11,
+  natural = false,
 }: {
   tree: TreeNode;
   branches: BranchStyle[];
   label: string; // accessible name of the drawing
   rLeaf?: number; // leaf ring radius; raise it for more leaves
   leafFont?: number;
+  natural?: boolean; // draw at 1 unit = 1px instead of fitting the width; the parent scrolls
 }) {
   const router = useRouter();
   const color = useMemo(() => Object.fromEntries(branches.map((b) => [b.id, b.color])), [branches]);
@@ -139,8 +141,20 @@ export function HoldingsWeb({
     /^https?:/.test(href) ? window.open(href, "_blank", "noopener,noreferrer") : router.push(href);
 
   return (
-    <div ref={box} className="relative mx-auto mt-2 max-w-[1100px]" onMouseLeave={() => setHover(null)}>
-      <svg viewBox={`${-size / 2} ${-size / 2} ${size} ${size}`} className="h-auto w-full" role="img" aria-label={label}>
+    <div
+      ref={box}
+      className={natural ? "relative" : "relative mx-auto mt-2 max-w-[1100px]"}
+      style={natural ? { width: size } : undefined}
+      onMouseLeave={() => setHover(null)}
+    >
+      <svg
+        viewBox={`${-size / 2} ${-size / 2} ${size} ${size}`}
+        className={natural ? "block" : "h-auto w-full"}
+        width={natural ? size : undefined}
+        height={natural ? size : undefined}
+        role="img"
+        aria-label={label}
+      >
         <g fill="none" strokeWidth={1.5}>
           {placed
             .filter((p) => p.parent)
