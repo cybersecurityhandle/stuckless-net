@@ -69,6 +69,7 @@ const NOW = [
 
 const LINKS = [
   { label: "github", href: "https://github.com/cybersecurityhandle", text: "github.com/cybersecurityhandle" },
+  { label: "x", href: "https://x.com/DanStuckless", text: "x.com/DanStuckless" },
   // TODO: add LinkedIn URL
   // { label: "linkedin", href: "https://www.linkedin.com/in/...", text: "linkedin.com/in/..." },
   { label: "email", href: "mailto:daniel@cyberlegionnaire.com", text: "daniel@cyberlegionnaire.com" },
