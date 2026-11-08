@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 
 // A radial tree of what a company owns (/berkshire, /topicus): root in the
@@ -104,6 +104,21 @@ function zoomAt(v: View, p: { x: number; y: number }, f: number, size: number): 
   const s = Math.min(MAX_ZOOM, Math.max(1, v.s * f));
   const k = v.s / s;
   return clampView({ x: p.x + (v.x - p.x) * k, y: p.y + (v.y - p.y) * k, s }, size);
+}
+
+// Phones get webs in the zoomable frame: at that width a fitted web's labels
+// are too small to read
+const PHONE = "(max-width: 767px)";
+export function usePhone() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(PHONE);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(PHONE).matches,
+    () => false
+  );
 }
 
 export function Legend({ branches }: { branches: BranchStyle[] }) {

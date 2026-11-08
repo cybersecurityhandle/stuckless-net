@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
+import { HoldingsWeb, Legend, usePhone, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { fmtPct } from "@/components/superinvestors";
 import { ACQUISITION_SPEND, GROUPS, LISTED, NAMED_DEALS, RESULTS, SOURCES, type Ownership, type PortfolioJson } from "@/lib/csu";
 import type { TssJson } from "@/lib/topicus";
@@ -19,19 +19,6 @@ const BRANCHES: (BranchStyle & { id: Ownership })[] = [
   { id: "lumine", label: `Lumine (${fmtPct(LISTED.lumine.equity)} owned)`, color: "var(--color-amber-600)" },
 ];
 const COLOR = Object.fromEntries(BRANCHES.map((b) => [b.id, b.color])) as Record<Ownership, string>;
-
-const PHONE = "(max-width: 767px)";
-function usePhone() {
-  return useSyncExternalStore(
-    (cb) => {
-      const mq = window.matchMedia(PHONE);
-      mq.addEventListener("change", cb);
-      return () => mq.removeEventListener("change", cb);
-    },
-    () => window.matchMedia(PHONE).matches,
-    () => false
-  );
-}
 
 // Opened groups sit out toward the rim so company links run short
 const OPEN_RINGS = [0, 0.4, 0.74, 0.86];

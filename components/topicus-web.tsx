@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
+import { HoldingsWeb, Legend, usePhone, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { fmtPct } from "@/components/superinvestors";
 import { ACQUISITION_SPEND, OWNERSHIP, RESULTS, SOURCES, STAKES, TOPICUS_NL, type TssJson } from "@/lib/topicus";
 
@@ -106,6 +106,7 @@ export function TopicusWeb() {
       .catch(() => setError(true));
   }, []);
   const tree = useMemo(() => (tss ? buildTree(tss) : null), [tss]);
+  const phone = usePhone();
 
   return (
     <>
@@ -116,10 +117,8 @@ export function TopicusWeb() {
       {tss && tree && (
         <>
           <Legend branches={BRANCHES} />
-          <div className="hidden md:block">
-            <HoldingsWeb tree={tree} branches={BRANCHES} label="Everything Topicus.com owns" rLeaf={440} />
-          </div>
-          <p className="mt-4 text-sm text-muted-foreground md:hidden">The web needs a wider screen; everything is listed below.</p>
+          {/* Phones: pinch to zoom, tap a company for details */}
+          <HoldingsWeb tree={tree} branches={BRANCHES} label="Everything Topicus.com owns" rLeaf={440} zoomable={phone} />
           <div className="mt-10 grid gap-10 lg:grid-cols-[2fr_1fr]">
             <Deals tss={tss} />
             <div className="space-y-10">
