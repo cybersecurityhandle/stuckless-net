@@ -8,6 +8,7 @@ const BASE = "https://stuckless.net";
 const PAGES: { path: string; changeFrequency: "daily" | "weekly" | "monthly"; priority: number }[] = [
   { path: "", changeFrequency: "daily", priority: 1 },
   { path: "/superinvestors", changeFrequency: "daily", priority: 0.9 },
+  { path: "/companies", changeFrequency: "weekly", priority: 0.9 },
   { path: "/berkshire", changeFrequency: "weekly", priority: 0.8 },
   { path: "/csu", changeFrequency: "weekly", priority: 0.8 },
   { path: "/topicus", changeFrequency: "weekly", priority: 0.8 },
@@ -25,6 +26,7 @@ const PAGES: { path: string; changeFrequency: "daily" | "weekly" | "monthly"; pr
   { path: "/lumine", changeFrequency: "monthly", priority: 0.6 },
   { path: "/asseco", changeFrequency: "monthly", priority: 0.6 },
   { path: "/brookfield", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/sygnity", changeFrequency: "monthly", priority: 0.6 },
   { path: "/insiders", changeFrequency: "daily", priority: 0.7 },
   { path: "/digest", changeFrequency: "weekly", priority: 0.7 },
   { path: "/screener", changeFrequency: "daily", priority: 0.7 },

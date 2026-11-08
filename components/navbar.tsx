@@ -14,6 +14,7 @@ export function Navbar() {
     { href: "/finance", label: "Finance" },
     { href: "/screener", label: "Screener" },
     { href: "/superinvestors", label: "Superinvestors", short: "13F" },
+    { href: "/companies", label: "Companies" },
     { href: "/insiders", label: "Insider Buys", short: "Insiders" },
     { href: "/about", label: "About" },
   ];
