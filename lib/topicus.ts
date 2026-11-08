@@ -32,8 +32,8 @@ export const OWNERSHIP = {
 
 // Listed companies Topicus holds, by Yahoo ticker
 export const STAKES = [
-  { ticker: "SGN.WA", company: "Sygnity", pct: 0.7268, note: "controlling stake, consolidated" },
-  { ticker: "ACP.WA", company: "Asseco Poland", pct: 0.2314, note: "19,207,886 shares; equity method" },
+  { ticker: "SGN.WA", company: "Sygnity", pct: 0.7268, note: "controlling stake, consolidated", page: "/sygnity" },
+  { ticker: "ACP.WA", company: "Asseco Poland", pct: 0.2314, note: "19,207,886 shares; equity method", page: "/asseco" },
 ];
 
 // Topicus.com B.V., the Dutch business TSS combined with in 2021. Its

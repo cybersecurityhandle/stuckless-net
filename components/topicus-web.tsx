@@ -72,8 +72,8 @@ function buildTree(tss: TssJson): TreeNode {
               label: `${s.company} ${fmtPct(s.pct, 1)}`,
               branch: "stakes",
               detail: [`${s.ticker} · ${fmtPct(s.pct, 2)} owned`, s.note],
-              href: `/finance?ticker=${encodeURIComponent(s.ticker)}`,
-              hint: "Click for the stock page",
+              href: s.page,
+              hint: `Click for everything ${s.company} owns`,
             })),
           },
           ...countries.map(([country, deals]) => ({
@@ -316,7 +316,10 @@ function Stakes() {
               <Link href={`/finance?ticker=${encodeURIComponent(s.ticker)}`} className="font-medium text-emerald-400 hover:underline">
                 {s.ticker}
               </Link>
-              <span className="text-muted-foreground"> - {s.company}</span>
+              <span className="text-muted-foreground"> - </span>
+              <Link href={s.page} className="text-muted-foreground hover:text-foreground hover:underline">
+                {s.company}
+              </Link>
             </span>
             <span className="tabular-nums text-muted-foreground">{fmtPct(s.pct, 2)}</span>
           </li>
