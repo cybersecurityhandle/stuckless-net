@@ -53,7 +53,7 @@ const STOCKS_SHOWN = 30; // the rest of a long 13F folds into "+N more"
 function buildTree(c: CompanyHoldings, stocks: StockRow[] | null, period?: string, total?: number): TreeNode {
   const leaf = (branch: string, prefix: string) => (i: HoldingItem): TreeNode => ({
     id: `${prefix}:${i.name}`,
-    label: i.pct != null && i.pct < 0.995 ? `${i.name} ${fmtPct(i.pct, 0)}` : i.name,
+    label: i.pct != null && i.pct < 0.995 ? `${i.name} ${fmtPct(i.pct, i.pct < 0.0095 ? 1 : 0)}` : i.name,
     branch,
     detail: itemDetail(i),
     href: i.ticker ? stockHref(i.ticker) : undefined,
@@ -219,10 +219,12 @@ function FullHistory({ c }: { c: CompanyHoldings }) {
   const query = q.trim().toLowerCase();
   const rows = query ? all.filter((a) => `${a.name} ${a.deal ?? ""} ${a.date}`.toLowerCase().includes(query)) : all;
   const first = all.at(-1)?.date.slice(0, 4);
+  const h = c.history ?? {};
+  const prices = all.some((a) => a.price); // hide the column when no row has one
   return (
     <section className="mt-10 min-w-0">
       <h2 className="text-lg font-semibold">
-        All acquisitions <span className="text-sm font-normal text-muted-foreground">· {all.length} since {first}</span>
+        {h.title ?? "All acquisitions"} <span className="text-sm font-normal text-muted-foreground">· {all.length} since {first}</span>
       </h2>
       <p className="mt-1 text-xs text-muted-foreground">{c.historyNote}</p>
       <input
@@ -231,16 +233,16 @@ function FullHistory({ c }: { c: CompanyHoldings }) {
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search company, deal or year"
         className="mt-3 w-full rounded-md border border-border bg-transparent px-3 py-1.5 text-sm outline-none focus:border-foreground/40 sm:w-72"
-        aria-label={`Search ${c.short}'s acquisitions`}
+        aria-label={`Search ${c.short}'s ${(h.title ?? "acquisitions").toLowerCase()}`}
       />
       <div className="mt-3 overflow-x-auto rounded-md border border-border">
         <table className="w-full min-w-[640px] text-sm tabular-nums">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2 font-medium">Date</th>
+              <th className="px-3 py-2 font-medium">{h.date ?? "Date"}</th>
               <th className="px-3 py-2 font-medium">Company</th>
-              <th className="px-3 py-2 font-medium">Deal</th>
-              <th className="px-3 py-2 text-right font-medium">Price</th>
+              <th className="px-3 py-2 font-medium">{h.deal ?? "Deal"}</th>
+              {prices && <th className="px-3 py-2 text-right font-medium">Price</th>}
               <th className="px-3 py-2 font-medium">Source</th>
             </tr>
           </thead>
@@ -250,13 +252,15 @@ function FullHistory({ c }: { c: CompanyHoldings }) {
                 <td className="whitespace-nowrap px-3 py-1.5 text-muted-foreground">{fmtDealDate(a.date)}</td>
                 <td className="px-3 py-1.5 font-medium">{a.name}</td>
                 <td className="px-3 py-1.5 text-muted-foreground">{a.deal ?? "—"}</td>
-                <td className="whitespace-nowrap px-3 py-1.5 text-right">{a.price ?? <span className="text-muted-foreground">—</span>}</td>
+                {prices && (
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right">{a.price ?? <span className="text-muted-foreground">—</span>}</td>
+                )}
                 <td className="whitespace-nowrap px-3 py-1.5 text-muted-foreground">{a.src}</td>
               </tr>
             ))}
             {!rows.length && (
               <tr>
-                <td colSpan={5} className="px-3 py-3 text-muted-foreground">
+                <td colSpan={prices ? 5 : 4} className="px-3 py-3 text-muted-foreground">
                   No match.
                 </td>
               </tr>

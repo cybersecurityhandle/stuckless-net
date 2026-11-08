@@ -19,6 +19,7 @@ const GROUPS: { title: string; pages: { href: string; name: string; about: strin
       { href: "/lumine", name: "Lumine Group", about: "36 communications and media software companies, with the year each was bought" },
       { href: "/sygnity", name: "Sygnity", about: "Topicus's Polish subsidiary and the software companies it has bought since 2024" },
       { href: "/asseco", name: "Asseco Poland", about: "Its group structure across Poland, Asseco International and Formula Systems" },
+      { href: "/pinetree", name: "Pinetree Capital", about: "Minority stakes in listed software companies, and every position since 2020" },
     ],
   },
   {

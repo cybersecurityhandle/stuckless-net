@@ -27,6 +27,7 @@ const PAGES: { path: string; changeFrequency: "daily" | "weekly" | "monthly"; pr
   { path: "/asseco", changeFrequency: "monthly", priority: 0.6 },
   { path: "/brookfield", changeFrequency: "monthly", priority: 0.6 },
   { path: "/sygnity", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/pinetree", changeFrequency: "monthly", priority: 0.6 },
   { path: "/insiders", changeFrequency: "daily", priority: 0.7 },
   { path: "/digest", changeFrequency: "weekly", priority: 0.7 },
   { path: "/screener", changeFrequency: "daily", priority: 0.7 },

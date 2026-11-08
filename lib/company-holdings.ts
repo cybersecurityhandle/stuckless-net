@@ -48,6 +48,7 @@ export interface CompanyHoldings {
   branches: HoldingBranch[];
   historyNote: string;
   acquisitions?: Acquisition[]; // the full history; else built from item years
+  history?: { title?: string; date?: string; deal?: string }; // table labels when the rows aren't acquisitions
   notes?: string[];
 }
 

@@ -42,6 +42,7 @@ const HOLDINGS_PAGES: Record<string, { href: string; label: string }> = {
   BN: { href: "/brookfield", label: "Everything Brookfield owns" },
   "BN.TO": { href: "/brookfield", label: "Everything Brookfield owns" },
   "SGN.WA": { href: "/sygnity", label: "Everything Sygnity owns" },
+  "PNP.TO": { href: "/pinetree", label: "Everything Pinetree owns" },
   BH: { href: "/biglari", label: "Everything Biglari owns" },
   "BH-A": { href: "/biglari", label: "Everything Biglari owns" },
   "TOI.V": { href: "/topicus", label: "Everything Topicus owns" },
