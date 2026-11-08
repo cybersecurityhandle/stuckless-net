@@ -20,6 +20,8 @@ const PAGES: { path: string; changeFrequency: "daily" | "weekly" | "monthly"; pr
   { path: "/loews", changeFrequency: "monthly", priority: 0.6 },
   { path: "/boston-omaha", changeFrequency: "monthly", priority: 0.6 },
   { path: "/biglari", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/kelly-partners", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/teqnion", changeFrequency: "monthly", priority: 0.6 },
   { path: "/insiders", changeFrequency: "daily", priority: 0.7 },
   { path: "/digest", changeFrequency: "weekly", priority: 0.7 },
   { path: "/screener", changeFrequency: "daily", priority: 0.7 },

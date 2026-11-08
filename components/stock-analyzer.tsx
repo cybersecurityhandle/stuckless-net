@@ -35,6 +35,8 @@ const HOLDINGS_PAGES: Record<string, { href: string; label: string }> = {
   BRO: { href: "/brown-brown", label: "Everything Brown & Brown owns" },
   BOC: { href: "/boston-omaha", label: "Everything Boston Omaha owns" },
   L: { href: "/loews", label: "Everything Loews owns" },
+  "KPG.AX": { href: "/kelly-partners", label: "Everything Kelly Partners owns" },
+  "TEQ.ST": { href: "/teqnion", label: "Everything Teqnion owns" },
   BH: { href: "/biglari", label: "Everything Biglari owns" },
   "BH-A": { href: "/biglari", label: "Everything Biglari owns" },
   "TOI.V": { href: "/topicus", label: "Everything Topicus owns" },
