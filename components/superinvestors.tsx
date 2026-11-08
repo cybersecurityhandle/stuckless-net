@@ -998,6 +998,13 @@ function StyleStrip({
 
 /* ── Manager ───────────────────────────────────── */
 
+// Managers whose company has an "everything it owns" page
+const COMPANY_PAGES: Record<string, { href: string; label: string }> = {
+  buffett: { href: "/berkshire", label: "Everything Berkshire owns" },
+  gayner: { href: "/markel", label: "Everything Markel owns" },
+  watsa: { href: "/fairfax", label: "Everything Fairfax owns" },
+};
+
 // Stakes a 13F misses (lib/major-holders.ts). Share of each company, not of
 // the portfolio, and kept out of the 13F weights and totals: it's partial, and
 // its dates don't line up with the filing above.
@@ -1141,16 +1148,23 @@ function ManagerView({
           {summary.name}
           {summary.firm && <span className="font-normal text-muted-foreground"> — {summary.firm}</span>}
         </h2>
-        {q && (
-          <a
-            href={filingUrl(q.cik, q.accession)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-muted-foreground hover:text-foreground hover:underline"
-          >
-            {MANAGERS.find((m) => m.id === summary.id)?.nport ? "N-PORT" : "13F"} on EDGAR ↗
-          </a>
-        )}
+        <span className="flex flex-wrap items-baseline gap-x-4 text-xs">
+          {COMPANY_PAGES[summary.id] && (
+            <Link href={COMPANY_PAGES[summary.id].href} className="text-emerald-400 hover:underline">
+              {COMPANY_PAGES[summary.id].label} →
+            </Link>
+          )}
+          {q && (
+            <a
+              href={filingUrl(q.cik, q.accession)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground hover:underline"
+            >
+              {MANAGERS.find((m) => m.id === summary.id)?.nport ? "N-PORT" : "13F"} on EDGAR ↗
+            </a>
+          )}
+        </span>
       </div>
 
       {error && <p className="mt-4 text-red-400">Couldn&apos;t load history for {summary.name}.</p>}

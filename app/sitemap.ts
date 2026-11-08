@@ -11,6 +11,8 @@ const PAGES: { path: string; changeFrequency: "daily" | "weekly" | "monthly"; pr
   { path: "/berkshire", changeFrequency: "weekly", priority: 0.8 },
   { path: "/csu", changeFrequency: "weekly", priority: 0.8 },
   { path: "/topicus", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/markel", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/fairfax", changeFrequency: "weekly", priority: 0.8 },
   { path: "/insiders", changeFrequency: "daily", priority: 0.7 },
   { path: "/digest", changeFrequency: "weekly", priority: 0.7 },
   { path: "/screener", changeFrequency: "daily", priority: 0.7 },

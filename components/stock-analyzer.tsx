@@ -26,6 +26,8 @@ import {
 // Companies with a page of everything they own
 const HOLDINGS_PAGES: Record<string, { href: string; label: string }> = {
   "CSU.TO": { href: "/csu", label: "Everything Constellation owns" },
+  MKL: { href: "/markel", label: "Everything Markel owns" },
+  "FFH.TO": { href: "/fairfax", label: "Everything Fairfax owns" },
   "TOI.V": { href: "/topicus", label: "Everything Topicus owns" },
   "BRK-A": { href: "/berkshire", label: "Everything Berkshire owns" },
   "BRK-B": { href: "/berkshire", label: "Everything Berkshire owns" },

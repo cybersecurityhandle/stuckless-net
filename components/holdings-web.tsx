@@ -38,8 +38,12 @@ const GAP_SLOTS = 2.5; // empty leaf slots between branches
 const PAD = 175; // room for leaf labels
 const LABEL_MAX = 28; // longer leaf labels are cut; the tooltip has the full name
 
+// Rounded: a server-rendered web must produce the same path strings in the
+// browser, and sin/cos can differ in the last digits between the two
+const round = (x: number) => Math.round(x * 100) / 100;
+
 function polar(angle: number, r: number): [number, number] {
-  return [r * Math.sin(angle), -r * Math.cos(angle)];
+  return [round(r * Math.sin(angle)), round(-r * Math.cos(angle))];
 }
 
 // Leaves evenly round the circle, a gap between branches; each parent at the
@@ -188,7 +192,7 @@ export function HoldingsWeb({
                 </text>
               ) : (
                 <text
-                  y={p.depth === 0 ? 24 : -11}
+                  y={p.depth === 0 ? -16 : -11}
                   textAnchor="middle"
                   fontSize={p.depth === 0 ? 15 : p.depth === 1 ? 13 : 11.5}
                   fontWeight={p.depth <= 1 ? 600 : 500}
