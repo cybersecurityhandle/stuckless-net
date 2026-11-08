@@ -136,7 +136,7 @@ export function HoldingsWeb({
   leafFont?: number;
   rings?: number[]; // radius of each depth as a share of rLeaf, root first
   linkOpacity?: number;
-  zoomable?: boolean; // fixed-height frame with wheel zoom and drag to pan, for big webs
+  zoomable?: boolean; // framed, with wheel or pinch zoom and drag to pan, for big webs or phones
 }) {
   const router = useRouter();
   const color = useMemo(() => Object.fromEntries(branches.map((b) => [b.id, b.color])), [branches]);
@@ -147,12 +147,19 @@ export function HoldingsWeb({
 
   // Zoom and pan (zoomable only). Group labels and dots keep a readable screen
   // size when zoomed out; leaf labels scale with the drawing, so they read
-  // once zoomed in.
+  // once zoomed in. One pointer pans; two (a pinch) zoom about their midpoint.
   const svgRef = useRef<SVGSVGElement>(null);
   const [view, setView] = useState<View>({ x: 0, y: 0, s: 1 });
   const [framePx, setFramePx] = useState(0);
-  const drag = useRef<{ x: number; y: number; vx: number; vy: number; moved: boolean } | null>(null);
+  // Pointers down now, and the view and pointer positions when the gesture
+  // last changed shape (a finger added or lifted)
+  const gesture = useRef<{
+    pts: Map<number, { x: number; y: number }>;
+    base: { view: View; pts: Map<number, { x: number; y: number }>; pinchAt?: { x: number; y: number } };
+    moved: boolean;
+  } | null>(null);
   const [dragged, setDragged] = useState(false); // the last press became a drag
+  const [touch, setTouch] = useState(false); // the last press was a finger: first tap shows details, second opens
   useEffect(() => {
     const svg = svgRef.current;
     if (!zoomable || !svg) return;
@@ -189,23 +196,91 @@ export function HoldingsWeb({
     return ids;
   }, [hover]);
 
-  const enter = (p: Placed) => (e: React.MouseEvent | React.FocusEvent) => {
-    if (drag.current?.moved) return;
+  const show = (p: Placed, el: Element) => {
     const rect = box.current!.getBoundingClientRect();
-    const target = (e.currentTarget as SVGGElement).getBoundingClientRect();
-    setHover({ p, x: target.left + target.width / 2 - rect.left, y: target.top - rect.top });
+    const target = el.getBoundingClientRect();
+    // Keep the tooltip (up to 256px wide, centered on x) inside the frame
+    const x = target.left + target.width / 2 - rect.left;
+    const half = Math.min(128, rect.width / 2);
+    setHover({ p, x: Math.min(Math.max(x, half), rect.width - half), y: target.top - rect.top });
+  };
+  const enter = (p: Placed) => (e: React.PointerEvent | React.FocusEvent) => {
+    if ("pointerType" in e && e.pointerType !== "mouse") return;
+    // A tap focuses the node too; on touch the tap itself decides (see tap)
+    if (e.type === "focus" && touch) return;
+    if (gesture.current?.moved) return;
+    show(p, e.currentTarget);
   };
   const open = (href: string) =>
     /^https?:/.test(href) ? window.open(href, "_blank", "noopener,noreferrer") : router.push(href);
-  // A click that ends a drag isn't a click on the node under it
-  const follow = (href: string) => () => {
-    if (!dragged) open(href);
+  // A click that ends a drag isn't a click on the node under it. On touch
+  // the first tap shows the node's details and a second opens it.
+  const tap = (p: Placed) => (e: React.MouseEvent) => {
+    if (dragged) return;
+    if (touch && hover?.p.node.id !== p.node.id) return show(p, e.currentTarget);
+    if (p.node.href) open(p.node.href);
+  };
+
+  // Pan with one pointer, pinch with two
+  const rebase = (g: NonNullable<typeof gesture.current>) => {
+    const pts = new Map(g.pts);
+    let pinchAt: { x: number; y: number } | undefined;
+    const two = [...pts.values()];
+    const m = svgRef.current?.getScreenCTM();
+    if (two.length === 2 && m) {
+      pinchAt = new DOMPoint((two[0].x + two[1].x) / 2, (two[0].y + two[1].y) / 2).matrixTransform(m.inverse());
+    }
+    g.base = { view, pts, pinchAt };
+  };
+  const onDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    setTouch(e.pointerType !== "mouse");
+    const g = gesture.current ?? { pts: new Map(), base: { view, pts: new Map() }, moved: false };
+    if (!gesture.current) setDragged(false);
+    g.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    rebase(g);
+    gesture.current = g;
+  };
+  const onMove = (e: React.PointerEvent) => {
+    const g = gesture.current;
+    if (!g || !g.pts.has(e.pointerId)) return;
+    g.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const now = [...g.pts.entries()];
+    const was = now.map(([id]) => g.base.pts.get(id)!);
+    const mid = (ps: { x: number; y: number }[]) => ({ x: ps.reduce((a, q) => a + q.x, 0) / ps.length, y: ps.reduce((a, q) => a + q.y, 0) / ps.length });
+    const m0 = mid(was);
+    const m1 = mid(now.map(([, q]) => q));
+    if (!g.moved) {
+      if (Math.hypot(m1.x - m0.x, m1.y - m0.y) < 4 && now.length < 2) return;
+      g.moved = true;
+      setDragged(true);
+      setHover(null);
+    }
+    const base = g.base.view;
+    let next = base;
+    if (now.length === 2 && g.base.pinchAt) {
+      const d = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      next = zoomAt(base, g.base.pinchAt, d(now[0][1], now[1][1]) / d(was[0], was[1]), size);
+    }
+    const upp = framePx ? size / next.s / framePx : 1;
+    setView(clampView({ ...next, x: next.x - (m1.x - m0.x) * upp, y: next.y - (m1.y - m0.y) * upp }, size));
+  };
+  const onUp = (e: React.PointerEvent) => {
+    const g = gesture.current;
+    if (!g) return;
+    g.pts.delete(e.pointerId);
+    if (g.pts.size) rebase(g);
+    else gesture.current = null;
   };
 
   return (
     <div
       ref={box}
-      className={zoomable ? "relative mt-3 h-[78vh] rounded-md border border-border" : "relative mx-auto mt-2 max-w-[1100px]"}
+      className={
+        zoomable
+          ? "relative mt-3 aspect-square w-full rounded-md border border-border md:aspect-auto md:h-[78vh]"
+          : "relative mx-auto mt-2 max-w-[1100px]"
+      }
       onMouseLeave={() => setHover(null)}
     >
       <svg
@@ -214,34 +289,12 @@ export function HoldingsWeb({
         className={zoomable ? "h-full w-full cursor-grab touch-none select-none active:cursor-grabbing" : "h-auto w-full"}
         role="img"
         aria-label={label}
-        onPointerDown={
-          zoomable
-            ? (e) => {
-                if (e.button !== 0) return;
-                drag.current = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y, moved: false };
-                setDragged(false);
-              }
-            : undefined
-        }
-        onPointerMove={
-          zoomable
-            ? (e) => {
-                const d = drag.current;
-                if (!d) return;
-                const dx = e.clientX - d.x;
-                const dy = e.clientY - d.y;
-                if (!d.moved) {
-                  if (Math.hypot(dx, dy) < 4) return;
-                  d.moved = true;
-                  setDragged(true);
-                  setHover(null);
-                }
-                setView((v) => clampView({ ...v, x: d.vx - dx * unitsPerPx, y: d.vy - dy * unitsPerPx }, size));
-              }
-            : undefined
-        }
-        onPointerUp={zoomable ? () => (drag.current = null) : undefined}
-        onPointerLeave={zoomable ? () => (drag.current = null) : undefined}
+        onPointerDown={zoomable ? onDown : undefined}
+        onPointerMove={zoomable ? onMove : undefined}
+        onPointerUp={zoomable ? onUp : undefined}
+        onPointerCancel={zoomable ? onUp : undefined}
+        // A tap on empty space closes the details
+        onClick={(e) => !(e.target as Element).closest("g[transform]") && setHover(null)}
       >
         <g fill="none" strokeWidth={1.5}>
           {placed
@@ -262,7 +315,7 @@ export function HoldingsWeb({
           const fill = p.node.branch ? color[p.node.branch] : "var(--foreground)";
           const dim = lit && !lit.has(p.node.id);
           const dot = (p.depth === 0 ? 9 : p.leaf ? 4 : p.depth === 1 ? 7 : 5) * (p.depth <= 1 ? keep : 1);
-          const go = p.node.href ? follow(p.node.href) : undefined;
+          const go = p.node.href ? () => open(p.node.href!) : undefined;
           // Sub-branch labels wait until they're big enough to read
           const hubLabel = p.depth <= 1 || 11.5 / unitsPerPx >= 7;
           const text = p.leaf && p.node.label.length > LABEL_MAX ? `${p.node.label.slice(0, LABEL_MAX - 1)}…` : p.node.label;
@@ -271,10 +324,11 @@ export function HoldingsWeb({
               key={p.node.id}
               transform={`translate(${x},${y})`}
               opacity={dim ? 0.25 : 1}
-              onMouseEnter={enter(p)}
+              onPointerEnter={enter(p)}
+              onPointerDown={(e) => !zoomable && setTouch(e.pointerType !== "mouse")}
               onFocus={enter(p)}
               onBlur={() => setHover(null)}
-              onClick={go}
+              onClick={go || touch ? tap(p) : undefined}
               onKeyDown={go ? (e) => e.key === "Enter" && go() : undefined}
               tabIndex={go ? 0 : undefined}
               role={go ? "link" : undefined}
@@ -345,7 +399,8 @@ export function HoldingsWeb({
             </button>
           </div>
           <p className="pointer-events-none absolute bottom-2 left-3 text-xs text-muted-foreground">
-            Scroll to zoom · drag to pan · {Math.round(view.s * 10) / 10}×
+            <span className="md:hidden">Pinch to zoom</span>
+            <span className="hidden md:inline">Scroll to zoom</span> · drag to pan · {Math.round(view.s * 10) / 10}×
           </p>
         </>
       )}
@@ -360,7 +415,9 @@ export function HoldingsWeb({
               {line}
             </p>
           ))}
-          {hover.p.node.href && <p className="mt-1 text-muted-foreground">{hover.p.node.hint ?? "Click to open"}</p>}
+          {hover.p.node.href && (
+            <p className="mt-1 text-muted-foreground">{touch ? "Tap again to open" : (hover.p.node.hint ?? "Click to open")}</p>
+          )}
         </div>
       )}
     </div>

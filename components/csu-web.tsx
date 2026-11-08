@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { HoldingsWeb, Legend, type BranchStyle, type TreeNode } from "@/components/holdings-web";
 import { fmtPct } from "@/components/superinvestors";
@@ -19,6 +19,19 @@ const BRANCHES: (BranchStyle & { id: Ownership })[] = [
   { id: "lumine", label: `Lumine (${fmtPct(LISTED.lumine.equity)} owned)`, color: "var(--color-amber-600)" },
 ];
 const COLOR = Object.fromEntries(BRANCHES.map((b) => [b.id, b.color])) as Record<Ownership, string>;
+
+const PHONE = "(max-width: 767px)";
+function usePhone() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(PHONE);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(PHONE).matches,
+    () => false
+  );
+}
 
 // Opened groups sit out toward the rim so company links run short
 const OPEN_RINGS = [0, 0.4, 0.74, 0.86];
@@ -202,10 +215,13 @@ export function CsuWeb() {
   }, [rows]);
 
   const [open, setOpen] = useState<Set<string>>(new Set());
+  const phone = usePhone(); // phones always get the zoomable frame: even 9 groups are too small to read at that width
   const tree = useMemo(() => buildTree(counts, rows.length, open, rows), [counts, rows, open]);
   // Leaf ring big enough for ~14 units per leaf once companies are shown
   const leaves = GROUPS.reduce((s, g) => s + (open.has(g.id) ? (counts[g.id] ?? 0) : 1), 0);
-  const rLeaf = open.size ? Math.max(360, Math.round(((leaves + 2.5 * GROUPS.length) * 14) / (2 * Math.PI))) : 260;
+  // On a phone the nine-group web uses a small ring and big type, so its
+  // labels fit the frame and read at ~9px
+  const rLeaf = open.size ? Math.max(360, Math.round(((leaves + 2.5 * GROUPS.length) * 14) / (2 * Math.PI))) : phone ? 120 : 260;
 
   return (
     <>
@@ -216,8 +232,8 @@ export function CsuWeb() {
         <>
           <Legend branches={BRANCHES} />
           <ShowCompanies open={open} setOpen={setOpen} counts={counts} total={rows.length} />
-          {open.size ? (
-            <div className="hidden md:block">
+          {open.size || phone ? (
+            <div>
               {/* keyed by size so each new selection opens fitted */}
               <HoldingsWeb
                 key={rLeaf}
@@ -225,13 +241,14 @@ export function CsuWeb() {
                 branches={BRANCHES}
                 label="Constellation Software's operating groups and their companies"
                 rLeaf={rLeaf}
-                rings={OPEN_RINGS}
-                linkOpacity={0.35}
+                rings={open.size ? OPEN_RINGS : undefined}
+                linkOpacity={open.size ? 0.35 : undefined}
+                leafFont={open.size ? undefined : 15}
                 zoomable
               />
             </div>
           ) : (
-            <div className="mx-auto hidden max-w-[820px] md:block">
+            <div className="mx-auto max-w-[820px]">
               <HoldingsWeb tree={tree} branches={BRANCHES} label="Constellation Software's operating groups" rLeaf={260} leafFont={13} />
             </div>
           )}
@@ -266,9 +283,15 @@ function ShowCompanies({
     setOpen(next);
   };
   return (
-    <fieldset className="mt-4 hidden md:block">
+    <fieldset className="mt-4">
       <legend className="text-xs text-muted-foreground">
-        Show each group&apos;s companies in the web{open.size ? " · zoom in to read names; hover a company for details, click for its site" : ""}
+        Show each group&apos;s companies in the web
+        {open.size ? (
+          <>
+            <span className="hidden md:inline"> · zoom in to read names; hover a company for details, click for its site</span>
+            <span className="md:hidden"> · pinch to read names; tap a company for details, tap again for its site</span>
+          </>
+        ) : null}
       </legend>
       <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1.5 text-sm">
         <label className="flex cursor-pointer items-center gap-1.5">
