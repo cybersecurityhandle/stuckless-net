@@ -42,6 +42,8 @@ function buildTree(tss: TssJson): TreeNode {
   return {
     id: "root",
     label: "Topicus.com",
+    href: "/finance?ticker=TOI.V",
+    hint: "Click for the TOI five-factor analysis",
     detail: [
       `${RESULTS.period}: revenue ${eur(RESULTS.revenue)} (+${fmtPct(RESULTS.revenueGrowth, 0)})`,
       `Net income ${eur(RESULTS.netIncome)}, ${eur(RESULTS.netIncomeTopicus)} to Topicus.com shareholders`,

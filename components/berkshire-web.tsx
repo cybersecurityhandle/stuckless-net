@@ -84,6 +84,8 @@ function buildTree(stocks: StockRow[], period: string, total: number): TreeNode 
   return {
     id: "root",
     label: "Berkshire Hathaway",
+    href: "/finance?ticker=BRK-B",
+    hint: "Click for the BRK-B five-factor analysis",
     detail: [
       `Operating businesses: ${fmtMoney(operating)} after-tax earnings (2025)`,
       `US stocks: ${fmtMoney(total)} (13F, ${fmtQuarter(period)})`,

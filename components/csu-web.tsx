@@ -181,6 +181,8 @@ function buildTree(counts: Record<string, number>, total: number, open: Set<stri
   return {
     id: "root",
     label: "Constellation Software",
+    href: "/finance?ticker=CSU.TO",
+    hint: "Click for the CSU five-factor analysis",
     detail: [
       `${RESULTS.period}: revenue ${usd(RESULTS.revenue)} (+${fmtPct(RESULTS.revenueGrowth, 0)})`,
       `Net income to shareholders ${usd(RESULTS.netIncome)}, FCFA2S ${usd(RESULTS.fcfa2s)}`,
