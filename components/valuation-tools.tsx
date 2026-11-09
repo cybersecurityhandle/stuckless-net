@@ -118,7 +118,21 @@ function Row({ label, value, tone }: { label: string; value: string; tone?: "pos
 
 /* ── Component ─────────────────────────────────── */
 
-export function ValuationTools({ years, currentPrice, ticker }: { years: ValuationYear[]; currentPrice: number | null; ticker: string }) {
+export function ValuationTools({
+  years,
+  currentPrice,
+  ticker,
+  trailingEps = null,
+  liveDividendYield = null,
+}: {
+  years: ValuationYear[];
+  currentPrice: number | null;
+  ticker: string;
+  // Trailing-12m GAAP EPS and current dividend yield (Yahoo). `years` stops at
+  // the last fiscal year; these keep today's price paired with today's numbers.
+  trailingEps?: number | null;
+  liveDividendYield?: number | null;
+}) {
   const h = useMemo(() => {
     const ys = years.slice(-HISTORY - 1);
     const first = ys[0];
@@ -151,14 +165,19 @@ export function ValuationTools({ years, currentPrice, ticker }: { years: Valuati
       // Margin swings, revenue drawdowns or losses = earnings that mean-revert
       cyclical: (marginCv != null && marginCv > 0.4) || revDrops >= 2 || (lossYears >= 1 && (marginCv ?? 1) > 0.3),
       medianPe: median(pes),
-      currentPe: last.eps > 0 ? price / last.eps : null,
+      // Today's price over trailing EPS when we have it, else the last fiscal year
+      epsNow: trailingEps ?? last.eps,
+      epsNowIsTtm: trailingEps != null,
+      currentPe: (trailingEps ?? last.eps) > 0 ? price / (trailingEps ?? last.eps) : null,
       normEps,
       normPe: normEps > 0 ? price / normEps : null,
       payout: last.eps > 0 ? clamp(last.dividendsPerShare / last.eps, 0, 1) : 0,
-      divYield: price > 0 ? last.dividendsPerShare / price : 0,
+      // Last fiscal year's DPS over today's price breaks after a cut or
+      // suspension (ABR: 102%) — prefer the live yield
+      divYield: liveDividendYield ?? (price > 0 ? last.dividendsPerShare / price : 0),
       sps,
     };
-  }, [years, currentPrice]);
+  }, [years, currentPrice, trailingEps, liveDividendYield]);
 
   // Reverse DCF inputs
   const [reqReturn, setReqReturn] = useState(0.1);
@@ -216,9 +235,18 @@ export function ValuationTools({ years, currentPrice, ticker }: { years: Valuati
           <Row label="Revenue drops > 10%" value={String(h.revDrops)} />
           <Row label="Loss years" value={String(h.lossYears)} />
           <div className="my-2 border-t border-border" />
-          <Row label="P/E on reported EPS" value={times(h.currentPe)} />
+          <Row
+            label={`P/E on ${h.epsNowIsTtm ? "trailing 12m" : "last-year"} EPS${h.epsNow <= 0 ? ` (${h.epsNow.toFixed(2)})` : ""}`}
+            value={h.currentPe != null ? times(h.currentPe) : "n/m"}
+          />
           <Row label={`Normalized P/E (avg ${pct(h.meanMargin)} margin)`} value={times(h.normPe)} />
           <Row label="Median P/E, history" value={times(h.medianPe)} />
+          {h.epsNow <= 0 && h.normPe != null && (
+            <p className="mt-2 text-[11px] text-yellow-400/80">
+              Trailing earnings are negative — the normalized P/E assumes margins recover to their
+              average. Check that they can before leaning on it.
+            </p>
+          )}
           {h.cyclical && h.currentPe != null && h.normPe != null && (
             <p className="mt-2 text-[11px] text-yellow-400/80">
               {h.normPe > h.currentPe * 1.15

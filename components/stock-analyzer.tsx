@@ -295,6 +295,32 @@ export function StockAnalyzer({
     }
   }, [activeYears]);
 
+  // Live trailing numbers (Yahoo) for the forward tools: the five-factor
+  // years end at the last fiscal year, so pairing today's price with that
+  // year's EPS/DPS misreads anything that has changed since — e.g. ABR's
+  // FY2025 $1.64 DPS over a $1.61 price after the dividend was suspended
+  // showed a 102% "dividend yield". `liveReady` gates the tools so their
+  // useState defaults are seeded with these rather than the stale fallback.
+  const [live, setLive] = useState<{ eps: number | null; dividendYield: number | null; industry: string | null } | null>(null);
+  const [liveReady, setLiveReady] = useState(false);
+  useEffect(() => {
+    const t = stockData?.ticker;
+    setLive(null);
+    setLiveReady(false);
+    if (!t) return;
+    let cancelled = false;
+    fetch(`/api/stock/stats?ticker=${encodeURIComponent(t)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((s) => {
+        if (!cancelled && s) setLive({ eps: s.eps ?? null, dividendYield: s.dividendYield ?? null, industry: s.industry ?? null });
+      })
+      .catch(() => {})
+      .finally(() => !cancelled && setLiveReady(true));
+    return () => {
+      cancelled = true;
+    };
+  }, [stockData?.ticker]);
+
   // Close suggestions on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -835,12 +861,14 @@ export function StockAnalyzer({
         </Card>
       )}
 
-      {stockData && activeYears.length >= 3 && (
+      {stockData && activeYears.length >= 3 && liveReady && (
         <ValuationTools
           key={`${stockData.ticker}-${calendarYear}-${diluted}`}
           years={activeYears}
           currentPrice={stockData.currentPrice ?? null}
           ticker={stockData.ticker}
+          trailingEps={live?.eps ?? null}
+          liveDividendYield={live?.dividendYield ?? null}
         />
       )}
 
@@ -986,14 +1014,20 @@ export function StockAnalyzer({
         const medianMargin = margins.length
           ? margins[Math.floor(margins.length / 2)]
           : 0;
-        if (medianMargin > 1) {
+        // Lenders slip under the >100% test when "revenue" is gross interest
+        // and loan sales (ABR: 33–178%, median 74%), so the industry decides too
+        const lender = /^Banks|Insurance|Mortgage|Credit Services|Capital Markets/i.test(live?.industry ?? "");
+        if (medianMargin > 1 || lender) {
           return (
             <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 px-4 py-3 text-xs text-yellow-400">
-              Free cash flow is not shown for {stockData.ticker}: its cash flow statement has the
-              signature of a financial company (median &quot;FCF&quot; {fmtPct(medianMargin)} of
-              revenue). For banks, brokers, and insurers, operating cash flow includes customer
-              float — deposits, payables, segregated funds — so OCF − capex measures balance-sheet
-              growth, not owner earnings. Use net income, ROE, and book value instead.
+              Free cash flow is not shown for {stockData.ticker}:{" "}
+              {lender
+                ? <>it is a financial company ({live?.industry}).</>
+                : <>its cash flow statement has the signature of a financial company (median &quot;FCF&quot; {fmtPct(medianMargin)} of revenue).</>}{" "}
+              For banks, lenders, brokers, and insurers, operating cash flow includes customer
+              float and loans made or sold — deposits, payables, segregated funds, loans held for
+              sale — so OCF − capex measures balance-sheet movement, not owner earnings. Use net
+              income, ROE, and book value instead.
             </div>
           );
         }
