@@ -2550,7 +2550,7 @@
   ]
  },
  "CVRX": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-10",
   "splits": []
  },
  "CVS": {
@@ -4598,6 +4598,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "HZO": {
+  "fetched": "2026-11-10",
+  "splits": []
+ },
  "IA": {
   "fetched": "2026-10-25",
   "splits": []
@@ -5317,6 +5321,10 @@
  },
  "KTOS": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "KVHI": {
+  "fetched": "2026-11-10",
   "splits": []
  },
  "KWR": {
@@ -6321,6 +6329,10 @@
  },
  "MTRN": {
   "fetched": "2026-11-05",
+  "splits": []
+ },
+ "MTRX": {
+  "fetched": "2026-11-10",
   "splits": []
  },
  "MTSI": {
@@ -7981,6 +7993,10 @@
  },
  "RRGB": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "RRX": {
+  "fetched": "2026-11-10",
   "splits": []
  },
  "RSVR": {
