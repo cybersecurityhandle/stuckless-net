@@ -206,6 +206,10 @@
   "fetched": "2026-11-12",
   "splits": []
  },
+ "ADIG": {
+  "fetched": "2026-11-12",
+  "splits": []
+ },
  "ADMA": {
   "fetched": "2026-10-25",
   "splits": []
@@ -564,6 +568,10 @@
  },
  "AMRX": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "AMRZ": {
+  "fetched": "2026-11-12",
   "splits": []
  },
  "AMSC": {
@@ -1046,7 +1054,7 @@
   "splits": []
  },
  "AXSM": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-12",
   "splits": []
  },
  "AXTA": {
@@ -5158,7 +5166,7 @@
   "splits": []
  },
  "JOBY": {
-  "fetched": "2026-11-05",
+  "fetched": "2026-11-12",
   "splits": []
  },
  "JOE": {
