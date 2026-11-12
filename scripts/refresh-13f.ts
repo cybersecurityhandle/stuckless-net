@@ -304,6 +304,13 @@ function filingBaseUrl(f: Filing) {
   return `https://www.sec.gov/Archives/edgar/data/${f.cik}/${f.accession.replace(/-/g, "")}`;
 }
 
+// Some filing agents (mostly 2011–2016) wrote CUSIPs as numbers, dropping the
+// leading zero: Giverny's BRK-B is 84670702 for six quarters, so it looked
+// sold and rebought. 7-character IDs are SEDOLs or option codes — leave them.
+function padCusip(c: string) {
+  return /^[0-9A-Z]{7}\d$/.test(c) ? `0${c}` : c;
+}
+
 async function loadFiling(f: Filing, seriesId?: string): Promise<CachedFiling> {
   const path = join(FILING_CACHE, `${f.accession}.json`);
   if (seriesId) {
@@ -318,11 +325,12 @@ async function loadFiling(f: Filing, seriesId?: string): Promise<CachedFiling> {
     for (const r of cached.rows ?? []) {
       r.issuer = decode(r.issuer);
       r.class = decode(r.class);
+      r.cusip = padCusip(r.cusip);
     }
     return cached;
   }
 
-  const cached: CachedFiling = { rows: await fetchInfoTable(f) };
+  const cached: CachedFiling = { rows: (await fetchInfoTable(f))?.map((r) => ({ ...r, cusip: padCusip(r.cusip) })) ?? null };
   if (f.form === "13F-HR/A") {
     const xml = await (await sec(`${filingBaseUrl(f)}/primary_doc.xml`)).text();
     cached.amendmentType = (tag(xml, "amendmentType") ?? "").toUpperCase();

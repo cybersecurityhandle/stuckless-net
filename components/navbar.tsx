@@ -27,7 +27,8 @@ export function Navbar() {
             <Shield className="h-5 w-5 text-emerald-500" />
             <span className="hidden sm:inline">stuckless.net</span>
           </Link>
-          <div className="flex min-w-0 items-center gap-4 overflow-x-auto whitespace-nowrap sm:gap-6">
+          {/* Phones swipe the links; the fade shows there are more */}
+          <div className="flex min-w-0 items-center gap-4 overflow-x-auto whitespace-nowrap pr-6 [scrollbar-width:none] [mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] sm:gap-6 sm:pr-0 sm:[mask-image:none]">
             {links.map((link) => (
               <Link
                 key={link.href}

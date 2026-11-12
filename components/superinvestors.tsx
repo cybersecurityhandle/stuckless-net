@@ -120,7 +120,7 @@ export function priceChange(price: number | undefined, reported: number | null):
   return ratio > 5 || ratio < 0.2 ? null : ratio - 1;
 }
 
-export function StockCell({ ticker, name }: { ticker: string | null; name: string }) {
+export function StockCell({ ticker, name, oneLine }: { ticker: string | null; name: string; oneLine?: boolean }) {
   return (
     <span className="flex min-w-0 items-baseline gap-1.5">
       {ticker ? (
@@ -135,7 +135,8 @@ export function StockCell({ ticker, name }: { ticker: string | null; name: strin
         <span className="shrink-0 text-muted-foreground">—</span>
       )}
       {/* Wraps on phones — a nowrap name keeps the table wider than the screen */}
-      <span className="min-w-0 sm:truncate">
+      {/* oneLine: in a side-scrolling table the name is a grey hint, cut off */}
+      <span className={`min-w-0 ${oneLine ? "truncate text-xs text-muted-foreground sm:text-sm sm:text-foreground" : "sm:truncate"}`}>
         <span className="text-muted-foreground">- </span>
         {name}
       </span>
@@ -579,14 +580,25 @@ function HoldingsTab({
   const options = q.positions.filter((p) => p.k.includes("|"));
   const soldOut = q.sold.filter((p) => !p.k.includes("|"));
   const cols = quotes ? 13 : 6;
-  // The table always fits its frame: columns drop out as the screen narrows
-  // (phones keep stock and weight), and an expanded row lists every figure
-  // while any are hidden. Without quotes there are few enough to show from sm.
-  const md = quotes ? "hidden md:table-cell" : wide;
-  const lg = quotes ? "hidden lg:table-cell" : wide;
-  const xl = quotes ? "hidden xl:table-cell" : wide;
-  const allFrom = quotes ? "xl:hidden" : "sm:hidden";
-  const num = `${td} whitespace-nowrap text-right`;
+  // Dataroma-dense: one line per holding and every column at every width.
+  // Narrower screens scroll sideways with the stock column pinned, so the
+  // figures behind a position are never more than a swipe away.
+  const cell = "px-2 py-1 sm:px-3 sm:py-1.5";
+  const num = `${cell} whitespace-nowrap text-right`;
+  // The pinned column needs an opaque copy of its row's tint, or the
+  // scrolled columns show through it
+  // (classes spelled out in full: Tailwind only sees literal class names)
+  const pin = "sticky left-0 z-10 shadow-[1px_0_0_var(--border)]";
+  const pinRow =
+    `${pin} bg-background group-even:bg-muted ` +
+    "group-hover:bg-[color-mix(in_oklab,var(--color-zinc-800)_50%,var(--background))] " +
+    "dark:group-even:bg-[color-mix(in_oklab,var(--muted)_20%,var(--background))] " +
+    "dark:group-hover:bg-[color-mix(in_oklab,var(--muted)_40%,var(--background))]";
+  const pinOpen = `${pin} !bg-[color-mix(in_oklab,var(--color-emerald-500)_10%,var(--background))]`;
+  const pinGroup = `${pin} bg-[color-mix(in_oklab,var(--muted)_25%,var(--background))]`;
+  // Fixed-width stock column: even at full desktop width the 13 columns
+  // overflow, and a fill-the-rest column shrank names to "Alpha…"
+  const stockW = "w-[10rem] min-w-[10rem] max-w-[10rem] sm:w-[15rem] sm:min-w-[15rem] sm:max-w-[15rem]";
 
   // Share classes of one company (BRK-A + BRK-B, GOOGL + GOOG) are one
   // position — total it, then list the classes
@@ -617,32 +629,27 @@ function HoldingsTab({
       <Fragment key={p.k}>
         <tr
           onClick={() => setExpanded(open ? null : p.k)}
-          className={`cursor-pointer border-b border-border/30 ${zebra} ${open ? "!bg-emerald-500/10" : ""}`}
+          className={`group cursor-pointer border-b border-border/30 ${zebra} ${open ? "!bg-emerald-500/10" : ""}`}
         >
-          <td className={`${td} w-full max-w-0`} title={`${s.n} — ${s.cl}`}>
-            <span className={`flex min-w-0 items-baseline gap-1.5 ${isClass ? "pl-4" : ""}`}>
+          <td className={`${cell} ${stockW} ${open ? pinOpen : pinRow}`} title={`${s.n} — ${s.cl}`}>
+            <span className={`flex min-w-0 items-baseline gap-1.5 ${isClass ? "pl-3 sm:pl-4" : ""}`}>
               <span aria-hidden className="w-2.5 shrink-0 text-[10px] text-muted-foreground">{open ? "▾" : "▸"}</span>
-              <StockCell ticker={s.t} name={isClass ? shareClass(s.cl) : s.d} />
+              <StockCell ticker={s.t} name={isClass ? shareClass(s.cl) : s.d} oneLine />
             </span>
-            {p.c && (
-              <span className={`mt-0.5 block text-xs sm:hidden ${isClass ? "pl-8" : "pl-4"}`}>
-                <ActivityText type={p.c} pct={p.p} />
-              </span>
-            )}
           </td>
           <td className={`${num} ${isClass ? "text-muted-foreground" : "font-medium"}`}>
             {fmtPct(q.total ? p.v / q.total : 0, 2)}
           </td>
-          <td className={`${td} ${wide} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
-          <td className={`${num} ${xl}`}>{p.s.toLocaleString()}</td>
-          <td className={`${num} ${lg}`}>{fmtPrice(reported)}</td>
-          <td className={`${num} ${wide} ${isClass ? "text-muted-foreground" : ""}`}>{fmtMoney(p.v)}</td>
+          <td className={`${cell} whitespace-nowrap`}><ActivityText type={p.c} pct={p.p} /></td>
+          <td className={`${num}`}>{p.s.toLocaleString()}</td>
+          <td className={`${num}`}>{fmtPrice(reported)}</td>
+          <td className={`${num} ${isClass ? "text-muted-foreground" : ""}`}>{fmtMoney(p.v)}</td>
           {quotes && (
             <>
-              <td className={`${gap} ${md}`} />
-              <td className={`${num} ${md}`}>{fmtPrice(quote?.price)}</td>
+              <td className={gap} />
+              <td className={`${num}`}>{fmtPrice(quote?.price)}</td>
               <td
-                className={`${num} ${md} ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                className={`${num} ${vsReported == null ? "text-muted-foreground" : vsReported >= 0 ? "text-emerald-400" : "text-red-400"}`}
                 title={
                   quote && reported && vsReported == null
                     ? "Not comparable: spin-off or filing error since quarter end"
@@ -654,16 +661,16 @@ function HoldingsTab({
                 {vsReported == null ? "—" : `${vsReported >= 0 ? "+" : ""}${fmtPct(vsReported)}`}
                 {split !== 1 && vsReported != null && <span className="text-muted-foreground">*</span>}
               </td>
-              <td className={`${num} ${xl}`}>{fmtPrice(quote?.low52)}</td>
-              <td className={`${num} ${xl}`}>{fmtPrice(quote?.high52)}</td>
+              <td className={`${num}`}>{fmtPrice(quote?.low52)}</td>
+              <td className={`${num}`}>{fmtPrice(quote?.high52)}</td>
               <td
-                className={`${num} ${lg} ${lp?.costPartial ? "text-muted-foreground" : ""}`}
+                className={`${num} ${lp?.costPartial ? "text-muted-foreground" : ""}`}
                 title={lp?.costPartial ? "Held before Q2 2013 — true cost is likely lower" : lp?.since ? `Held since ${fmtQuarter(lp.since)}` : undefined}
               >
                 {lp?.costPartial && cost != null && "≥"}
                 {fmtPrice(cost)}
               </td>
-              <td className={`${num} ${lg} ${vsCost == null ? "" : vsCost >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              <td className={`${num} ${vsCost == null ? "" : vsCost >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {vsCost == null ? "—" : `${vsCost >= 0 ? "+" : ""}${fmtPct(vsCost)}`}
               </td>
             </>
@@ -671,31 +678,11 @@ function HoldingsTab({
         </tr>
         {open && (
           <tr className="border-b border-border/40 bg-emerald-500/5">
-            <td colSpan={cols} className="pl-6">
-              <dl className={`grid grid-cols-2 gap-x-4 gap-y-1.5 pr-3 pt-3 text-xs tabular-nums sm:grid-cols-4 ${allFrom}`}>
-                {(
-                  [
-                    ["Shares", p.s.toLocaleString()],
-                    ["Value", fmtMoney(p.v)],
-                    ["Reported price", fmtPrice(reported)],
-                    ...(quotes
-                      ? [
-                          ["Current price", fmtPrice(quote?.price)],
-                          ["± Reported price", vsReported == null ? "—" : signedPct(vsReported)],
-                          ["52-week range", `${fmtPrice(quote?.low52)} – ${fmtPrice(quote?.high52)}`],
-                          ["Est. cost", `${lp?.costPartial && cost != null ? "≥" : ""}${fmtPrice(cost)}`],
-                          ["± Est. cost", vsCost == null ? "—" : signedPct(vsCost)],
-                        ]
-                      : []),
-                  ] as [string, string][]
-                ).map(([k, v]) => (
-                  <div key={k}>
-                    <dt className="text-muted-foreground">{k}</dt>
-                    <dd className="font-medium">{v}</dd>
-                  </div>
-                ))}
-              </dl>
-              <PositionHistory history={history} k={p.k} />
+            <td colSpan={cols} className="p-0">
+              {/* Pinned to the visible width while the table scrolls under it */}
+              <div className="sticky left-0 w-[100cqw] pl-6">
+                <PositionHistory history={history} k={p.k} />
+              </div>
             </td>
           </tr>
         )}
@@ -721,46 +708,46 @@ function HoldingsTab({
       {view === "map" ? (
         <PortfolioTreemap history={history} positions={longs} total={q.total} />
       ) : (
-      <div className="overflow-x-auto">
+      <div className="@container overflow-x-auto">
         <table className={table}>
           <thead>
             {/* One cell per column, each hidden with its column, so the
                 captions stay over their blocks at every width */}
             <tr className="text-left">
-              <th className={`${caption} whitespace-nowrap px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
+              <th className={`${caption} sticky left-0 z-10 whitespace-nowrap bg-background px-3 pb-1.5`}>As reported, {fmtDate(q.period)}</th>
               <th />
-              <th className={wide} />
-              <th className={xl} />
-              <th className={lg} />
-              <th className={wide} />
+              <th />
+              <th />
+              <th />
+              <th />
               {quotes && (
                 <>
-                  <th className={`${gap} ${md}`} />
-                  <th className={`${caption} ${md} px-3 pb-1.5`}>Now</th>
-                  <th className={md} />
-                  <th className={xl} />
-                  <th className={xl} />
-                  <th className={lg} />
-                  <th className={lg} />
+                  <th className={gap} />
+                  <th className={`${caption} px-3 pb-1.5`}>Now</th>
+                  <th />
+                  <th />
+                  <th />
+                  <th />
+                  <th />
                 </>
               )}
             </tr>
             <tr className="whitespace-nowrap text-left">
-              <th className={th}>Stock</th>
+              <th className={`${th} sticky left-0 z-10 shadow-[1px_0_0_var(--border)]`}>Stock</th>
               <th className={`${th} text-right`}>% of<br />Portfolio</th>
-              <th className={`${th} ${wide}`}>Recent<br />Activity</th>
-              <th className={`${th} ${xl} text-right`}>Shares</th>
-              <th className={`${th} ${lg} text-right`}>Reported<br />Price</th>
-              <th className={`${th} ${wide} text-right`}>Value</th>
+              <th className={`${th}`}>Recent<br />Activity</th>
+              <th className={`${th} text-right`}>Shares</th>
+              <th className={`${th} text-right`}>Reported<br />Price</th>
+              <th className={`${th} text-right`}>Value</th>
               {quotes && (
                 <>
-                  <th className={`${gap} ${md}`} />
-                  <th className={`${th} ${md} text-right`}>Current<br />Price</th>
-                  <th className={`${th} ${md} text-right`}>± Reported<br />Price</th>
-                  <th className={`${th} ${xl} text-right`}>52 Week<br />Low</th>
-                  <th className={`${th} ${xl} text-right`}>52 Week<br />High</th>
-                  <th className={`${th} ${lg} text-right`} title="Estimated average cost from quarter-end prices of each buy since Q2 2013">Est.<br />Cost</th>
-                  <th className={`${th} ${lg} text-right`}>± Est.<br />Cost</th>
+                  <th className={gap} />
+                  <th className={`${th} text-right`}>Current<br />Price</th>
+                  <th className={`${th} text-right`}>± Reported<br />Price</th>
+                  <th className={`${th} text-right`}>52 Week<br />Low</th>
+                  <th className={`${th} text-right`}>52 Week<br />High</th>
+                  <th className={`${th} text-right`} title="Estimated average cost from quarter-end prices of each buy since Q2 2013">Est.<br />Cost</th>
+                  <th className={`${th} text-right`}>± Est.<br />Cost</th>
                 </>
               )}
             </tr>
@@ -772,22 +759,22 @@ function HoldingsTab({
               ) : (
                 <Fragment key={key}>
                   <tr className="border-b border-border/30 bg-muted/25">
-                    <td className={`${td} w-full max-w-0`}>
+                    <td className={`${cell} ${stockW} ${pinGroup}`}>
                       <span className="flex min-w-0 items-baseline gap-1.5">
                         <span className="w-2.5 shrink-0" />
                         <span className="truncate font-medium">{sec(classes[0].k).d}</span>
-                        <span className="shrink-0 text-xs text-muted-foreground">{classes.length} share classes</span>
+                        <span className="hidden shrink-0 text-xs text-muted-foreground sm:inline">{classes.length} share classes</span>
                       </span>
                     </td>
                     <td className={`${num} font-semibold`}>{fmtPct(q.total ? value / q.total : 0, 2)}</td>
-                    <td className={wide} />
-                    <td className={xl} />
-                    <td className={lg} />
-                    <td className={`${num} ${wide} font-medium`}>{fmtMoney(value)}</td>
+                    <td />
+                    <td />
+                    <td />
+                    <td className={`${num} font-medium`}>{fmtMoney(value)}</td>
                     {quotes && (
                       <>
-                        <td className={`${gap} ${md}`} />
-                        {[md, md, xl, xl, lg, lg].map((c, i) => <td key={i} className={c} />)}
+                        <td className={gap} />
+                        {[0, 1, 2, 3, 4, 5].map((i) => <td key={i} />)}
                       </>
                     )}
                   </tr>
@@ -822,7 +809,7 @@ function HoldingsTab({
       )}
 
       <p className="mt-4 px-2 text-xs text-muted-foreground">
-        Click a row for its weight over time<span className={allFrom}> and the full figures</span>. Reported price = 13F value ÷ shares at quarter end.
+        Click a row for its weight over time. On a narrow screen, swipe the table sideways for every column. Reported price = 13F value ÷ shares at quarter end.
         {quotes && " Current prices as of the last data refresh; * = adjusted for a stock split since quarter end. Est. cost = average of quarter-end prices of each buy (≥ = held before Q2 2013, so the real cost is likely lower)."}
         {options.length > 0 && (
           <>
@@ -986,11 +973,11 @@ function StyleStrip({
   const byId = new Map(index.managers.map((x) => [x.id, x]));
   return (
     <>
-      <dl className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border text-sm sm:grid-cols-3 lg:grid-cols-6">
+      <dl className="mt-2 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-border bg-border text-[13px] sm:text-sm lg:grid-cols-6">
         {items.map(([name, value, hint]) => (
-          <div key={name} className="bg-background px-4 py-2.5" title={hint}>
-            <dt className="text-xs text-muted-foreground">{name}</dt>
-            <dd className="flex h-7 items-center font-semibold tabular-nums">{value}</dd>
+          <div key={name} className="bg-background px-2.5 py-1.5 sm:px-4 sm:py-2.5" title={hint}>
+            <dt className="text-[11px] leading-tight text-muted-foreground sm:text-xs">{name}</dt>
+            <dd className="flex h-6 items-center font-semibold tabular-nums sm:h-7">{value}</dd>
           </div>
         ))}
       </dl>
@@ -1194,11 +1181,11 @@ function ManagerView({
       {history && q && (
         <>
           {/* gap-px over a border-colored background draws the cell dividers */}
-          <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-border bg-border text-sm sm:grid-cols-3 lg:grid-cols-6">
+          <dl className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-border bg-border text-[13px] sm:text-sm lg:grid-cols-6">
             {facts.map(([name, value]) => (
-              <div key={name} className="bg-background px-4 py-2.5">
-                <dt className="text-xs text-muted-foreground">{name}</dt>
-                <dd className="flex h-7 items-center font-semibold tabular-nums">{value}</dd>
+              <div key={name} className="bg-background px-2.5 py-1.5 sm:px-4 sm:py-2.5">
+                <dt className="text-[11px] leading-tight text-muted-foreground sm:text-xs">{name}</dt>
+                <dd className="flex h-6 items-center font-semibold tabular-nums sm:h-7">{value}</dd>
               </div>
             ))}
           </dl>
@@ -1343,11 +1330,11 @@ export function Superinvestors() {
             <select
               value={manager?.favorite ? manager.id : ""}
               onChange={(e) => e.target.value && select(e.target.value)}
-              className={`-mb-px border-b-2 bg-transparent pb-2 text-sm sm:hidden ${
+              className={`-mb-px max-w-[11rem] appearance-none truncate border-b-2 bg-transparent pb-2 text-sm sm:hidden ${
                 manager?.favorite ? "border-emerald-500 font-medium text-foreground" : "border-transparent text-muted-foreground"
               }`}
             >
-              <option value="">Featured managers…</option>
+              <option value="">Featured managers ▾</option>
               {favorites.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
             {/* A manager opened from All managers gets a temporary tab */}
