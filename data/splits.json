@@ -257,11 +257,11 @@
   "splits": []
  },
  "AEHR": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "AEIS": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "AEM": {
@@ -546,7 +546,7 @@
   "splits": []
  },
  "AMPX": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "AMPY": {
@@ -1062,7 +1062,7 @@
   "splits": []
  },
  "AXTI": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "AYI": {
@@ -3286,7 +3286,7 @@
   ]
  },
  "ETON": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "ETR": {
@@ -3498,7 +3498,7 @@
   "splits": []
  },
  "FICO": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "FINV": {
@@ -3602,7 +3602,7 @@
   "splits": []
  },
  "FN": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "FND": {
@@ -3873,7 +3873,7 @@
   "splits": []
  },
  "GEMI": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "GENC": {
@@ -5382,7 +5382,7 @@
   "splits": []
  },
  "LASR": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "LAZ": {
@@ -6767,7 +6767,7 @@
   "splits": []
  },
  "NVMI": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "NVO": {
@@ -7883,7 +7883,7 @@
   ]
  },
  "RKLB": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "RKT": {
@@ -8508,7 +8508,7 @@
   "splits": []
  },
  "SITM": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "SJT": {
@@ -8546,7 +8546,7 @@
   "splits": []
  },
  "SKYX": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "SLB": {
@@ -9447,11 +9447,11 @@
   ]
  },
  "TSEM": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "TSHA": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "TSLA": {
@@ -10040,7 +10040,7 @@
   "splits": []
  },
  "VRT": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "VRTS": {
@@ -10425,7 +10425,7 @@
   "splits": []
  },
  "XE": {
-  "fetched": "2026-11-12",
+  "fetched": "2026-11-13",
   "splits": []
  },
  "XEFRX": {
