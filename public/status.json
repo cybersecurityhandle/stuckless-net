@@ -1,44 +1,44 @@
 {
  "refresh-backtest": {
-  "ranAt": "2026-11-14T22:54:46.002Z",
+  "ranAt": "2026-11-15T22:46:10.745Z",
   "ok": true,
   "summary": "85 managers backtested",
-  "seconds": 12
+  "seconds": 485
  },
  "refresh-13f": {
-  "ranAt": "2026-11-14T22:37:53.717Z",
+  "ranAt": "2026-11-15T22:36:07.115Z",
   "ok": true,
   "summary": "85 managers",
-  "seconds": 139
+  "seconds": 136
  },
  "refresh-fivefactor": {
-  "ranAt": "2026-11-14T22:55:35.907Z",
+  "ranAt": "2026-11-15T22:46:56.967Z",
   "ok": true,
   "summary": "8 managers decomposed",
-  "seconds": 38
+  "seconds": 35
  },
  "refresh-insiders": {
-  "ranAt": "2026-11-14T22:54:33.854Z",
+  "ranAt": "2026-11-15T22:38:04.961Z",
   "ok": true,
-  "summary": "744 insider buys, 7 superinvestor trades, 56 stakes",
-  "seconds": 1000
+  "summary": "724 insider buys, 6 superinvestor trades, 55 stakes",
+  "seconds": 117
  },
  "refresh-isolation": {
-  "ranAt": "2026-11-14T22:54:57.480Z",
+  "ranAt": "2026-11-15T22:46:21.697Z",
   "ok": true,
-  "summary": "84 managers, 861 manager-years, r=-0.062",
-  "seconds": 11
+  "summary": "84 managers, 861 manager-years, r=-0.0611",
+  "seconds": 10
  },
  "refresh-tss": {
-  "ranAt": "2026-11-14T22:55:45.830Z",
+  "ranAt": "2026-11-15T22:47:06.751Z",
   "ok": true,
   "summary": "158 TSS acquisitions",
   "seconds": 9
  },
  "refresh-csu": {
-  "ranAt": "2026-11-08T22:51:42.903Z",
+  "ranAt": "2026-11-15T22:49:52.791Z",
   "ok": true,
   "summary": "743 companies",
-  "seconds": 170
+  "seconds": 166
  }
 }
