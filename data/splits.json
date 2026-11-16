@@ -284,6 +284,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "AESI": {
+  "fetched": "2026-11-16",
+  "splits": []
+ },
  "AFL": {
   "fetched": "2026-10-25",
   "splits": [
@@ -9789,6 +9793,10 @@
  },
  "UIS": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "ULS": {
+  "fetched": "2026-11-16",
   "splits": []
  },
  "ULTA": {
