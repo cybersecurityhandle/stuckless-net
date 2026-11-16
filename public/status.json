@@ -1,36 +1,36 @@
 {
  "refresh-backtest": {
-  "ranAt": "2026-11-15T22:46:10.745Z",
+  "ranAt": "2026-11-16T22:42:14.404Z",
   "ok": true,
   "summary": "85 managers backtested",
-  "seconds": 485
+  "seconds": 18
  },
  "refresh-13f": {
-  "ranAt": "2026-11-16T21:47:35.753Z",
-  "ok": true,
-  "summary": "85 managers",
-  "seconds": 68
+  "ranAt": "2026-11-16T22:39:56.659Z",
+  "ok": false,
+  "summary": "85 managers, failed: pabrai-wagons",
+  "seconds": 269
  },
  "refresh-fivefactor": {
-  "ranAt": "2026-11-15T22:46:56.967Z",
+  "ranAt": "2026-11-16T22:43:02.186Z",
   "ok": true,
-  "summary": "8 managers decomposed",
-  "seconds": 35
+  "summary": "7 managers decomposed",
+  "seconds": 36
  },
  "refresh-insiders": {
-  "ranAt": "2026-11-15T22:38:04.961Z",
+  "ranAt": "2026-11-16T22:41:55.905Z",
   "ok": true,
-  "summary": "724 insider buys, 6 superinvestor trades, 55 stakes",
-  "seconds": 117
+  "summary": "706 insider buys, 6 superinvestor trades, 55 stakes",
+  "seconds": 119
  },
  "refresh-isolation": {
-  "ranAt": "2026-11-15T22:46:21.697Z",
+  "ranAt": "2026-11-16T22:42:25.570Z",
   "ok": true,
   "summary": "84 managers, 861 manager-years, r=-0.0611",
-  "seconds": 10
+  "seconds": 11
  },
  "refresh-tss": {
-  "ranAt": "2026-11-15T22:47:06.751Z",
+  "ranAt": "2026-11-16T22:43:12.037Z",
   "ok": true,
   "summary": "158 TSS acquisitions",
   "seconds": 9
