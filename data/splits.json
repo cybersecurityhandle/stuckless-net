@@ -3101,6 +3101,15 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "EFG": {
+  "fetched": "2026-11-16",
+  "splits": [
+   {
+    "date": "2026-11-05",
+    "ratio": 3
+   }
+  ]
+ },
  "EFOR": {
   "fetched": "2026-11-03",
   "splits": []
