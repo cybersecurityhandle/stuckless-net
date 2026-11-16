@@ -6,10 +6,10 @@
   "seconds": 485
  },
  "refresh-13f": {
-  "ranAt": "2026-11-16T14:45:30.127Z",
+  "ranAt": "2026-11-16T15:19:30.572Z",
   "ok": true,
   "summary": "85 managers",
-  "seconds": 85
+  "seconds": 86
  },
  "refresh-fivefactor": {
   "ranAt": "2026-11-15T22:46:56.967Z",
