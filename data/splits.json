@@ -991,7 +991,7 @@
   "splits": []
  },
  "AUR": {
-  "fetched": "2026-11-05",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "AUROW": {
@@ -1749,7 +1749,7 @@
   "splits": []
  },
  "CAMT": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "CAR": {
@@ -2232,7 +2232,7 @@
   "splits": []
  },
  "COHU": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "COIN": {
@@ -3168,6 +3168,15 @@
   "fetched": "2026-11-01",
   "splits": []
  },
+ "EMBJ": {
+  "fetched": "2026-11-16",
+  "splits": [
+   {
+    "date": "2026-11-16",
+    "ratio": 4
+   }
+  ]
+ },
  "EME": {
   "fetched": "2026-10-25",
   "splits": []
@@ -3693,7 +3702,7 @@
   "splits": []
  },
  "FRMI": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "FROG": {
@@ -3849,6 +3858,10 @@
  },
  "GDOT": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "GDS": {
+  "fetched": "2026-11-16",
   "splits": []
  },
  "GDXJ": {
@@ -4740,7 +4753,7 @@
   ]
  },
  "IEP": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "IESC": {
@@ -5750,7 +5763,7 @@
   "splits": []
  },
  "LTRX": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "LULU": {
@@ -5836,7 +5849,7 @@
   "splits": []
  },
  "MAIR": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "MAN": {
@@ -6388,7 +6401,7 @@
   "splits": []
  },
  "MTSI": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "MTW": {
@@ -7960,7 +7973,7 @@
   ]
  },
  "RMBS": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "RMD": {
@@ -8168,7 +8181,7 @@
   "splits": []
  },
  "SANM": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "SAP": {
@@ -8681,7 +8694,7 @@
   ]
  },
  "SMTC": {
-  "fetched": "2026-11-05",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "SN": {
@@ -9842,6 +9855,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "URGN": {
+  "fetched": "2026-11-16",
+  "splits": []
+ },
  "URI": {
   "fetched": "2026-10-25",
   "splits": []
@@ -9918,7 +9935,7 @@
   "splits": []
  },
  "VEEV": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "VELO": {
@@ -10113,7 +10130,7 @@
   "splits": []
  },
  "VRT": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "VRTS": {
@@ -10502,7 +10519,7 @@
   "splits": []
  },
  "XE": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "XEFRX": {
