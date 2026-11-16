@@ -1583,6 +1583,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "BTGO": {
+  "fetched": "2026-11-16",
+  "splits": []
+ },
  "BTI": {
   "fetched": "2026-10-25",
   "splits": [
@@ -4501,6 +4505,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "HONA": {
+  "fetched": "2026-11-16",
+  "splits": []
+ },
  "HOPE": {
   "fetched": "2026-10-25",
   "splits": []
@@ -5326,6 +5334,10 @@
   "fetched": "2026-10-25",
   "splits": []
  },
+ "KNF": {
+  "fetched": "2026-11-16",
+  "splits": []
+ },
  "KOD": {
   "fetched": "2026-11-13",
   "splits": []
@@ -5598,7 +5610,7 @@
   "splits": []
  },
  "LII": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-16",
   "splits": []
  },
  "LILA": {
@@ -8752,6 +8764,10 @@
  },
  "SOFI": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SOLS": {
+  "fetched": "2026-11-16",
   "splits": []
  },
  "SONO": {
