@@ -22,7 +22,7 @@
   ]
  },
  "AADX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AAL": {
@@ -34,7 +34,7 @@
   "splits": []
  },
  "AAOI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AAON": {
@@ -110,7 +110,7 @@
   "splits": []
  },
  "ABR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ABT": {
@@ -153,7 +153,7 @@
   "splits": []
  },
  "ACMR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2022-03-24",
@@ -203,11 +203,11 @@
   "splits": []
  },
  "ADEA": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ADIG": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ADMA": {
@@ -231,7 +231,7 @@
   "splits": []
  },
  "ADTN": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ADV": {
@@ -257,7 +257,7 @@
   "splits": []
  },
  "AEHR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AEIS": {
@@ -285,7 +285,7 @@
   "splits": []
  },
  "AESI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AFL": {
@@ -359,7 +359,7 @@
   "splits": []
  },
  "AIRJ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AIT": {
@@ -383,7 +383,7 @@
   "splits": []
  },
  "ALAB": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ALB": {
@@ -437,11 +437,11 @@
   ]
  },
  "ALNY": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ALOY": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2019-07-16",
@@ -458,7 +458,7 @@
   "splits": []
  },
  "ALT": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2018-09-14",
@@ -501,7 +501,7 @@
   "splits": []
  },
  "AMAT": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AMBA": {
@@ -547,7 +547,7 @@
   ]
  },
  "AMKR": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AMLX": {
@@ -563,7 +563,7 @@
   "splits": []
  },
  "AMPX": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AMPY": {
@@ -749,7 +749,7 @@
   "splits": []
  },
  "APLD": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2022-04-13",
@@ -820,7 +820,7 @@
   ]
  },
  "ARM": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ARMK": {
@@ -837,7 +837,7 @@
   "splits": []
  },
  "ARTV": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ARW": {
@@ -916,7 +916,11 @@
   "splits": []
  },
  "ASTS": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
+  "splits": []
+ },
+ "ASX": {
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ASYS": {
@@ -1079,7 +1083,7 @@
   "splits": []
  },
  "AXTI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "AYI": {
@@ -1108,7 +1112,7 @@
   "splits": []
  },
  "AZUL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "B": {
@@ -1158,7 +1162,7 @@
   ]
  },
  "BATL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BAX": {
@@ -1255,7 +1259,7 @@
   ]
  },
  "BE": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BEKE": {
@@ -1439,7 +1443,7 @@
   "splits": []
  },
  "BLZE": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BMA": {
@@ -1456,11 +1460,11 @@
   ]
  },
  "BMM": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BMNR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BMRN": {
@@ -1538,7 +1542,7 @@
   "splits": []
  },
  "BRBR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BRCC": {
@@ -1580,7 +1584,7 @@
   "splits": []
  },
  "BRZE": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BSX": {
@@ -1588,7 +1592,7 @@
   "splits": []
  },
  "BTAIQ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2025-02-10",
@@ -1605,7 +1609,7 @@
   "splits": []
  },
  "BTGO": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BTI": {
@@ -1630,7 +1634,7 @@
   "splits": []
  },
  "BULL": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "BUR": {
@@ -1774,7 +1778,7 @@
   "splits": []
  },
  "CAMT": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CAR": {
@@ -1814,7 +1818,7 @@
   "splits": []
  },
  "CBRS": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CC": {
@@ -1855,7 +1859,7 @@
   "splits": []
  },
  "CDLX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-06-08",
@@ -2029,7 +2033,7 @@
   "splits": []
  },
  "CIFR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CIG": {
@@ -2106,7 +2110,7 @@
   "splits": []
  },
  "CLS": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CLVT": {
@@ -2190,7 +2194,7 @@
   ]
  },
  "CNDT": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CNH": {
@@ -2257,11 +2261,11 @@
   "splits": []
  },
  "COHU": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "COIN": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "COLL": {
@@ -2299,7 +2303,7 @@
   "splits": []
  },
  "CORZ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "COTY": {
@@ -2307,7 +2311,7 @@
   "splits": []
  },
  "COYA": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CPIX": {
@@ -2348,7 +2352,7 @@
   "splits": []
  },
  "CRBU": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CRC": {
@@ -2356,11 +2360,11 @@
   "splits": []
  },
  "CRCL": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CRDO": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CRGY": {
@@ -2436,7 +2440,7 @@
   ]
  },
  "CRWV": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CSCO": {
@@ -2527,7 +2531,7 @@
   ]
  },
  "CTVA": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-10-01",
@@ -2596,7 +2600,7 @@
   ]
  },
  "CVRX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "CVS": {
@@ -2779,7 +2783,7 @@
   "splits": []
  },
  "DDOG": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "DDS": {
@@ -2804,7 +2808,7 @@
   "splits": []
  },
  "DELL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2018-12-28",
@@ -2817,11 +2821,11 @@
   ]
  },
  "DEO": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "DERM": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "DFNL": {
@@ -2902,7 +2906,7 @@
   ]
  },
  "DNA": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2024-08-20",
@@ -2924,7 +2928,7 @@
   ]
  },
  "DOCN": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "DOCS": {
@@ -3119,7 +3123,7 @@
   "splits": []
  },
  "EFG": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-11-05",
@@ -3136,7 +3140,7 @@
   "splits": []
  },
  "EFV": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-11-05",
@@ -3207,7 +3211,7 @@
   "splits": []
  },
  "EMBJ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-11-16",
@@ -3315,6 +3319,10 @@
     "ratio": 0.2
    }
   ]
+ },
+ "ERO": {
+  "fetched": "2026-11-20",
+  "splits": []
  },
  "EROC": {
   "fetched": "2026-11-16",
@@ -3625,7 +3633,7 @@
   ]
  },
  "FLUT": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "FLWS": {
@@ -3641,7 +3649,7 @@
   "splits": []
  },
  "FMC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2019-03-04",
@@ -3700,7 +3708,7 @@
   ]
  },
  "FORM": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "FOSL": {
@@ -3732,7 +3740,7 @@
   "splits": []
  },
  "FPS": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "FRCB": {
@@ -3740,7 +3748,7 @@
   "splits": []
  },
  "FRMI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "FROG": {
@@ -3769,7 +3777,7 @@
   "splits": []
  },
  "FSLY": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "FTAI": {
@@ -3871,7 +3879,7 @@
   "splits": []
  },
  "GANX": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "GAP": {
@@ -3899,7 +3907,7 @@
   "splits": []
  },
  "GDS": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "GDXJ": {
@@ -3937,7 +3945,7 @@
   "splits": []
  },
  "GEMI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "GENC": {
@@ -4307,7 +4315,7 @@
   "splits": []
  },
  "GTX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "GUTS": {
@@ -4474,7 +4482,7 @@
   ]
  },
  "HKHHY": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "HL": {
@@ -4667,7 +4675,7 @@
   "splits": []
  },
  "HUT": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2023-12-04",
@@ -4756,7 +4764,7 @@
   "splits": []
  },
  "ICHR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ICLR": {
@@ -4799,11 +4807,11 @@
   ]
  },
  "IEP": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "IESC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-08-24",
@@ -4858,7 +4866,7 @@
   "splits": []
  },
  "IMXI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "INBX": {
@@ -4878,7 +4886,7 @@
   "splits": []
  },
  "INFQ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "INFU": {
@@ -4936,7 +4944,7 @@
   ]
  },
  "INOD": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "INSG": {
@@ -4957,7 +4965,7 @@
   "splits": []
  },
  "INTC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "INTG": {
@@ -4991,11 +4999,11 @@
   ]
  },
  "IONQ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "IONS": {
-  "fetched": "2026-11-03",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "IP": {
@@ -5050,7 +5058,7 @@
   "splits": []
  },
  "ITA": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2020-12-07",
@@ -5112,7 +5120,7 @@
   "splits": []
  },
  "IVVD": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "IVZ": {
@@ -5235,7 +5243,7 @@
   ]
  },
  "JELD": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "JILL": {
@@ -5264,7 +5272,7 @@
   "splits": []
  },
  "JOBY": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "JOE": {
@@ -5353,7 +5361,7 @@
   ]
  },
  "KLIC": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "KMI": {
@@ -5393,7 +5401,7 @@
   "splits": []
  },
  "KOPN": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "KOS": {
@@ -5451,7 +5459,7 @@
   "splits": []
  },
  "KZIA": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2013-01-28",
@@ -5496,7 +5504,7 @@
   "splits": []
  },
  "LBRT": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "LBTYA": {
@@ -5690,7 +5698,7 @@
   "splits": []
  },
  "LITE": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "LIVN": {
@@ -5792,7 +5800,7 @@
   "splits": []
  },
  "LPTH": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "LPX": {
@@ -5800,7 +5808,7 @@
   "splits": []
  },
  "LRCX": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2024-10-03",
@@ -5817,7 +5825,7 @@
   "splits": []
  },
  "LTRX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "LULU": {
@@ -6261,7 +6269,7 @@
   ]
  },
  "MNTN": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "MOD": {
@@ -6362,7 +6370,7 @@
   "splits": []
  },
  "MRVL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "MS": {
@@ -6391,7 +6399,7 @@
   "splits": []
  },
  "MSTR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2024-08-08",
@@ -6476,7 +6484,7 @@
   "splits": []
  },
  "MU": {
-  "fetched": "2026-11-08",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "MUR": {
@@ -6489,11 +6497,11 @@
   ]
  },
  "MX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "MXL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "MYE": {
@@ -6518,7 +6526,7 @@
   "splits": []
  },
  "NAK": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "NAMS": {
@@ -6547,7 +6555,7 @@
   "splits": []
  },
  "NBIS": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "NBR": {
@@ -6852,7 +6860,7 @@
   "splits": []
  },
  "NVDA": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2021-07-20",
@@ -6986,7 +6994,7 @@
   ]
  },
  "OEC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "OESX": {
@@ -7028,7 +7036,7 @@
   ]
  },
  "OKLO": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "OKTA": {
@@ -7099,7 +7107,7 @@
   "splits": []
  },
  "ONTO": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "OPEN": {
@@ -7132,7 +7140,7 @@
   "splits": []
  },
  "ORIC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "ORKA": {
@@ -7413,7 +7421,7 @@
   "splits": []
  },
  "PGEN": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "PGNY": {
@@ -7511,7 +7519,7 @@
   "splits": []
  },
  "PLUG": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "PLXS": {
@@ -7544,7 +7552,7 @@
   "splits": []
  },
  "POET": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2022-02-28",
@@ -7557,7 +7565,7 @@
   "splits": []
  },
  "PONY": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "POOL": {
@@ -7689,7 +7697,7 @@
   "splits": []
  },
  "PTLO": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "PTON": {
@@ -7797,7 +7805,7 @@
   "splits": []
  },
  "QTRX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "QTWO": {
@@ -7867,7 +7875,7 @@
   "splits": []
  },
  "RDDT": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "RDI": {
@@ -7976,7 +7984,7 @@
   "splits": []
  },
  "RILY": {
-  "fetched": "2026-11-10",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2014-06-03",
@@ -8194,7 +8202,7 @@
   "splits": []
  },
  "RXT": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "RYAAY": {
@@ -8223,7 +8231,7 @@
   "splits": []
  },
  "SA": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SABR": {
@@ -8424,7 +8432,7 @@
   "splits": []
  },
  "SECZ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SEDG": {
@@ -8519,7 +8527,7 @@
   "splits": []
  },
  "SHAZ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SHC": {
@@ -8614,11 +8622,11 @@
   ]
  },
  "SIMO": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SION": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SIRI": {
@@ -8635,11 +8643,15 @@
   "splits": []
  },
  "SITM": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SJT": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "SKHY": {
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SKIL": {
@@ -8673,7 +8685,7 @@
   "splits": []
  },
  "SKYX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SLB": {
@@ -8703,7 +8715,7 @@
   ]
  },
  "SLQT": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-11-17",
@@ -8783,7 +8795,7 @@
   ]
  },
  "SMTC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SN": {
@@ -8807,11 +8819,16 @@
   "splits": []
  },
  "SNDK": {
-  "fetched": "2026-11-19",
-  "splits": []
+  "fetched": "2026-11-20",
+  "splits": [
+   {
+    "date": "2026-11-20",
+    "ratio": 8
+   }
+  ]
  },
  "SNDX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SNOW": {
@@ -8857,7 +8874,7 @@
   ]
  },
  "SOXL": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2015-05-20",
@@ -8870,7 +8887,7 @@
   ]
  },
  "SOXX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2024-03-07",
@@ -9079,7 +9096,7 @@
   "splits": []
  },
  "STX": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "SU": {
@@ -9095,7 +9112,7 @@
   "splits": []
  },
  "SVC": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2026-07-07",
@@ -9280,7 +9297,7 @@
   "splits": []
  },
  "TER": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TEVA": {
@@ -9626,7 +9643,7 @@
   ]
  },
  "TSEM": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TSHA": {
@@ -9655,7 +9672,7 @@
   "splits": []
  },
  "TSQ": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TTC": {
@@ -9694,7 +9711,7 @@
   "splits": []
  },
  "TTMI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TTSH": {
@@ -9727,15 +9744,19 @@
   "splits": []
  },
  "TWLO": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TWST": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TX": {
   "fetched": "2026-10-25",
+  "splits": []
+ },
+ "TXG": {
+  "fetched": "2026-11-20",
   "splits": []
  },
  "TXMD": {
@@ -9872,7 +9893,7 @@
   "splits": []
  },
  "UNIT": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2025-08-04",
@@ -10097,7 +10118,7 @@
   "splits": []
  },
  "VICR": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "VIPS": {
@@ -10194,7 +10215,7 @@
   "splits": []
  },
  "VPG": {
-  "fetched": "2026-11-13",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "VRAYQ": {
@@ -10219,7 +10240,7 @@
   "splits": []
  },
  "VRM": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "VRRM": {
@@ -10374,7 +10395,7 @@
   "splits": []
  },
  "WDC": {
-  "fetched": "2026-11-16",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2025-02-24",
@@ -10608,7 +10629,7 @@
   "splits": []
  },
  "WYFI": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "WYNN": {
@@ -10637,7 +10658,7 @@
   ]
  },
  "XGN": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "XJQCX": {
@@ -10667,7 +10688,7 @@
   "splits": []
  },
  "XNDU": {
-  "fetched": "2026-11-19",
+  "fetched": "2026-11-20",
   "splits": []
  },
  "XOM": {
@@ -10810,7 +10831,7 @@
   ]
  },
  "ZH": {
-  "fetched": "2026-10-25",
+  "fetched": "2026-11-20",
   "splits": [
    {
     "date": "2024-05-10",
