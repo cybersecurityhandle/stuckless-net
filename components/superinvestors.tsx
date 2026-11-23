@@ -28,6 +28,7 @@ import {
   portfolioImpact,
   splitFactorSince,
   type ChangeType,
+  type DailyHoldingsJson,
   type HistoryPosition,
   type HistoryQuarter,
   type LatestHoldingsJson,
@@ -1007,6 +1008,11 @@ function StyleStrip({
 /* ── Manager ───────────────────────────────────── */
 
 // Managers whose company has an "everything it owns" page
+// A manager whose own fund posts daily holdings (13F: US stocks only)
+const DAILY_VIA: Record<string, { id: string; label: string }> = {
+  pabrai: { id: "pabrai-wagons", label: "Daily holdings via his ETF" },
+};
+
 const COMPANY_PAGES: Record<string, { href: string; label: string }> = {
   buffett: { href: "/berkshire", label: "Everything Berkshire owns" },
   gayner: { href: "/markel", label: "Everything Markel owns" },
@@ -1098,8 +1104,10 @@ function ManagerView({
     [latest, summary.id]
   );
   const [history, setHistory] = useState<ManagerHistoryJson | null>(null);
+  const [daily, setDaily] = useState<DailyHoldingsJson | null>(null);
   const [error, setError] = useState(false);
-  const [qi, setQi] = useState(0);
+  // -1 = the fund's daily holdings, when it has a file newer than its N-PORT
+  const [qi, setQi] = useState(-1);
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("holdings");
 
   // Mounted with key={id}, so state starts fresh per manager
@@ -1108,15 +1116,33 @@ function ManagerView({
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((d: ManagerHistoryJson) => setHistory(d))
       .catch(() => setError(true));
+    if (MANAGERS.find((m) => m.id === summary.id)?.daily) {
+      fetch(`/superinvestors/${summary.id}-daily.json`)
+        .then((res) => (res.ok ? res.json() : Promise.reject()))
+        .then((d: DailyHoldingsJson) => setDaily(d))
+        .catch(() => {}); // the N-PORT history still shows
+    }
   }, [summary.id]);
 
-  const q = history?.quarters[qi];
-  const prev = history?.quarters[qi + 1];
+  const hasDaily = !!(daily && history?.quarters.length && daily.asOf > history.quarters[0].period);
+  const live = hasDaily && qi === -1;
+  const hq = Math.max(qi, 0);
+  // The daily period sits on top of the N-PORT quarters, with its new
+  // holdings' names, so the holdings table and position charts include it
+  const shown = useMemo(
+    () =>
+      history && daily && hasDaily
+        ? { ...history, securities: { ...history.securities, ...daily.securities }, quarters: [daily.quarter, ...history.quarters] }
+        : history,
+    [history, daily, hasDaily]
+  );
+  const q = live ? daily!.quarter : history?.quarters[hq];
+  const prev = live ? history?.quarters[0] : history?.quarters[hq + 1];
   const longs = q?.positions.filter((p) => !p.k.includes("|")) ?? [];
   // Company level, share classes combined (Spier: BRK-A + BRK-B is one stock)
   const byIssuer = new Map<string, number>();
   for (const p of longs) {
-    const key = issuerKey(p.k, history?.securities[p.k]);
+    const key = issuerKey(p.k, shown?.securities[p.k]);
     byIssuer.set(key, (byIssuer.get(key) ?? 0) + p.v);
   }
   const issuerValues = [...byIssuer.values()].sort((a, b) => b - a);
@@ -1128,11 +1154,16 @@ function ManagerView({
           "Period",
           <select
             key="period"
-            value={qi}
+            value={hasDaily ? qi : hq}
             onChange={(e) => setQi(Number(e.target.value))}
             aria-label="Period"
             className="-ml-1.5 h-7 cursor-pointer rounded-md border border-border bg-background px-1.5 font-semibold hover:bg-muted"
           >
+            {hasDaily && (
+              <option value={-1} className="bg-card">
+                Daily
+              </option>
+            )}
             {history!.quarters.map((x, i) => (
               <option key={x.period} value={i} className="bg-card">
                 {fmtQuarter(x.period)}
@@ -1141,7 +1172,14 @@ function ManagerView({
           </select>,
         ],
         ["Portfolio date", fmtDate(q.period)],
-        ["Filed", fmtDate(q.filed)],
+        live
+          ? [
+              "Source",
+              <a key="source" href={daily!.source} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                Fund site ↗
+              </a>,
+            ]
+          : ["Filed", fmtDate(q.filed)],
         ["No. of stocks", byIssuer.size],
         ["Portfolio value", fmtMoney(q.total)],
         ["Top 10", fmtPct(top10)],
@@ -1157,12 +1195,17 @@ function ManagerView({
           {summary.firm && <span className="font-normal text-muted-foreground"> — {summary.firm}</span>}
         </h2>
         <span className="flex flex-wrap items-baseline gap-x-4 text-xs">
+          {DAILY_VIA[summary.id] && index.managers.some((m) => m.id === DAILY_VIA[summary.id].id) && (
+            <button onClick={() => onSelect(DAILY_VIA[summary.id].id)} className="text-emerald-400 hover:underline">
+              {DAILY_VIA[summary.id].label} →
+            </button>
+          )}
           {COMPANY_PAGES[summary.id] && (
             <Link href={COMPANY_PAGES[summary.id].href} className="text-emerald-400 hover:underline">
               {COMPANY_PAGES[summary.id].label} →
             </Link>
           )}
-          {q && (
+          {q && !live && (
             <a
               href={filingUrl(q.cik, q.accession)}
               target="_blank"
@@ -1189,6 +1232,14 @@ function ManagerView({
               </div>
             ))}
           </dl>
+          {live && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Every holding as the fund posted it for {fmtDate(daily!.asOf)} (the prior close). Buys and sells are since the{" "}
+              {fmtQuarter(daily!.base)} N-PORT, net of money flowing into the fund: shares grew{" "}
+              {signedPct((daily!.quarter.flow ?? 1) - 1, 0)} since, so a stock held at the same share count shrank as a share
+              of the fund. Activity and History use the quarterly N-PORTs.
+            </p>
+          )}
           <StyleStrip summary={summary} index={index} onSelect={onSelect} />
 
           <div className="mt-6 mb-4 flex gap-5 border-b border-border">
@@ -1211,11 +1262,11 @@ function ManagerView({
             <>
               <HoldingsTab
                 key={q.period}
-                history={history}
+                history={shown!}
                 q={q}
                 prev={prev}
-                quotes={qi === 0 ? quotes : null}
-                positions={qi === 0 ? positions : null}
+                quotes={qi <= 0 ? quotes : null}
+                positions={qi <= 0 ? positions : null}
                 splits={splits}
               />
               <OutsideHoldings id={summary.id} today={latest.updated} />

@@ -38,6 +38,7 @@ const DATASETS: Dataset[] = [
     read: (d) => ({ date: (d.updated as string) ?? null, detail: `filings through ${d.to as string}` }),
   },
   { name: "Superinvestor Form 4s + 13D/13G", url: "/superinvestors/realtime.json", job: "refresh-insiders", maxAgeDays: 3, read: updated },
+  { name: "Pabrai Wagons ETF daily holdings", url: "/superinvestors/pabrai-wagons-daily.json", job: "refresh-wagn", maxAgeDays: 4, read: (d) => ({ date: (d.updated as string) ?? null, detail: d.asOf ? `holdings of ${d.asOf}` : undefined }) },
   { name: "Copycat backtest", url: "/superinvestors/backtest.json", job: "refresh-backtest", maxAgeDays: 8, read: updated },
   { name: "Isolation vs performance", url: "/superinvestors/isolation.json", job: "refresh-isolation", maxAgeDays: 8, read: updated },
   { name: "Portfolio five factors", url: "/superinvestors/fivefactor.json", job: "refresh-fivefactor", maxAgeDays: 8, read: updated },

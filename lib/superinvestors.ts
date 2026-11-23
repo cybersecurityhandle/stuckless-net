@@ -16,6 +16,9 @@ export interface Manager {
   // list every holding, non-US listings included, quarterly ~60 days after
   // quarter end. `ciks` is then the trust that files them.
   nport?: string[];
+  // Also has a daily holdings file from the issuer's site
+  // (public/superinvestors/{id}-daily.json, scripts/refresh-wagn.ts)
+  daily?: boolean;
   favorite?: boolean; // "my picks" — pinned in the UI and the default consensus
 }
 
@@ -95,6 +98,7 @@ export const MANAGERS: Manager[] = [
     firm: "WAGN · Mohnish Pabrai",
     ciks: [811030],
     nport: ["S000098509", "S000081831"],
+    daily: true,
     favorite: true,
   },
   { id: "muhlenkamp", name: "Muhlenkamp", firm: "", ciks: [1133219] },
@@ -472,6 +476,25 @@ export interface ManagerHistoryJson {
   // By CUSIP: ticker, issuer as filed, class, display name
   securities: Record<string, { t: string | null; n: string; cl: string; d: string }>;
   quarters: HistoryQuarter[]; // newest first
+}
+
+/* ── superinvestors/{id}-daily.json ────────────── */
+
+// An ETF's own daily holdings file, shaped as one more period on top of its
+// quarterly N-PORT history. Kept out of the history file: the backtest,
+// consensus and map all assume quarter-end periods.
+export interface DailyHoldingsJson {
+  updated: string; // when the file was fetched, ISO
+  asOf: string; // the issuer's holdings date, YYYY-MM-DD
+  source: string; // issuer page the file comes from
+  base: string; // N-PORT period the changes are measured against
+  baseNetAssets: number; // the fund's size in that N-PORT, for sizing flows since
+  netAssets: number;
+  nav: number;
+  sharesOutstanding: number;
+  // Holdings the history file has never seen (keys are CUSIPs or SEDOLs)
+  securities: ManagerHistoryJson["securities"];
+  quarter: HistoryQuarter; // period = asOf; accession "" (not an EDGAR filing)
 }
 
 /* ── Display names ─────────────────────────────── */
