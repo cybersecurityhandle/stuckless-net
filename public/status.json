@@ -1,36 +1,36 @@
 {
  "refresh-backtest": {
-  "ranAt": "2026-11-25T23:01:46.986Z",
+  "ranAt": "2026-11-26T22:49:45.282Z",
   "ok": true,
   "summary": "85 managers backtested",
-  "seconds": 13
+  "seconds": 11
  },
  "refresh-13f": {
-  "ranAt": "2026-11-25T22:38:01.668Z",
+  "ranAt": "2026-11-26T22:36:14.907Z",
   "ok": true,
   "summary": "85 managers",
-  "seconds": 144
+  "seconds": 142
  },
  "refresh-fivefactor": {
-  "ranAt": "2026-11-25T23:02:47.862Z",
+  "ranAt": "2026-11-26T22:50:22.974Z",
   "ok": true,
   "summary": "7 managers decomposed",
-  "seconds": 47
+  "seconds": 25
  },
  "refresh-insiders": {
-  "ranAt": "2026-11-25T23:01:33.801Z",
+  "ranAt": "2026-11-26T22:49:33.603Z",
   "ok": true,
-  "summary": "1276 insider buys, 8 superinvestor trades, 73 stakes",
-  "seconds": 1411
+  "summary": "1324 insider buys, 8 superinvestor trades, 72 stakes",
+  "seconds": 797
  },
  "refresh-isolation": {
-  "ranAt": "2026-11-25T23:02:00.377Z",
+  "ranAt": "2026-11-26T22:49:57.487Z",
   "ok": true,
   "summary": "84 managers, 861 manager-years, r=-0.061",
-  "seconds": 13
+  "seconds": 12
  },
  "refresh-tss": {
-  "ranAt": "2026-11-25T23:02:57.626Z",
+  "ranAt": "2026-11-26T22:50:32.569Z",
   "ok": true,
   "summary": "158 TSS acquisitions",
   "seconds": 9
@@ -42,9 +42,9 @@
   "seconds": 167
  },
  "refresh-wagn": {
-  "ranAt": "2026-11-25T22:38:02.606Z",
+  "ranAt": "2026-11-26T22:36:15.705Z",
   "ok": true,
-  "summary": "WAGN 2026-11-25: 20 stocks, 5 changed since the 2026-09-30 N-PORT",
+  "summary": "WAGN 2026-11-27: 20 stocks, 5 changed since the 2026-09-30 N-PORT",
   "seconds": 0
  }
 }
