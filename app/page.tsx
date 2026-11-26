@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield, TrendingUp, User, Code, BarChart3, Cake } from "lucide-react";
+import { Shield, TrendingUp, User, Code, BarChart3, Cake, KeyRound } from "lucide-react";
 
 const ASCII_ART = [
   "  ___  _____  _  _  ___  _  _ _    ___  ___  ___ ",
@@ -35,6 +35,14 @@ const cards = [
     href: "/finance",
     icon: TrendingUp,
     status: "ACTIVE",
+  },
+  {
+    title: "/identitygate",
+    description: "// AI identity & access for agents",
+    href: "https://identitygate.ca",
+    icon: KeyRound,
+    status: "LIVE",
+    wide: true,
   },
   {
     title: "/screener",
@@ -164,7 +172,7 @@ export default function Home() {
 
             if (isLocked) return <div key={card.title}>{inner}</div>;
             return (
-              <Link key={card.title} href={card.href}>
+              <Link key={card.title} href={card.href} className={"wide" in card && card.wide ? "sm:col-span-2" : undefined}>
                 {inner}
               </Link>
             );

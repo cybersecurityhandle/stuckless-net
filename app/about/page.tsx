@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 const DESCRIPTION =
-  "Daniel Stuckless: security engineer and pentester, founder of CyberLegionnaire. Security monitoring and defence for regulated financial clients; open-source security tools.";
+  "Daniel Stuckless: security engineer and pentester, founder of CyberLegionnaire and co-founder of IdentityGate (identity and access for AI agents). Security monitoring for regulated financial clients; open-source security tools.";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/about" },
@@ -18,15 +18,21 @@ export const metadata: Metadata = {
 };
 
 const WHOAMI = "Daniel Stuckless";
-const TAGLINE = "security engineer & pentester · Canada";
+const TAGLINE = "security engineer & pentester · AI identity · Canada";
 
 const BIO = [
   "Founder of CyberLegionnaire, a security practice covering defence, offence and advisory.",
+  "Co-founder of IdentityGate: identity and access for AI agents. Each agent gets its own identity, least-privilege scopes, managed credentials and regular access reviews, across Entra ID, Claude and MCP.",
   "Clients include a financial regulatory firm and a REIT operating under Ontario Securities Commission requirements: security monitoring, defence in depth and staff security awareness.",
   "This site is my personal hub for the tools I actually use.",
 ];
 
 const PROJECTS = [
+  {
+    name: "identitygate",
+    note: "AI identity & access: dedicated agent identities, scoped permissions, credential lifecycle",
+    href: "https://identitygate.ca",
+  },
   {
     name: "wishday",
     note: "open-source Android app that remembers birthdays and sends wishes by SMS or Signal",
@@ -55,13 +61,15 @@ const PROJECTS = [
 ];
 
 const FOCUS = [
+  { area: "ai identity", note: "IAM for AI agents and LLM apps: agent identities, least privilege, human approval gates" },
   { area: "security", note: "detection & monitoring (Wazuh), threat intel, offensive testing" },
   { area: "technology", note: "Python, TypeScript, Terraform; small self-hosted tools" },
   { area: "also", note: "investing: statutory earnings over adjusted; serial acquirers" },
 ];
 
-const NOW_UPDATED = "2026-10";
+const NOW_UPDATED = "2026-11";
 const NOW = [
+  "Launched IdentityGate, an AI identity & access company",
   "Wishday v1.3.2 released; submitted to F-Droid",
   "Working through OSCP-style labs for fun",
   "Reading Mark Leonard's Constellation Software shareholder letters",
@@ -74,6 +82,7 @@ const LINKS = [
   // { label: "linkedin", href: "https://www.linkedin.com/in/...", text: "linkedin.com/in/..." },
   { label: "email", href: "mailto:daniel@cyberlegionnaire.com", text: "daniel@cyberlegionnaire.com" },
   { label: "work", href: "https://cyberlegionnaire.com", text: "cyberlegionnaire.com" },
+  { label: "ai iam", href: "https://identitygate.ca", text: "identitygate.ca" },
   // TODO: add résumé PDF to public/ and link it
   // { label: "résumé", href: "/daniel-stuckless-resume.pdf", text: "resume.pdf" },
 ];
@@ -84,9 +93,12 @@ const JSON_LD = {
   name: WHOAMI,
   url: "https://stuckless.net/about",
   jobTitle: "Security Engineer",
-  worksFor: { "@type": "Organization", name: "CyberLegionnaire", url: "https://cyberlegionnaire.com" },
-  sameAs: LINKS.filter((l) => l.href.startsWith("http") && l.label !== "work").map((l) => l.href),
-  knowsAbout: ["Security monitoring", "Wazuh", "Threat intelligence", "Penetration testing", "Terraform"],
+  worksFor: [
+    { "@type": "Organization", name: "CyberLegionnaire", url: "https://cyberlegionnaire.com" },
+    { "@type": "Organization", name: "IdentityGate", url: "https://identitygate.ca" },
+  ],
+  sameAs: LINKS.filter((l) => l.href.startsWith("http") && l.label !== "work" && l.label !== "ai iam").map((l) => l.href),
+  knowsAbout: ["AI agent identity", "Identity and access management", "LLM security", "Security monitoring", "Wazuh", "Threat intelligence", "Penetration testing", "Terraform"],
 };
 
 function Prompt({ cmd }: { cmd: string }) {
